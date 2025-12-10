@@ -1,0 +1,19 @@
+---
+title: Webhooks and notifications
+description: Learn about webhook notifications for transactions
+---
+
+## How will we know when a payment is received?
+
+We'll notify you via **webhooks** for all successful collections, regardless of the method used — Interac, bank transfer, card payment, or Open Banking.
+
+We'll also notify you when a transaction (payout) is initiated. This is very useful for CAD payouts where you need the Interac question and answer before the payment is completed.
+
+## What information is included in the webhook?
+
+The webhook payload includes transaction details such as:
+
+- Sender's information (where available)
+- Amount
+- Transaction reference
+- Status
