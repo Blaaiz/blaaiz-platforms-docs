@@ -109,7 +109,8 @@
           {
             "group": "Transaction",
             "pages": [
-              "api-reference/transaction/get"
+              "api-reference/transaction/get",
+              "api-reference/transaction/list"
             ]
           },
           {
@@ -118,14 +119,20 @@
               "api-reference/customer/create",
               "api-reference/customer/list",
               "api-reference/customer/get",
-              "api-reference/customer/update"
+              "api-reference/customer/update",
+              "api-reference/customer/add-kyc",
+              "api-reference/customer/upload-files",
+              "api-reference/customer/list-beneficiaries",
+              "api-reference/customer/get-beneficiary"
             ]
           },
           {
             "group": "Webhook",
             "pages": [
               "api-reference/webhook/register",
-              "api-reference/webhook/get"
+              "api-reference/webhook/get",
+              "api-reference/webhook/update",
+              "api-reference/webhook/replay"
             ]
           }
         ]
