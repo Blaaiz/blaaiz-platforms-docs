@@ -1,0 +1,36 @@
+---
+title: Authentication
+description: Learn how to authenticate your API requests
+---
+
+Blaaiz RaaS uses API keys for authentication/authorization of all API requests. After generating your API key (as described in the Getting Started section), you must include it in the headers of every API request.
+
+The API key should be included as a header named `x-blaaiz-api-key` in every request you send. Failure to include the API key or using an incorrect one will result in an authentication error.
+
+```json
+x-blaaiz-api-key: YOUR_API_KEY_HERE
+```
+
+## Authentication errors
+
+Blaaiz RaaS API provides specific error messages for authentication issues:
+
+### 401 Unauthorized
+
+- The API key is missing.
+- The API key is malformed or improperly formatted.
+
+<Note>
+Ensure that the API key is correctly included in your request headers.
+</Note>
+
+### 403 Access Denied
+
+This error occurs in the following cases:
+
+- The API key is valid but its status is inactive.
+- Your access to the API services has been disabled by Blaaiz.
+
+<Warning>
+Make sure that your API key is active and your account is properly set up for API service access to avoid these errors.
+</Warning>
