@@ -1,0 +1,62 @@
+---
+title: Collections overview
+description: Understanding collections and how to attach customers to transactions
+---
+
+Collections are slightly different as they can be triggered by external sources, such as payments through Interac for Canadian Dollars (CAD) or virtual accounts for Nigerian Naira (NGN).
+
+After receiving a confirmed transaction via webhook, you can attach a customer to the collection using the following steps.
+
+<Note>
+For CAD collections, you must have added an Interac email (e.g. `support@blaaiz.com`) via the Blaaiz dashboard. Without this, funds will not reflect in your wallet.
+</Note>
+
+## Attach a customer to the collection
+
+Once a collection transaction is confirmed, you'll need to associate it with a customer.
+
+- **Endpoint**: `/collection`
+- **Request**: Provide the `customer_id` and `transaction_id` to associate a customer with the collection transaction.
+- **Purpose**: This allows the transaction to be linked with a customer, ensuring the proper attribution of funds.
+
+## Fees breakdown endpoint
+
+The request payload allows you to initiate a transfer between two currencies. The `from_currency_id` represents the originating currency, and `to_currency_id` represents the currency the recipient will receive. In cases where you're sending the same currency (e.g. NGN to NGN), both `from_currency_id` and `to_currency_id` should be set to `NGN`.
+
+- `from_amount`: The amount you want to send from your wallet.
+- `to_amount`: Used when you want the recipient to receive an **exact amount**, regardless of fees.
+
+### Example
+
+If you want to send **₦500** from your wallet, set the `from_amount` to `500`. The system will calculate the total amount to deduct from your balance, including any fees. If you set the `to_amount` instead, the system calculates how much to deduct so the recipient receives the exact amount you specified **after** fees.
+
+## Response details
+
+The response provides detailed information about how the transaction will be processed.
+
+- **Payout Method**: You can choose a method, such as `BANK_TRANSFER` for NGN or `INTERAC` for CAD.
+- **payout_fees Section**:
+  - `recipient_gets`: The final amount the recipient will receive after all fees.
+  - `total_fees`: The total applicable fees (platform + method-specific).
+
+### Fee breakdown terms
+
+- `you_send`: Total amount deducted from your wallet (includes transaction fees).
+- `total_amount_to_send`: The amount you're sending to the recipient.
+- `recipient_gets`: Final amount the recipient receives after fees.
+
+For **same-currency transactions** (e.g. NGN → NGN):
+
+- If no fees apply: `you_send`, `total_amount_to_send`, and `recipient_gets` will be the same.
+- If fees apply: `you_send` will differ, while `total_amount_to_send` and `recipient_gets` remain the same.
+
+For **multi-currency transactions** (e.g. CAD → NGN):
+
+- Values will differ based on the exchange rate.
+- `you_send` will reflect the amount in CAD.
+- `recipient_gets` will reflect the Naira equivalent.
+- The exchange rate used is included in the response for transparency.
+
+This response helps you understand the costs associated with each transaction method and gives you control over how much you send or how much the recipient receives.
+
+If you need further assistance, please contact [support@blaaiz.com](mailto:support@blaaiz.com).

@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Blaaiz",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -16,33 +16,26 @@
           {
             "group": "Getting started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "guides/getting-started",
+              "guides/getting-started-guide",
+              "guides/authentication",
+              "guides/rate-limits",
+              "guides/api-parameters",
+              "guides/creating-first-payout",
+              "guides/collections-overview",
+              "guides/sdks"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Frequently asked questions",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "faq/wallet-collection-basics",
+              "faq/collection-methods",
+              "faq/virtual-bank-accounts",
+              "faq/fees-and-processing",
+              "faq/webhooks-and-notifications",
+              "faq/payment-links",
+              "faq/api-integration"
             ]
           }
         ]
@@ -51,18 +44,9 @@
         "tab": "API reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/overview"
             ]
           }
         ]
@@ -71,14 +55,14 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Dashboard",
+          "href": "https://business.blaaiz.com",
+          "icon": "gauge"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Support",
+          "href": "mailto:support@blaaiz.com",
+          "icon": "envelope"
         }
       ]
     }
@@ -91,13 +75,13 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@blaaiz.com"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "href": "https://business.blaaiz.com"
     }
   },
   "contextual": {
@@ -114,9 +98,9 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/blaaiz",
+      "github": "https://github.com/blaaiz",
+      "linkedin": "https://linkedin.com/company/blaaiz"
     }
   }
 }

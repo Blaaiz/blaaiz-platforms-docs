@@ -1,0 +1,44 @@
+---
+title: API reference
+description: Complete API reference for Blaaiz RaaS
+---
+
+Welcome to the Blaaiz RaaS API reference documentation. This section provides detailed information about all available API endpoints, request/response formats, and integration examples.
+
+## Base URL
+
+```
+https://api-dev.blaaiz.com
+```
+
+## Authentication
+
+All API requests require authentication using your API key. Include your API key in the request headers:
+
+```
+x-blaaiz-api-key: YOUR_API_KEY_HERE
+```
+
+## Available endpoints
+
+The Blaaiz RaaS API provides the following endpoint categories:
+
+- **Virtual Bank Account** - Create and manage virtual bank accounts for collections
+- **Bank** - Retrieve bank information and perform account lookups
+- **Payout** - Initiate payouts to customers
+- **Fees** - Get fee breakdowns for transactions
+- **Currency** - Retrieve supported currencies
+- **Wallet** - Manage your business wallets
+- **Collection** - Initiate and manage collections
+- **File** - Upload customer documents
+- **Transaction** - List and retrieve transaction details
+- **Customer** - Create and manage customers and their KYC data
+- **Webhook** - Configure and manage webhook URLs
+
+## Response format
+
+All API responses are returned in JSON format. Successful responses will include the requested data, while error responses will include a `message` key with details about the error.
+
+## Rate limits
+
+All endpoints are rate limited to **100 requests per minute**. See [Rate and usage limits](/guides/rate-limits) for more details.

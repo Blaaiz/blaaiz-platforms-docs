@@ -1,0 +1,53 @@
+---
+title: Creating your first payout
+description: Step-by-step guide to creating your first payout
+---
+
+## Payout process
+
+To help you get started with the payout process, we'll walk through the steps of creating your first payout using our API. We'll assume that you have completed the onboarding process, been whitelisted for API services, received your API key, and set up your webhooks for both collections and payouts. The following steps will guide you through the payout process:
+
+### Step 1: Create a customer
+
+Before you can make any payouts, you need to associate them with a customer. Every payout (and collection) must be linked to a customer in the system.
+
+- **Endpoint**: `/customer`
+- **Purpose**: This endpoint bootstraps the customer record in our system.
+- **Status**: When a customer is first created, their status will be marked as `"pending"`.
+
+Make sure to save the `customer_id` returned from this endpoint as you'll need it in future steps.
+
+### Step 2: Upload documents for the customer
+
+Once you have created the customer, the next step is to upload documents to verify their identity. The customer will remain in a `"pending"` state until their documents (especially `id_file`) are uploaded and verified.
+
+#### 2.1 Request pre-signed URLs for document upload
+
+- **Endpoint**: `/file`
+- **Purpose**: Provides a pre-signed URL that allows you to upload documents for the customer.
+- **Request**: Specify the `customer_id` and the `file_category` (e.g. `identity`, `proof_of_address`, `liveness_check`).
+- **Response**: You'll receive a URL, a set of headers, and a `file_id`. The URL is where you will upload the actual document.
+
+#### 2.2 Upload the document
+
+- **Method**: Use the pre-signed URL to upload the document.
+- **Request**: Perform a `PUT` request to the pre-signed URL, uploading the document as a binary file using the URL and headers provided.
+
+Repeat this process for each required document.
+
+#### 2.3 Add files to the customer
+
+After uploading the documents, you'll need to associate the uploaded documents with the customer using the `file_id` returned in the previous step.
+
+- **Endpoint**: `/customer`
+- **Request**: Pass the `customer_id` as a URL parameter, then include the `file_id` for each document in the request body.
+- **Purpose**: Updates the customer by attaching the uploaded files to their profile. Once the files are successfully added, the customer status will change to `"verified"`.
+
+### Step 3: Create a payout
+
+Now that the customer is verified, you can proceed to create a payout.
+
+- **Endpoint**: `/payout`
+- **Purpose**: Initiate a payout associated with the verified customer.
+
+That's all you need!

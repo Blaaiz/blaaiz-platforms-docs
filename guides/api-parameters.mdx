@@ -1,0 +1,42 @@
+---
+title: API parameters
+description: Common parameters used across Blaaiz API endpoints
+---
+
+## Request parameters
+
+While interacting with our API, you may encounter specific parameters in the request body for various endpoints. Below are key parameters and their possible values.
+
+### Method
+
+The `method` parameter appears in the **Payout API** when initiating a payout. It represents the channel through which the money will be sent.
+
+- `bank_transfer` – Sends the payout via bank transfer.
+- `interac` – Sends the payout using Interac (available for CAD transactions).
+
+Use either of these values depending on which provider you want to use for the virtual account creation process.
+
+### File category
+
+The `file_category` parameter appears in the **File API** when requesting a pre-signed URL for upload. It represents the type of file you want to upload.
+
+- `identity` – Identity. Required to verify a customer.
+- `proof_of_address` – Proof of address.
+- `liveness_check` – Liveness check.
+
+### Id type
+
+The `id_type` parameter appears in the **Customer API** when creating a new customer. It represents the type of identity file for the customer.
+
+- `drivers_license` – Driver's License.
+- `passport` – Passport.
+- `id_card` – National Identity.
+- `resident_permit` – Resident Permit.
+- `certificate_of_incorporation` – Certificate of Incorporation (for business).
+
+### Customer type
+
+The `type` parameter appears in the **Customer API** when creating a new customer. It represents the type of customer to be created, i.e. individual or business.
+
+- `individual` – Individual.
+- `business` – Business.
