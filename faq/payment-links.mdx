@@ -1,0 +1,23 @@
+---
+title: Payment links and redirections
+description: Understanding when and how to use payment links
+---
+
+## When do we need to use payment links in the collection process?
+
+Payment links are used for collection methods that require customer interaction:
+
+- NGN card collections
+- USD collections
+- EUR/GBP collections via Open Banking
+
+Push mechanisms like **Interac (CAD)** and **virtual bank accounts (NGN)** do not require payment links.
+
+## How does the payment link flow work?
+
+When you initiate a collection through our API for any of the methods listed above:
+
+1. We return a `payment_url` in the API response.
+2. You redirect your customer to this URL to complete the transaction.
+3. After completion, the customer's browser will either close or redirect, depending on your configuration.
+4. We notify you of the successful payment via webhook.
