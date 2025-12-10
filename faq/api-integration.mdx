@@ -1,0 +1,25 @@
+---
+title: API integration
+description: Common questions about integrating with the Blaaiz API
+---
+
+## What are the required parameters for the collection API?
+
+The collection API requires the following parameters:
+
+- `method` - The collection method (e.g., `"card"`, `"bank_transfer"`)
+- `amount` - The total amount including all applicable fees
+- `customer_id` - The unique identifier created via the Customer API
+- `wallet_id` - Your business wallet ID for the specific currency
+- `phone_number` - Required for certain collection methods
+
+Always consult the API documentation for the specific requirements of each collection method, as they may vary.
+
+## Do we need to implement all collection methods?
+
+No, you only need to implement the collection methods that correspond to your supported currencies.
+
+For example:
+
+- If your business only handles CAD and NGN transactions, you don't need to implement the Open Banking flow used for EUR/GBP transactions
+- You can choose to implement only the specific collection methods that align with your business needs and supported currencies
