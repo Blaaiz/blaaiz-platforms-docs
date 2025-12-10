@@ -1,0 +1,141 @@
+---
+title: Upload files
+description: Upload verification files for a customer.
+---
+
+This endpoint allows you to upload files for a customer.
+
+The value of each parameter in the request body is the `file_id` record returned when you request a pre-signed URL to upload.
+
+<Note>
+- Newly uploaded files will override the previous record.
+- The `id_file` must be uploaded for the customer to be VERIFIED.
+</Note>
+
+## Endpoint
+
+```
+POST /api/external/customer/{id}/files
+```
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the customer.
+</ParamField>
+
+## Headers
+
+<ParamField header="Accept" type="string" default="application/json">
+  Content type header.
+</ParamField>
+
+<ParamField header="x-blaaiz-api-key" type="string" required>
+  Your API key for authentication.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="id_file" type="string">
+  File ID for the identity document (required for verification).
+</ParamField>
+
+<ParamField body="liveness_check_file" type="string">
+  File ID for the liveness check.
+</ParamField>
+
+<ParamField body="proof_of_address_file" type="string">
+  File ID for the proof of address document.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Success message.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Updated customer object.
+  
+  <Expandable title="Customer object">
+    <ResponseField name="id" type="string">
+      Unique identifier for the customer.
+    </ResponseField>
+    
+    <ResponseField name="business_id" type="string">
+      Business identifier.
+    </ResponseField>
+    
+    <ResponseField name="first_name" type="string">
+      Customer's first name.
+    </ResponseField>
+    
+    <ResponseField name="last_name" type="string">
+      Customer's last name.
+    </ResponseField>
+    
+    <ResponseField name="business_name" type="string">
+      Business name (if applicable).
+    </ResponseField>
+    
+    <ResponseField name="type" type="string">
+      Customer type (individual or business).
+    </ResponseField>
+    
+    <ResponseField name="email" type="string">
+      Customer's email address.
+    </ResponseField>
+    
+    <ResponseField name="country" type="string">
+      Customer's country code.
+    </ResponseField>
+    
+    <ResponseField name="id_type" type="string">
+      Type of identification document.
+    </ResponseField>
+    
+    <ResponseField name="id_number" type="string">
+      Identification number.
+    </ResponseField>
+    
+    <ResponseField name="verification_status" type="string">
+      Customer verification status (will be VERIFIED after uploading id_file).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api-dev.blaaiz.com/api/external/customer/{id}/files \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'x-blaaiz-api-key: YOUR_API_KEY' \
+  --data '{
+    "id_file": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+    "liveness_check_file": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+    "proof_of_address_file": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "message": "Files uploaded successfully.",
+  "data": {
+    "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+    "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+    "first_name": "John",
+    "last_name": "Doe",
+    "business_name": null,
+    "type": "individual",
+    "email": "john.doe@company.com",
+    "country": "NG",
+    "id_type": "passport",
+    "id_number": "6733823632872",
+    "verification_status": "VERIFIED"
+  }
+}
+```
+</ResponseExample>

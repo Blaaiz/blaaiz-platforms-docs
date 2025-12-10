@@ -85,13 +85,19 @@
           {
             "group": "Wallet",
             "pages": [
-              "api-reference/wallet/list"
+              "api-reference/wallet/list",
+              "api-reference/wallet/get-single"
             ]
           },
           {
             "group": "Collection",
             "pages": [
-              "api-reference/collection/create"
+              "api-reference/collection/create",
+              "api-reference/collection/initiate",
+              "api-reference/collection/attach-customer",
+              "api-reference/collection/accept-interac",
+              "api-reference/collection/initiate-crypto",
+              "api-reference/collection/get-crypto-networks"
             ]
           },
           {
@@ -103,7 +109,8 @@
           {
             "group": "Transaction",
             "pages": [
-              "api-reference/transaction/get"
+              "api-reference/transaction/get",
+              "api-reference/transaction/list"
             ]
           },
           {
@@ -112,14 +119,20 @@
               "api-reference/customer/create",
               "api-reference/customer/list",
               "api-reference/customer/get",
-              "api-reference/customer/update"
+              "api-reference/customer/update",
+              "api-reference/customer/add-kyc",
+              "api-reference/customer/upload-files",
+              "api-reference/customer/list-beneficiaries",
+              "api-reference/customer/get-beneficiary"
             ]
           },
           {
             "group": "Webhook",
             "pages": [
               "api-reference/webhook/register",
-              "api-reference/webhook/get"
+              "api-reference/webhook/get",
+              "api-reference/webhook/update",
+              "api-reference/webhook/replay"
             ]
           }
         ]
