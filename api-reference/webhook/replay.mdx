@@ -1,0 +1,55 @@
+---
+title: Replay webhook
+description: Trigger a webhook on demand for any successful transaction.
+---
+
+This endpoint allows you to trigger (on demand) a webhook for any successful transaction (payout or collection).
+
+## Endpoint
+
+```
+POST /api/external/webhook-replay
+```
+
+## Headers
+
+<ParamField header="Accept" type="string" default="application/json">
+  Content type header.
+</ParamField>
+
+<ParamField header="x-blaaiz-api-key" type="string" required>
+  Your API key for authentication.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="transaction_id" type="string" required>
+  The unique identifier of the transaction to replay.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Success message.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api-dev.blaaiz.com/api/external/webhook-replay \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'x-blaaiz-api-key: YOUR_API_KEY' \
+  --data '{
+    "transaction_id": "fb87c0f8-31e3-46f3-b0d3-1ff2618565bc"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "message": "Webhook replayed successfully"
+}
+```
+</ResponseExample>
