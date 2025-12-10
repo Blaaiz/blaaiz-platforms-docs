@@ -1,0 +1,188 @@
+---
+title: Register webhook URLs
+description: Configure webhook URLs to receive event notifications
+api: POST /api/external/webhook
+---
+
+Register webhook URLs to receive real-time notifications about transaction events, customer updates, and other important activities.
+
+## Headers
+
+<ParamField header="x-blaaiz-api-key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+## Body Parameters
+
+<ParamField body="payout_url" type="string">
+  URL to receive payout event notifications
+</ParamField>
+
+<ParamField body="collection_url" type="string">
+  URL to receive collection event notifications
+</ParamField>
+
+<ParamField body="customer_url" type="string">
+  URL to receive customer event notifications
+</ParamField>
+
+<ParamField body="virtual_account_url" type="string">
+  URL to receive virtual account event notifications
+</ParamField>
+
+<Note>
+All webhook URLs must be HTTPS endpoints. Blaaiz will send POST requests to these URLs with event data.
+</Note>
+
+## Response
+
+<ResponseField name="status" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The registered webhook configuration
+  
+  <Expandable title="Webhook configuration">
+    <ResponseField name="payout_url" type="string">
+      Registered payout webhook URL
+    </ResponseField>
+    
+    <ResponseField name="collection_url" type="string">
+      Registered collection webhook URL
+    </ResponseField>
+    
+    <ResponseField name="customer_url" type="string">
+      Registered customer webhook URL
+    </ResponseField>
+    
+    <ResponseField name="virtual_account_url" type="string">
+      Registered virtual account webhook URL
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="string">
+      Timestamp when the webhooks were last updated
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Webhook Events
+
+### Payout Events
+- `payout.initiated` - Payout has been created
+- `payout.processing` - Payout is being processed
+- `payout.completed` - Payout completed successfully
+- `payout.failed` - Payout failed
+
+### Collection Events
+- `collection.initiated` - Collection request created
+- `collection.pending` - Awaiting customer payment
+- `collection.completed` - Payment received successfully
+- `collection.failed` - Payment failed
+
+### Customer Events
+- `customer.created` - New customer created
+- `customer.verified` - Customer KYC verified
+- `customer.rejected` - Customer KYC rejected
+
+### Virtual Account Events
+- `virtual_account.created` - Virtual account created
+- `virtual_account.credited` - Funds received in virtual account
+
+## Webhook Payload Structure
+
+All webhooks include:
+- `event` - The event type
+- `data` - The event data object
+- `timestamp` - When the event occurred
+- `signature` - HMAC signature for verification
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api-dev.blaaiz.com/api/external/webhook \
+  --header 'Content-Type: application/json' \
+  --header 'x-blaaiz-api-key: YOUR_API_KEY' \
+  --data '{
+    "payout_url": "https://yourapp.com/webhooks/payout",
+    "collection_url": "https://yourapp.com/webhooks/collection",
+    "customer_url": "https://yourapp.com/webhooks/customer",
+    "virtual_account_url": "https://yourapp.com/webhooks/virtual-account"
+  }'
+```
+
+```javascript Node.js
+const response = await fetch('https://api-dev.blaaiz.com/api/external/webhook', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-blaaiz-api-key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    payout_url: 'https://yourapp.com/webhooks/payout',
+    collection_url: 'https://yourapp.com/webhooks/collection',
+    customer_url: 'https://yourapp.com/webhooks/customer',
+    virtual_account_url: 'https://yourapp.com/webhooks/virtual-account'
+  })
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+url = "https://api-dev.blaaiz.com/api/external/webhook"
+headers = {
+    "Content-Type": "application/json",
+    "x-blaaiz-api-key": "YOUR_API_KEY"
+}
+payload = {
+    "payout_url": "https://yourapp.com/webhooks/payout",
+    "collection_url": "https://yourapp.com/webhooks/collection",
+    "customer_url": "https://yourapp.com/webhooks/customer",
+    "virtual_account_url": "https://yourapp.com/webhooks/virtual-account"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+data = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 Success
+{
+  "status": true,
+  "message": "Webhook URLs registered successfully",
+  "data": {
+    "payout_url": "https://yourapp.com/webhooks/payout",
+    "collection_url": "https://yourapp.com/webhooks/collection",
+    "customer_url": "https://yourapp.com/webhooks/customer",
+    "virtual_account_url": "https://yourapp.com/webhooks/virtual-account",
+    "updated_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+```json 400 Bad Request
+{
+  "status": false,
+  "message": "Invalid webhook URL format"
+}
+```
+
+```json 401 Unauthorized
+{
+  "status": false,
+  "message": "Invalid or missing API key"
+}
+```
+</ResponseExample>
+
+<Tip>
+Always verify webhook signatures to ensure the requests are genuinely from Blaaiz. The signature is included in the `x-blaaiz-signature` header.
+</Tip>

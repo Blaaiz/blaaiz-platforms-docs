@@ -48,6 +48,79 @@
             "pages": [
               "api-reference/overview"
             ]
+          },
+          {
+            "group": "Virtual bank account",
+            "pages": [
+              "api-reference/virtual-bank-account/list",
+              "api-reference/virtual-bank-account/create",
+              "api-reference/virtual-bank-account/get"
+            ]
+          },
+          {
+            "group": "Bank",
+            "pages": [
+              "api-reference/bank/list",
+              "api-reference/bank/account-lookup"
+            ]
+          },
+          {
+            "group": "Payout",
+            "pages": [
+              "api-reference/payout/create"
+            ]
+          },
+          {
+            "group": "Fees",
+            "pages": [
+              "api-reference/fees/get-breakdown"
+            ]
+          },
+          {
+            "group": "Currency",
+            "pages": [
+              "api-reference/currency/list"
+            ]
+          },
+          {
+            "group": "Wallet",
+            "pages": [
+              "api-reference/wallet/list"
+            ]
+          },
+          {
+            "group": "Collection",
+            "pages": [
+              "api-reference/collection/create"
+            ]
+          },
+          {
+            "group": "File",
+            "pages": [
+              "api-reference/file/create"
+            ]
+          },
+          {
+            "group": "Transaction",
+            "pages": [
+              "api-reference/transaction/get"
+            ]
+          },
+          {
+            "group": "Customer",
+            "pages": [
+              "api-reference/customer/create",
+              "api-reference/customer/list",
+              "api-reference/customer/get",
+              "api-reference/customer/update"
+            ]
+          },
+          {
+            "group": "Webhook",
+            "pages": [
+              "api-reference/webhook/register",
+              "api-reference/webhook/get"
+            ]
           }
         ]
       }

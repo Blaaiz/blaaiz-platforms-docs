@@ -1,0 +1,201 @@
+---
+title: Get transaction
+description: Retrieve details of a specific transaction
+api: GET /api/external/transaction/{id}
+---
+
+Retrieve detailed information about a specific transaction using its unique identifier.
+
+## Headers
+
+<ParamField header="x-blaaiz-api-key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the transaction
+</ParamField>
+
+## Response
+
+<ResponseField name="status" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Response message
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The transaction details
+  
+  <Expandable title="Transaction object">
+    <ResponseField name="id" type="string">
+      Unique identifier for the transaction
+    </ResponseField>
+    
+    <ResponseField name="type" type="string">
+      Transaction type (payout, collection)
+    </ResponseField>
+    
+    <ResponseField name="customer_id" type="string">
+      The customer ID associated with the transaction
+    </ResponseField>
+    
+    <ResponseField name="wallet_id" type="string">
+      The wallet ID involved in the transaction
+    </ResponseField>
+    
+    <ResponseField name="amount" type="number">
+      The transaction amount
+    </ResponseField>
+    
+    <ResponseField name="currency" type="string">
+      The currency code
+    </ResponseField>
+    
+    <ResponseField name="method" type="string">
+      The payment method used
+    </ResponseField>
+    
+    <ResponseField name="status" type="string">
+      Transaction status (pending, processing, completed, failed, cancelled)
+    </ResponseField>
+    
+    <ResponseField name="reference" type="string">
+      Your unique reference for the transaction
+    </ResponseField>
+    
+    <ResponseField name="narration" type="string">
+      Description or note for the transaction
+    </ResponseField>
+    
+    <ResponseField name="fees" type="number">
+      Total fees charged for the transaction
+    </ResponseField>
+    
+    <ResponseField name="recipient_details" type="object">
+      Details of the recipient (for payouts)
+    </ResponseField>
+    
+    <ResponseField name="sender_details" type="object">
+      Details of the sender (for collections)
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="string">
+      Timestamp when the transaction was created
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="string">
+      Timestamp when the transaction was last updated
+    </ResponseField>
+    
+    <ResponseField name="completed_at" type="string">
+      Timestamp when the transaction was completed
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --request GET \
+  --url https://api-dev.blaaiz.com/api/external/transaction/txn_123456789 \
+  --header 'x-blaaiz-api-key: YOUR_API_KEY'
+```
+
+```javascript Node.js
+const response = await fetch('https://api-dev.blaaiz.com/api/external/transaction/txn_123456789', {
+  method: 'GET',
+  headers: {
+    'x-blaaiz-api-key': 'YOUR_API_KEY'
+  }
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+url = "https://api-dev.blaaiz.com/api/external/transaction/txn_123456789"
+headers = {
+    "x-blaaiz-api-key": "YOUR_API_KEY"
+}
+
+response = requests.get(url, headers=headers)
+data = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 Success - Payout
+{
+  "status": true,
+  "message": "Transaction retrieved successfully",
+  "data": {
+    "id": "txn_123456789",
+    "type": "payout",
+    "customer_id": "customer_123",
+    "wallet_id": "wallet_123",
+    "amount": 50000,
+    "currency": "NGN",
+    "method": "bank_transfer",
+    "status": "completed",
+    "reference": "payout_ref_001",
+    "narration": "Payment for services",
+    "fees": 500,
+    "recipient_details": {
+      "account_number": "0123456789",
+      "account_name": "John Doe",
+      "bank_name": "Access Bank"
+    },
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:35:00Z",
+    "completed_at": "2024-01-15T10:35:00Z"
+  }
+}
+```
+
+```json 200 Success - Collection
+{
+  "status": true,
+  "message": "Transaction retrieved successfully",
+  "data": {
+    "id": "txn_987654321",
+    "type": "collection",
+    "customer_id": "customer_456",
+    "wallet_id": "wallet_456",
+    "amount": 25000,
+    "currency": "NGN",
+    "method": "card",
+    "status": "completed",
+    "reference": "collection_ref_001",
+    "narration": "Payment received",
+    "fees": 750,
+    "sender_details": {
+      "email": "jane@example.com",
+      "phone": "+2348012345678"
+    },
+    "created_at": "2024-01-15T09:00:00Z",
+    "updated_at": "2024-01-15T09:05:00Z",
+    "completed_at": "2024-01-15T09:05:00Z"
+  }
+}
+```
+
+```json 404 Not Found
+{
+  "status": false,
+  "message": "Transaction not found"
+}
+```
+
+```json 401 Unauthorized
+{
+  "status": false,
+  "message": "Invalid or missing API key"
+}
+```
+</ResponseExample>
