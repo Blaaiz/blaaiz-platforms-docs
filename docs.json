@@ -85,13 +85,19 @@
           {
             "group": "Wallet",
             "pages": [
-              "api-reference/wallet/list"
+              "api-reference/wallet/list",
+              "api-reference/wallet/get-single"
             ]
           },
           {
             "group": "Collection",
             "pages": [
-              "api-reference/collection/create"
+              "api-reference/collection/create",
+              "api-reference/collection/initiate",
+              "api-reference/collection/attach-customer",
+              "api-reference/collection/accept-interac",
+              "api-reference/collection/initiate-crypto",
+              "api-reference/collection/get-crypto-networks"
             ]
           },
           {
