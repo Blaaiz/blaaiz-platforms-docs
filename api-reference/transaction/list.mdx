@@ -193,6 +193,43 @@ curl --request POST \
     "status": "SUCCESSFUL"
   }'
 ```
+
+```javascript Node.js
+const response = await fetch('https://api-dev.blaaiz.com/api/external/transaction', {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'x-blaaiz-api-key': 'YOUR_API_KEY'
+  },
+  body: JSON.stringify({
+    start_date: '2025-01-01',
+    end_date: '2025-12-31',
+    status: 'SUCCESSFUL'
+  })
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+url = "https://api-dev.blaaiz.com/api/external/transaction"
+headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "x-blaaiz-api-key": "YOUR_API_KEY"
+}
+payload = {
+    "start_date": "2025-01-01",
+    "end_date": "2025-12-31",
+    "status": "SUCCESSFUL"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+data = response.json()
+```
 </RequestExample>
 
 <ResponseExample>
