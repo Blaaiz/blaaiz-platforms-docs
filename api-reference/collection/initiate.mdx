@@ -1,0 +1,93 @@
+---
+title: Initiate collection
+description: Initiate a collection for GBP or EUR using Open Banking.
+---
+
+This endpoint allows you to initiate a collection.
+
+Funding can be done via different methods:
+- `open_banking` - GBP, EUR
+
+<Note>
+**Note for Open Banking:**
+
+The process is very straightforward. This endpoint (when successful) bootstraps the collection and returns a URL as part of the response data; that must be opened on the customer's browser to complete the transaction.
+</Note>
+
+## Endpoint
+
+```
+POST /api/external/collection
+```
+
+## Headers
+
+<ParamField header="Accept" type="string" default="application/json">
+  Content type header.
+</ParamField>
+
+<ParamField header="x-blaaiz-api-key" type="string" required>
+  Your API key for authentication.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="method" type="string" required>
+  Collection method (e.g., "open_banking").
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Amount to collect.
+</ParamField>
+
+<ParamField body="wallet_id" type="string" required>
+  The ID of the wallet to fund.
+</ParamField>
+
+<ParamField body="customer_id" type="string">
+  Customer ID to associate with the collection.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  Customer phone number.
+</ParamField>
+
+## Response
+
+<ResponseField name="message" type="string">
+  Success message.
+</ResponseField>
+
+<ResponseField name="transaction_id" type="string">
+  Unique transaction identifier.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  URL for the customer to complete the payment.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl --request POST \
+  --url https://api-dev.blaaiz.com/api/external/collection \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'x-blaaiz-api-key: YOUR_API_KEY' \
+  --data '{
+    "method": "open_banking",
+    "amount": 100,
+    "wallet_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+    "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "message": "Collection initiated successfully.",
+  "transaction_id": "fb87c0f8-31e3-46f3-b0d3-1ff2618565bc",
+  "url": "https://payment.blaaiz.com/complete/abc123"
+}
+```
+</ResponseExample>
