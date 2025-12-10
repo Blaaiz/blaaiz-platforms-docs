@@ -1,0 +1,75 @@
+---
+title: Collection methods by currency
+description: Learn how to collect payments in different currencies
+---
+
+## How do we collect CAD (Canadian Dollars)?
+
+For CAD, we use **Interac**, which is a push mechanism:
+
+- No collection API integration is needed
+- We provide you with an Interac email address
+- You share this email with your customers
+- When they send money via Interac to this email, we'll notify you via webhook
+- The webhook contains the sender's email and name for your reference
+
+## How do we collect NGN (Nigerian Naira)?
+
+For NGN, you have two options:
+
+### Bank transfer (push mechanism)
+
+- Create virtual bank accounts for your customers via our API
+- Share the virtual account details with your customers
+- When money is sent to those accounts, we notify you via webhook
+- The funds automatically update your NGN wallet balance
+
+### Card payment (pull mechanism)
+
+- Call our collection API to initiate the transaction
+- We'll provide a payment link for your customer
+- Customer completes the card payment via the link
+- We'll notify you when the payment is complete
+
+## How do we collect USD?
+
+For USD, here's how it works:
+
+**Virtual account creation:**
+
+- Generate a USD virtual account for your customer via our API.
+- We'll verify the customer's KYC details first.
+- We'll notify you via webhook once the account details are ready.
+
+**Receiving payments:**
+
+- Share the virtual account details with your customer.
+- They can send USD from any bank that supports international transfers.
+- We'll notify you via webhook when funds arrive.
+
+## How does EUR/GBP collection via Open Banking work?
+
+Open Banking is a **pull mechanism**:
+
+- You initiate the transaction via our collection API
+- We provide a URL for the customer to complete authentication with their bank
+- The customer completes the transaction
+- We notify you when the payment is successful
+
+## How do you identify users when collecting CAD via Interac?
+
+Interac funding works via a **push mechanism**, meaning transactions are initiated from the sender's bank. We do not control or initiate the transaction from our end, so there's no pre-creation of transactions or reference passing on Interac itself.
+
+That said, there are two effective ways to identify which incoming Interac payment belongs to which user or transaction:
+
+### 1. Interac email mapping (recommended)
+
+Introduce a feature that lets users register Interac email addresses within your platform (either one or multiple). When a webhook is sent for an incoming Interac payment, it includes a `collection_email`. You can then match this email against your internal records (e.g. a `user_interac_emails` table) to determine the rightful owner of the funds.
+
+### 2. Enforce email matching
+
+Require your users to sign up using the same email address they use to send funds via Interac. When we send you a webhook, you'll receive a `collection_email`, and you can match it directly to the user account in your system.
+
+<Note>
+The `collection_email` is the email address of the sender.
+</Note>
