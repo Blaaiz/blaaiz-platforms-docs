@@ -1,0 +1,14 @@
+---
+title: Rate and usage limits
+description: Understand API rate limits and usage restrictions
+---
+
+All endpoints are rate limited to **100 requests per minute**. If you exceed this limit, the API will return an HTTP `429 Too Many Requests` status code.
+
+To help you monitor your usage, each API response includes the following headers:
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | The maximum number of requests allowed per minute. |
+| `X-RateLimit-Remaining` | The number of requests remaining in the current rate limit window. |
+| `X-RateLimit-Reset` | The time (in UTC epoch seconds) when the current rate limit window resets. |
