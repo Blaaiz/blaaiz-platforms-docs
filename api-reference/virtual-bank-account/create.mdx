@@ -4,7 +4,13 @@ description: Create a new virtual bank account for a customer
 api: POST /api/external/virtual-bank-account
 ---
 
-Create a new virtual bank account for collecting payments from customers.
+This endpoint allows businesses to generate a new virtual bank account (VBA) associated with a specific wallet. This account can be used for transactions in the designated wallet's currency.
+
+**Currently, this supports NGN, GBP, USD and EUR.**
+
+<Note>
+All virtual accounts — except NGN — are only available to customers with **type = individual**.
+</Note>
 
 ## Headers
 

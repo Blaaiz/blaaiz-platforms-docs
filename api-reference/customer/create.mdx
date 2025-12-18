@@ -4,7 +4,9 @@ description: Create a new customer record
 api: POST /api/external/customer
 ---
 
-Create a new customer record in the system. This is the first step before initiating any payouts or collections.
+This endpoint allows you to create a new customer.
+
+By default, this customer's verification status will be PENDING. You need to upload some files for the customer before the status moves to VERIFIED.
 
 ## Headers
 

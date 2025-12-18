@@ -1,0 +1,59 @@
+---
+title: USD
+description: Webhook payload for USD collection transactions
+---
+
+When your USD wallet is funded, details about the transaction are sent in a payload that provides essential information for record-keeping and reconciliation.
+
+These are sent to your `collection_url` when your business receives funds.
+
+## Parameters overview
+
+| Parameters                            | Description                                                                  |
+| :------------------------------------ | :--------------------------------------------------------------------------- |
+| `message`                             | A message indicating the status of the transaction.                          |
+| `transaction_id`                      | A unique identifier for the transaction used for tracking and reference.     |
+| `transaction_reference`               | A unique identifier for the transaction used for tracking and reference.     |
+| `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL, FAILED).                    |
+| `transaction_fee`                     | The fee charged for the transaction.                                         |
+| `transaction_amount_without_fee`      | The amount that was transferred, excluding any fees.                         |
+| `transaction_amount`                  | The total amount of the transaction, including fees.                         |
+| `transaction_currency`                | The currency in which the transaction was conducted.                         |
+| `source_information`                  | An object containing details about the source of the funds.                  |
+| `source_information.account_number`   | The account number of the sender who initiated the collection.               |
+| `source_information.account_name`     | The account name of the sender who initiated the collection.                 |
+| `source_information.bank_name`        | The bank name of the sender who initiated the collection.                    |
+| `virtual_bank_account`                | An object containing details about the virtual account that was credited.    |
+| `virtual_bank_account.account_number` | The account number of the virtual bank account that was credited.            |
+| `virtual_bank_account.account_name`   | The account name of the virtual bank account that was credited.              |
+| `virtual_bank_account.bank_name`      | The bank name of the virtual bank account that was credited.                 |
+| `event_id`                            | A unique identifier for the event associated with the transaction.           |
+| `type`                                | The type of transaction, indicating it as a collection (e.g., "collection"). |
+
+## Example payload
+
+```json
+{
+  "message": "Transaction Completed",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "REF_USD_001",
+  "transaction_status": "SUCCESSFUL",
+  "transaction_fee": 5.00,
+  "transaction_amount_without_fee": 995.00,
+  "transaction_amount": 1000.00,
+  "transaction_currency": "USD",
+  "virtual_bank_account": {
+    "id": "vba_usd123",
+    "account_number": "123456789",
+    "account_name": "Your Business Name",
+    "bank_name": "Chase Bank"
+  },
+  "source_information": {
+    "account_number": "987654321",
+    "account_name": "Jane Smith",
+    "bank_name": "Bank of America"
+  },
+  "event_id": "9d46b957-0cf5-4743-847a-254d92de6a85",
+  "type": "collection"
+}
+```

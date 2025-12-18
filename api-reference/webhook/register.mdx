@@ -4,7 +4,10 @@ description: Configure webhook URLs to receive event notifications
 api: POST /api/external/webhook
 ---
 
-Register webhook URLs to receive real-time notifications about transaction events, customer updates, and other important activities.
+This endpoint is used to register URLs to receive webhook notifications from Blaaiz.
+
+- `collection_url` (string, required): The URL for collection.
+- `payout_url` (string, required): The URL for payout.
 
 ## Headers
 

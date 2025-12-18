@@ -1,0 +1,59 @@
+---
+title: GBP
+description: Webhook payload for GBP collection transactions
+---
+
+When your GBP wallet is funded, details about the transaction are sent in a payload that provides essential information for record-keeping and reconciliation.
+
+These are sent to your `collection_url` when your business receives funds.
+
+## Parameters overview
+
+| Parameters                            | Description                                                                         |
+| :------------------------------------ | :---------------------------------------------------------------------------------- |
+| `message`                             | A message indicating the status of the transaction.                                 |
+| `transaction_id`                      | A unique identifier for the transaction used for tracking and reference.            |
+| `transaction_reference`               | A unique identifier for the transaction used for tracking and reference.            |
+| `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL, FAILED).                           |
+| `transaction_fee`                     | The fee charged for the transaction.                                                |
+| `transaction_amount_without_fee`      | The amount that was transferred, excluding any fees.                                |
+| `transaction_amount`                  | The total amount of the transaction, including fees.                                |
+| `transaction_currency`                | The currency in which the transaction was conducted (e.g., GBP for Pound Sterling). |
+| `source_information`                  | An object containing details about the source of the funds.                         |
+| `source_information.account_number`   | The account number of the sender who initiated the collection.                      |
+| `source_information.account_name`     | The account name of the sender who initiated the collection.                        |
+| `source_information.bank_name`        | The bank name of the sender who initiated the collection.                           |
+| `virtual_bank_account`                | An object containing details about the virtual account that was credited.           |
+| `virtual_bank_account.account_number` | The account number of the virtual bank account that was credited.                   |
+| `virtual_bank_account.account_name`   | The account name of the virtual bank account that was credited.                     |
+| `virtual_bank_account.bank_name`      | The bank name of the virtual bank account that was credited.                        |
+| `event_id`                            | A unique identifier for the event associated with the transaction.                  |
+| `type`                                | The type of transaction, indicating it as a collection (e.g., "collection").        |
+
+## Example payload
+
+```json
+{
+  "message": "Transaction Completed",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "CA1MR6ahQBCJ",
+  "transaction_status": "SUCCESSFUL",
+  "transaction_fee": 0.0,
+  "transaction_amount_without_fee": 20.0,
+  "transaction_amount": 20.0,
+  "transaction_currency": "GBP",
+  "virtual_bank_account": {
+    "id": "vba_gbp456",
+    "account_number": "12345678",
+    "account_name": "Your Business Name",
+    "bank_name": "Barclays Bank"
+  },
+  "source_information": {
+    "account_number": "87654321",
+    "account_name": "Robert Johnson",
+    "bank_name": "HSBC"
+  },
+  "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
+  "type": "collection"
+}
+```

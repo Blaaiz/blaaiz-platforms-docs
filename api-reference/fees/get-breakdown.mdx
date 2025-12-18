@@ -1,10 +1,14 @@
 ---
 title: Get fees breakdown
 description: Calculate fees for a transaction before initiating it
-api: POST /api/external/fees
+api: POST /api/external/fees/breakdown
 ---
 
-Get a detailed breakdown of fees for a payout or collection transaction before initiating it. This helps you understand the total cost and what the recipient will receive.
+The `/breakdown` endpoint retrieves a detailed fee breakdown for a specific transaction type between two currencies. By providing the necessary parameters, businesses can understand the applicable fees for sending or receiving funds, whether through bank transfers or other methods. This endpoint supports transactions in various currencies, allowing for flexibility and transparency in financial operations.
+
+<Note>
+In the response body, inside each fee object, the `amount` and `fee` properties are the same. Please use `fee` as `amount` will be removed later on.
+</Note>
 
 ## Headers
 

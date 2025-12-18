@@ -1,0 +1,36 @@
+---
+title: JavaScript
+description: Verify webhook signatures using JavaScript
+---
+
+```javascript
+const crypto = require('crypto');
+
+const secret = 'your_api_secret_key_here'; // Replace with your actual secret key
+
+// Get the raw body of the request
+const payload = req.body; // Assuming body-parser middleware is being used
+const timestamp = req.headers['x-blaaiz-timestamp'];
+const receivedSignature = req.headers['x-blaaiz-signature'];
+
+if (!secret || !receivedSignature || !timestamp) {
+    return res.status(400).send('Missing required parameters for signature verification.');
+}
+
+// Create the signature string
+const signatureString = `${timestamp}.${JSON.stringify(payload)}`;
+
+// Generate the expected signature using HMAC SHA-256
+const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(signatureString)
+    .digest('hex');
+
+// Compare the expected signature with the received signature
+if (expectedSignature !== receivedSignature) {
+    return res.status(401).send('Invalid signature. The webhook request may have been tampered with.');
+}
+
+// If we reach this point, the signature is valid
+// Process the webhook payload
+```

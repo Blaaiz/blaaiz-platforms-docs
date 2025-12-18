@@ -1,0 +1,92 @@
+---
+title: CAD
+description: Webhook payload for CAD payout transactions
+---
+
+When your CAD payouts are **confirmed** or **initiated**, details about the transaction are sent in a payload that provides essential information for record-keeping and reconciliation.
+
+## Parameter overview
+
+| Parameter                        | Description                                                   |
+| :------------------------------- | :------------------------------------------------------------ |
+| `message`                        | Indicates the status of the transaction.                      |
+| `transaction_id`                 | A unique identifier for the transaction.                      |
+| `transaction_reference`          | A unique identifier for the transaction.                      |
+| `transaction_status`             | The status of the transaction (e.g., SUCCESSFUL).             |
+| `transaction_fee`                | The fee charged for the transaction.                          |
+| `transaction_amount_without_fee` | The amount sent excluding fees.                               |
+| `transaction_amount`             | The total amount including fees.                              |
+| `transaction_currency`           | The currency in which the transaction is conducted (CAD).     |
+| `customer_id`                    | The customer associated with the transaction                  |
+| `recipient`                      | Details of the recipient, including:                          |
+| `recipient.account_number`       | The recipient's bank account number.                          |
+| `recipient.account_name`         | The name associated with the recipient's bank account.        |
+| `recipient.bank_name`            | The name of the bank holding the recipient's account.         |
+| `recipient.amount`               | The net amount that the recipient received.                   |
+| `extras`                         | Extra/Additional Information                                  |
+| `extras.interac_instruction`     | Contains the security question and answer for the transaction |
+| `event_id`                       | A unique identifier for the event.                            |
+| `type`                           | The type of transaction (e.g., payout or payout_initiated).   |
+
+## Example payloads
+
+### Initiated
+
+```json
+{
+  "message": "Transaction Initiated",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "2a446ee4-8d3a-40ed-b33f-6430df69e7bf",
+  "transaction_status": "PENDING",
+  "transaction_fee": 0.4,
+  "transaction_amount_without_fee": 19.6,
+  "transaction_amount": 20.0,
+  "transaction_currency": "CAD",
+  "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+  "recipient": {
+    "account_number": null,
+    "account_name": "Oluwatobi Ishola",
+    "bank_name": null,
+    "amount": 19.6
+  },
+  "extras": {
+     "interac_instruction": {
+         "question": "What is the PIN?",
+         "answer": 1234
+      }
+  },
+  "event_id": "9d46b957-61b2-4b27-85cf-059069893237",
+  "type": "payout_initiated",
+  "developer_note": "This is a payout initiated webhook. This is not a final webhook. The final webhook (payment confirmation) will be sent when the transaction is completed."
+}
+```
+
+### Completed
+
+```json
+{
+  "message": "Transaction Completed",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "2a446ee4-8d3a-40ed-b33f-6430df69e7bf",
+  "transaction_status": "SUCCESSFUL",
+  "transaction_fee": 0.4,
+  "transaction_amount_without_fee": 19.6,
+  "transaction_amount": 20.0,
+  "transaction_currency": "CAD",
+  "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+  "recipient": {
+    "account_number": null,
+    "account_name": "Oluwatobi Ishola",
+    "bank_name": null,
+    "amount": 19.6
+  },
+  "extras": {
+     "interac_instruction": {
+         "question": "What is the PIN?",
+         "answer": 1234
+      }
+  },
+  "event_id": "9d46b957-61b2-4b27-85cf-059069893237",
+  "type": "payout"
+}
+```

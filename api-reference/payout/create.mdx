@@ -4,7 +4,13 @@ description: Initiate a payout to a customer
 api: POST /api/external/payout
 ---
 
-Initiate a payout to send funds to a customer's bank account or via other supported methods.
+This endpoint is used to initiate a payout from a business wallet to a recipient using the specified payout method.
+
+<Note>
+We advise to call the "fees breakdown" endpoint to get up-to-date fees before proceeding with transaction.
+</Note>
+
+For payouts in all currencies, we deliver a webhook when the payment is completed. However, for some currencies (i.e., CAD), we deliver a webhook when the payment is initiated, and also when it is completed.
 
 ## Headers
 

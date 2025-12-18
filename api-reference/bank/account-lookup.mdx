@@ -4,7 +4,15 @@ description: Verify and resolve bank account details
 api: POST /api/external/bank/account-lookup
 ---
 
-Verify a bank account number and retrieve the account holder's name.
+This endpoint allows you to verify the validity of a bank account by providing the account number and the associated bank ID. It returns information about the account, such as the account holder's name, to ensure accuracy before initiating transactions.
+
+We advise using this to confirm recipient details for payments, transfers, or any transaction involving a bank account.
+
+**Example Use Cases:**
+
+- Validate a recipient's bank account details during payment setup.
+- Ensure accurate data entry before processing a transaction.
+- Provide real-time verification for user onboarding or payout processes.
 
 ## Headers
 
