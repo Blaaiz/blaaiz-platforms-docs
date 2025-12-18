@@ -1,0 +1,58 @@
+---
+title: NGN
+description: Webhook payload for NGN collection transactions
+---
+
+When your NGN collections are confirmed, details about the transaction are sent in a payload that provides essential information for record-keeping and reconciliation.
+
+These are sent to your `collection_url` when your business receives funds.
+
+## Parameter overview
+
+| Parameter                             | Description                                                               |
+| :------------------------------------ | :------------------------------------------------------------------------ |
+| `message`                             | Indicates the status of the transaction.                                  |
+| `transaction_id`                      | A unique identifier for the transaction.                                  |
+| `transaction_reference`               | A unique identifier for the transaction.                                  |
+| `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL).                         |
+| `transaction_fee`                     | The fee charged for the transaction.                                      |
+| `transaction_amount_without_fee`      | The amount sent excluding fees.                                           |
+| `transaction_amount`                  | The total amount including fees.                                          |
+| `transaction_currency`                | The currency in which the transaction is conducted (NGN).                 |
+| `source_information`                  | An object containing details about the source of the funds.               |
+| `source_information.account_number`   | The account number of the sender who initiated the collection.            |
+| `source_information.account_name`     | The account name of the sender who initiated the collection.              |
+| `source_information.bank_name`        | The bank name of the sender who initiated the collection.                 |
+| `virtual_bank_account`                | An object containing details about the virtual account that was credited. |
+| `virtual_bank_account.account_number` | The account number of the virtual bank account that was credited.         |
+| `virtual_bank_account.account_name`   | The account name of the virtual bank account that was credited.           |
+| `event_id`                            | A unique identifier for the event.                                        |
+| `type`                                | The type of transaction (e.g., collection).                               |
+
+## Example payload
+
+```json
+{
+  "message": "Transaction Completed",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "90980e50-0b83-40a6-aa46-ac8e795b1acd",
+  "transaction_status": "SUCCESSFUL",
+  "transaction_fee": 39.12,
+  "transaction_amount_without_fee": 612.88,
+  "transaction_amount": 652.0,
+  "transaction_currency": "NGN",
+   "virtual_bank_account": {
+    "id": "vba_xyz789",
+    "account_number": "1234567890",
+    "account_name": "Your Business Name",
+    "bank_name": "Access Bank"
+  },
+  "source_information": {
+    "account_number": "9876543210",
+    "account_name": "John Doe",
+    "bank_name": "GTBank"
+  },
+  "event_id": "9d46b957-0cf5-4743-847a-254d92de6a85",
+  "type": "collection"
+}
+```
