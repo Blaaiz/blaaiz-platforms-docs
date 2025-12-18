@@ -23,6 +23,40 @@
               "guides/api-parameters",
               "guides/creating-first-payout",
               "guides/collections-overview",
+              {
+                "group": "Webhooks",
+                "pages": [
+                  {
+                    "group": "Collection",
+                    "pages": [
+                      "guides/webhooks/collection/ngn",
+                      "guides/webhooks/collection/cad",
+                      "guides/webhooks/collection/usd",
+                      "guides/webhooks/collection/gbp",
+                      "guides/webhooks/collection/eur"
+                    ]
+                  },
+                  {
+                    "group": "Payout",
+                    "pages": [
+                      "guides/webhooks/payout/ngn",
+                      "guides/webhooks/payout/cad",
+                      "guides/webhooks/payout/usd",
+                      "guides/webhooks/payout/eur",
+                      "guides/webhooks/payout/gbp"
+                    ]
+                  },
+                  {
+                    "group": "Signature verification",
+                    "pages": [
+                      "guides/webhooks/signature-verification/overview",
+                      "guides/webhooks/signature-verification/php",
+                      "guides/webhooks/signature-verification/javascript"
+                    ]
+                  },
+                  "guides/webhooks/virtual-account"
+                ]
+              },
               "guides/sdks"
             ]
           },
@@ -36,40 +70,6 @@
               "faq/webhooks-and-notifications",
               "faq/payment-links",
               "faq/api-integration"
-            ]
-          },
-          {
-            "group": "Webhooks",
-            "pages": [
-              {
-                "group": "Collection",
-                "pages": [
-                  "guides/webhooks/collection/ngn",
-                  "guides/webhooks/collection/cad",
-                  "guides/webhooks/collection/usd",
-                  "guides/webhooks/collection/gbp",
-                  "guides/webhooks/collection/eur"
-                ]
-              },
-              {
-                "group": "Payout",
-                "pages": [
-                  "guides/webhooks/payout/ngn",
-                  "guides/webhooks/payout/cad",
-                  "guides/webhooks/payout/usd",
-                  "guides/webhooks/payout/eur",
-                  "guides/webhooks/payout/gbp"
-                ]
-              },
-              {
-                "group": "Signature verification",
-                "pages": [
-                  "guides/webhooks/signature-verification/overview",
-                  "guides/webhooks/signature-verification/php",
-                  "guides/webhooks/signature-verification/javascript"
-                ]
-              },
-              "guides/webhooks/virtual-account"
             ]
           }
         ]
