@@ -1,0 +1,53 @@
+---
+title: GBP
+description: Webhook payload for GBP payout transactions
+---
+
+When your GBP payouts are confirmed, details about the transaction are sent in a payload that provides essential information for record-keeping and reconciliation.
+
+## Parameter overview
+
+| Parameter                        | Description                                               |
+| :------------------------------- | :-------------------------------------------------------- |
+| `message`                        | Indicates the status of the transaction.                  |
+| `transaction_id`                 | A unique identifier for the transaction.                  |
+| `transaction_reference`          | A unique identifier for the transaction.                  |
+| `transaction_status`             | The status of the transaction (e.g., SUCCESSFUL).         |
+| `transaction_fee`                | The fee charged for the transaction.                      |
+| `transaction_amount_without_fee` | The amount sent excluding fees.                           |
+| `transaction_amount`             | The total amount including fees.                          |
+| `transaction_currency`           | The currency in which the transaction is conducted (GBP). |
+| `customer_id`                    | The customer associated with the transaction              |
+| `recipient`                      | Details of the recipient, including:                      |
+| `recipient.account_number`       | The recipient's bank account number.                      |
+| `recipient.account_name`         | The name associated with the recipient's bank account.    |
+| `recipient.bank_name`            | The name of the bank holding the recipient's account.     |
+| `recipient.amount`               | The net amount that the recipient received.               |
+| `recipient.sort_code`            | The sort code of the recipient.                           |
+| `event_id`                       | A unique identifier for the event.                        |
+| `type`                           | The type of transaction (e.g., payout).                   |
+
+## Example payload
+
+```json
+{
+  "message": "Transaction Completed",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "90980e50-0b83-40a6-aa46-ac8e795b1acd",
+  "transaction_status": "SUCCESSFUL",
+  "transaction_fee": 39.12,
+  "transaction_amount_without_fee": 612.88,
+  "transaction_amount": 652.0,
+  "transaction_currency": "GBP",
+  "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+  "recipient": {
+    "account_number": "FR7612345678901234567890123",
+    "account_name": "Pierre Dubois",
+    "bank_name": "Lloyds Bank",
+    "sort_code": "12-34-56",
+    "amount": 495.00
+   },
+  "event_id": "9d46b957-0cf5-4743-847a-254d92de6a85",
+  "type": "payout"
+}
+```
