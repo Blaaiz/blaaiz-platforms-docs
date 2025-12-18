@@ -1,0 +1,147 @@
+---
+title: Virtual account
+description: Webhook payloads for virtual account events
+---
+
+All virtual account webhooks are sent to your `collection_url`.
+
+## Parameter overview
+
+| Parameter            | Description                                         |
+| :------------------- | :-------------------------------------------------- |
+| `event`              | Event type identifier (e.g., "virtual_account.ready") |
+| `virtual_account_id` | Unique ID of the virtual account                    |
+| `customer_id`        | Your customer's ID (from customer creation)         |
+| `wallet_id`          | The wallet ID this account is linked to             |
+| `currency`           | Currency code (NGN, USD, GBP, EUR)                  |
+| `status`             | Current status (PENDING, SUCCESSFUL, REJECTED)      |
+| `account_number`     | Bank account number (only in ready event)           |
+| `account_name`       | Account holder name (only in ready event)           |
+| `bank_name`          | Bank institution name (only in ready event)         |
+| `bank_code`          | Bank code (NGN only)                                |
+| `routing_number`     | Routing/ABA number (USD only)                       |
+| `iban`               | IBAN number (GBP/EUR only)                          |
+| `sort_code`          | UK sort code (GBP only)                             |
+| `bank_address`       | Bank address (USD only)                             |
+| `rejection_reason`   | Technical reason for rejection (rejected event only) |
+| `user_reason`        | User-friendly rejection message (rejected event only) |
+| `developer_reason`   | Developer-specific rejection code (rejected event only) |
+
+## Event types
+
+### virtual_account.created
+
+Account creation initiated but not yet ready.
+
+```json
+{
+  "event": "virtual_account.created",
+  "virtual_account_id": "vba_pending123",
+  "customer_id": "cust_abc456",
+  "wallet_id": "wallet_xyz789",
+  "currency": "NGN",
+  "status": "PENDING"
+}
+```
+
+### virtual_account.ready
+
+Account fully created and ready to receive funds.
+
+<CodeGroup>
+
+```json NGN
+{
+  "event": "virtual_account.ready",
+  "virtual_account_id": "vba_ngn_success123",
+  "customer_id": "cust_abc456",
+  "wallet_id": "wallet_xyz789",
+  "currency": "NGN",
+  "status": "SUCCESSFUL",
+  "account_number": "1234567890",
+  "account_name": "Customer Business Name",
+  "bank_name": "Wema Bank",
+  "bank_code": "035",
+  "routing_number": null,
+  "iban": null,
+  "sort_code": null,
+  "bank_address": null
+}
+```
+
+```json USD
+{
+  "event": "virtual_account.ready",
+  "virtual_account_id": "vba_usd_success456",
+  "customer_id": "cust_def789",
+  "wallet_id": "wallet_usd123",
+  "currency": "USD",
+  "status": "SUCCESSFUL",
+  "account_number": "987654321",
+  "account_name": "Customer Business LLC",
+  "bank_name": "Evolve Bank & Trust",
+  "bank_code": null,
+  "routing_number": "084106768",
+  "iban": null,
+  "sort_code": null,
+  "bank_address": "6070 Poplar Ave Suite 200, Memphis, TN 38119"
+}
+```
+
+```json GBP
+{
+  "event": "virtual_account.ready",
+  "virtual_account_id": "vba_gbp_success789",
+  "customer_id": "cust_ghi012",
+  "wallet_id": "wallet_gbp456",
+  "currency": "GBP",
+  "status": "SUCCESSFUL",
+  "account_number": "12345678",
+  "account_name": "Customer Business Ltd",
+  "bank_name": "Clear Junction Limited",
+  "bank_code": "CLJUGB21XXX",
+  "routing_number": null,
+  "iban": "GB12CLJU00997312345678",
+  "sort_code": "04-03-00",
+  "bank_address": null
+}
+```
+
+```json EUR
+{
+  "event": "virtual_account.ready",
+  "virtual_account_id": "vba_eur_success321",
+  "customer_id": "cust_jkl345",
+  "wallet_id": "wallet_eur789",
+  "currency": "EUR",
+  "status": "SUCCESSFUL",
+  "account_number": "12345678901234",
+  "account_name": "Customer Business GmbH",
+  "bank_name": "Clear Junction Limited",
+  "bank_code": "CLJUGB21XXX",
+  "routing_number": null,
+  "iban": "GB45CLJU00997312345678",
+  "sort_code": null,
+  "bank_address": null
+}
+```
+
+</CodeGroup>
+
+### virtual_account.rejected
+
+Verification failed.
+
+```json
+{
+  "event": "virtual_account.rejected",
+  "virtual_account_id": "vba_usd_rejected999",
+  "customer_id": "cust_rejected123",
+  "wallet_id": "wallet_usd999",
+  "currency": "USD",
+  "status": "REJECTED",
+  "rejection_reason": "Customer verification failed: insufficient documentation provided",
+  "user_reason": "Your application could not be processed",
+  "developer_reason": "CUSTOMER_VERIFICATION_FAILED"
+}
+```
