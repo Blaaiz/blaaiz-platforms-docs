@@ -217,6 +217,11 @@
      "vscode"
    ]
   },
+  "api": {
+    "examples": {
+      "languages": ["curl", "python", "javascript", "ruby", "php"]
+    }
+  },
   "footer": {
     "socials": {
       "x": "https://x.com/blaaiz",
