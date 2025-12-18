@@ -1,10 +1,16 @@
 ---
 title: Request file upload URL
 description: Get a pre-signed URL to upload customer documents
-api: POST /api/external/file
+api: POST /api/external/file/get-presigned-url
 ---
 
-Request a pre-signed URL to upload customer documents for KYC verification. This is a two-step process: first get the upload URL, then upload the file to that URL.
+This endpoint allows you to request a pre-signed URL to upload a file for a customer. You will specify the file type you want to upload and for whom.
+
+**File Category**
+
+- `identity` - Identity. Required to verify a customer.
+- `proof_of_address` - Proof of address.
+- `liveness_check` - Liveness check.
 
 ## Headers
 
