@@ -1,0 +1,29 @@
+---
+title: PHP
+description: Verify webhook signatures using PHP
+---
+
+```php
+$payload = json_decode(file_get_contents('php://input'), true); // Get the JSON payload from the request body
+$receivedSignature = $_SERVER['x-blaaiz-signature'] ?? null; // Retrieve the signature from the headers
+$timestamp = $_SERVER['x-blaaiz-timestamp'] ?? null; // Get the timestamp from the headers
+$secret = 'your_api_secret_key_here'; // Your secret key associated with the API key
+
+if (is_null($secret) || is_null($receivedSignature) || is_null($timestamp)) {
+    throw new Exception('Missing required parameters for signature verification.');
+}
+
+// Create the signature string
+$signatureString = $timestamp . '.' . json_encode($payload);
+
+// Generate the expected signature using HMAC SHA-256
+$expectedSignature = hash_hmac('sha256', $signatureString, $secret);
+
+// Compare the expected signature with the received signature
+if (!hash_equals($expectedSignature, $receivedSignature)) {
+    throw new Exception('Invalid signature. The webhook request may have been tampered with.');
+}
+
+// If we reach this point, the signature is valid
+// Process the webhook payload
+```
