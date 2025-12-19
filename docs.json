@@ -19,6 +19,7 @@
               "guides/getting-started",
               "guides/getting-started-guide",
               "guides/authentication",
+              "guides/ip-whitelisting",
               "guides/rate-limits",
               "guides/api-parameters",
               "guides/creating-first-payout",
