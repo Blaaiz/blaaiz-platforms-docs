@@ -190,8 +190,8 @@
     }
   },
   "logo": {
-    "light": "https://ik.imagekit.io/fxxm9wumg/Blaaiz-black.png",
-    "dark": "https://ik.imagekit.io/fxxm9wumg/Blaaiz-white.png"
+    "light": "https://ik.imagekit.io/fxxm9wumg/light-theme.png",
+    "dark": "https://ik.imagekit.io/fxxm9wumg/dark-theme.png"
   },
   "navbar": {
     "links": [
