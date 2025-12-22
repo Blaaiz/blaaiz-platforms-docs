@@ -129,12 +129,12 @@ Retrieve the available identification types for virtual bank account creation. T
 <RequestExample>
 ```bash cURL
 curl --request GET \
-  --url 'https://api-dev.blaaiz.com/api/externa/virtual-bank-account/identification-type?country=NG&type=individual' \
+  --url 'https://api-dev.blaaiz.com/api/external/virtual-bank-account/identification-type?country=NG&type=individual' \
   --header 'x-blaaiz-api-key: YOUR_API_KEY'
 ```
 
 ```javascript Node.js
-const response = await fetch('https://api-dev.blaaiz.com/api/externa/virtual-bank-account/identification-type?country=NG&type=individual', {
+const response = await fetch('https://api-dev.blaaiz.com/api/external/virtual-bank-account/identification-type?country=NG&type=individual', {
   method: 'GET',
   headers: {
     'x-blaaiz-api-key': 'YOUR_API_KEY'
@@ -147,7 +147,7 @@ const data = await response.json();
 ```python Python
 import requests
 
-url = "https://api-dev.blaaiz.com/api/externa/virtual-bank-account/identification-type"
+url = "https://api-dev.blaaiz.com/api/external/virtual-bank-account/identification-type"
 params = {
     "country": "NG",
     "type": "individual"
