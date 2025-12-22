@@ -86,31 +86,10 @@ data = response.json()
 <ResponseExample>
 ```json 200 Success
 {
-  "message": "Virtual bank account retrieved successfully.",
+  "message": "Identification type retrieved successfully.",
   "data": {
-    "id": "34e4864b-d6cb-4041-bbed-ddcfdb61c3cc",
-    "business_wallet_id": "5ac1a1a5-cafa-4685-af49-b55d70c3e22f",
-    "currency_id": 2,
-    "currency": "NGN",
-    "account_number": "7880000024",
-    "account_name": "John Doe",
-    "bank_name": "78 Finance Company Limited",
-    "bank_code": "123456",
-    "account_reference": "885ae193-98a8-3feb-bc19-0e6377a0a140",
-    "reservation_reference": null,
-    "wallet": {
-      "id": "5ac1a1a5-cafa-4685-af49-b55d70c3e22f",
-      "currency": "NGN",
-      "is_active": true
-    },
-    "business_customer": {
-      "id": "",
-      "first_name": "",
-      "last_name": "",
-      "business_name": null,
-      "type": "individual",
-      "email": ""
-    }
+    "label": "Bank Verification Number",
+    "type": "bvn"
   }
 }
 ```
