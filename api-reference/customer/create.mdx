@@ -86,52 +86,56 @@ By default, this customer's verification status will be PENDING. You need to upl
 
 ## Response
 
-<ResponseField name="status" type="boolean">
-  Indicates if the request was successful
-</ResponseField>
-
 <ResponseField name="message" type="string">
-  Response message
+  Response message.
 </ResponseField>
 
 <ResponseField name="data" type="object">
-  The created customer object
+  The created customer object.
   
   <Expandable title="Customer object">
     <ResponseField name="id" type="string">
-      Unique identifier for the customer
+      Unique identifier for the customer.
     </ResponseField>
     
-    <ResponseField name="type" type="string">
-      Customer type (individual or business)
+    <ResponseField name="business_id" type="string">
+      The business ID associated with this customer.
     </ResponseField>
     
     <ResponseField name="first_name" type="string">
-      Customer's first name
+      Customer's first name.
     </ResponseField>
     
     <ResponseField name="last_name" type="string">
-      Customer's last name
+      Customer's last name.
     </ResponseField>
     
     <ResponseField name="business_name" type="string">
-      Business name (if applicable)
+      Business name (if applicable).
+    </ResponseField>
+    
+    <ResponseField name="type" type="string">
+      Customer type (individual or business).
     </ResponseField>
     
     <ResponseField name="email" type="string">
-      Customer's email
+      Customer's email.
     </ResponseField>
     
-    <ResponseField name="phone_number" type="string">
-      Customer's phone number
+    <ResponseField name="country" type="string">
+      Customer's country code.
     </ResponseField>
     
-    <ResponseField name="status" type="string">
-      Customer status (pending, verified, rejected)
+    <ResponseField name="id_type" type="string">
+      Type of identification document.
     </ResponseField>
     
-    <ResponseField name="created_at" type="string">
-      Timestamp when the customer was created
+    <ResponseField name="id_number" type="string">
+      Identification document number.
+    </ResponseField>
+    
+    <ResponseField name="verification_status" type="string">
+      Customer verification status (PENDING, VERIFIED).
     </ResponseField>
   </Expandable>
 </ResponseField>
