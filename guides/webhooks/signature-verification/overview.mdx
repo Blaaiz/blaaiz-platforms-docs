@@ -8,3 +8,13 @@ When receiving webhooks from Blaaiz, it is crucial to ensure the integrity and a
 This verification process involves generating a signature on your server using the same secret key associated with your API key and comparing it to the signature included in the webhook request headers.
 
 By implementing this verification, you can protect your application from malicious actors and ensure that you are processing legitimate events. The following pages demonstrate how to verify the signature of the webhook payload securely in different programming languages.
+
+## Blaaiz webhook IP address
+
+All webhooks from Blaaiz are sent from the following IP address:
+
+```
+34.248.16.185
+```
+
+You can whitelist this IP address in your firewall or server configuration to add an additional layer of security by ensuring webhook requests only come from Blaaiz.
