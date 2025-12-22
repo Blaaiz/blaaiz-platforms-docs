@@ -53,8 +53,8 @@ By default, this customer's verification status will be PENDING. You need to upl
 </ParamField>
 
 <ParamField body="tin" type="string">
-  Tax identification number. The TIN type to be submitted can be gotten from the get identification type endpoint.
-</ParamField>
+  Tax identification number. The expected TIN type varies by country and can be retrieved from the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint. For example, in Nigeria this would be the Bank Verification Number (BVN).
+</ParamField></invoke>
 
 <ParamField body="dob" type="string">
   Date of birth in YYYY-MM-DD format.
