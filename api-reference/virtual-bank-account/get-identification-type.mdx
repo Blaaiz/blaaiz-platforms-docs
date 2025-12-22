@@ -31,99 +31,19 @@ For example, if the customer country is Nigeria, it returns the label "Bank Veri
 ## Response
 
 <ResponseField name="message" type="string">
-  Response message
+  Response message.
 </ResponseField>
 
 <ResponseField name="data" type="object">
-  The virtual bank account details
+  The identification type details.
   
-  <Expandable title="Virtual bank account object">
-    <ResponseField name="id" type="string">
-      Unique identifier for the virtual bank account
+  <Expandable title="Identification type object">
+    <ResponseField name="label" type="string">
+      The human-readable label for the identification type (e.g., "Bank Verification Number" for Nigeria).
     </ResponseField>
     
-    <ResponseField name="business_wallet_id" type="string">
-      The business wallet ID associated with this virtual account
-    </ResponseField>
-    
-    <ResponseField name="currency_id" type="integer">
-      The currency ID
-    </ResponseField>
-    
-    <ResponseField name="currency" type="string">
-      The currency code (e.g., NGN)
-    </ResponseField>
-    
-    <ResponseField name="account_number" type="string">
-      The virtual account number
-    </ResponseField>
-    
-    <ResponseField name="account_name" type="string">
-      The name on the virtual account
-    </ResponseField>
-    
-    <ResponseField name="bank_name" type="string">
-      The bank name for the virtual account
-    </ResponseField>
-    
-    <ResponseField name="bank_code" type="string">
-      The bank code
-    </ResponseField>
-    
-    <ResponseField name="account_reference" type="string">
-      The account reference
-    </ResponseField>
-    
-    <ResponseField name="reservation_reference" type="string">
-      The reservation reference (if applicable)
-    </ResponseField>
-    
-    <ResponseField name="wallet" type="object">
-      The associated wallet details
-      
-      <Expandable title="Wallet object">
-        <ResponseField name="id" type="string">
-          Wallet ID
-        </ResponseField>
-        
-        <ResponseField name="currency" type="string">
-          Wallet currency
-        </ResponseField>
-        
-        <ResponseField name="is_active" type="boolean">
-          Whether the wallet is active
-        </ResponseField>
-      </Expandable>
-    </ResponseField>
-    
-    <ResponseField name="business_customer" type="object">
-      The associated customer details
-      
-      <Expandable title="Customer object">
-        <ResponseField name="id" type="string">
-          Customer ID
-        </ResponseField>
-        
-        <ResponseField name="first_name" type="string">
-          Customer first name
-        </ResponseField>
-        
-        <ResponseField name="last_name" type="string">
-          Customer last name
-        </ResponseField>
-        
-        <ResponseField name="business_name" type="string">
-          Business name (for business customers)
-        </ResponseField>
-        
-        <ResponseField name="type" type="string">
-          Customer type (individual or business)
-        </ResponseField>
-        
-        <ResponseField name="email" type="string">
-          Customer email
-        </ResponseField>
-      </Expandable>
+    <ResponseField name="type" type="string">
+      The identification type code.
     </ResponseField>
   </Expandable>
 </ResponseField>
