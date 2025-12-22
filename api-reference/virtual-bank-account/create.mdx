@@ -20,24 +20,16 @@ All virtual accounts — except NGN — are only available to customers with **t
 
 ## Body Parameters
 
-<ParamField body="account_name" type="string" required>
-  The name to be displayed on the virtual account
-</ParamField>
-
 <ParamField body="wallet_id" type="string" required>
-  The wallet ID where funds will be credited
+  The ID of the business wallet the account will be associated with.
 </ParamField>
 
-<ParamField body="customer_id" type="string" required>
-  The customer ID associated with this virtual account
+<ParamField body="account_name" type="string">
+  The name for the virtual bank account holder, with a max length of 255 characters. Required if currency is NGN.
 </ParamField>
 
-<ParamField body="currency" type="string" required>
-  The currency for the virtual account (e.g., NGN, USD)
-</ParamField>
-
-<ParamField body="provider" type="string">
-  The provider to use for virtual account creation (optional)
+<ParamField body="customer_id" type="string">
+  The ID of the customer the VBA should be created for.
 </ParamField>
 
 ## Response
