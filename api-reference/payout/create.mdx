@@ -20,150 +20,279 @@ For payouts in all currencies, we deliver a webhook when the payment is complete
 
 ## Body Parameters
 
-<ParamField body="customer_id" type="string" required>
-  The unique identifier of the customer receiving the payout
-</ParamField>
-
 <ParamField body="wallet_id" type="string" required>
-  The wallet ID from which funds will be debited
+  The ID of the business wallet associated with the payout.
 </ParamField>
 
-<ParamField body="amount" type="number" required>
-  The amount to send (in the smallest currency unit, e.g., kobo for NGN)
-</ParamField>
-
-<ParamField body="currency" type="string" required>
-  The currency code (e.g., NGN, CAD, USD)
+<ParamField body="customer_id" type="string" required>
+  The unique identifier of the customer receiving the payout.
 </ParamField>
 
 <ParamField body="method" type="string" required>
-  The payout method. Options: `bank_transfer`, `interac`
+  The payout method. Options: `bank_transfer`, `interac`, `crypto`, `wire`, `ach`.
 </ParamField>
 
-<ParamField body="bank_code" type="string">
-  The bank code (required for bank_transfer method)
+<ParamField body="from_amount" type="string" required>
+  The amount being sent. Required without `to_amount` value.
 </ParamField>
 
-<ParamField body="account_number" type="string">
-  The recipient's account number (required for bank_transfer method)
+<ParamField body="from_currency_id" type="string" required>
+  The currency used for the payout. Can be ID or currency code (e.g., NGN).
 </ParamField>
 
-<ParamField body="account_name" type="string">
-  The recipient's account name (required for bank_transfer method)
+<ParamField body="to_currency_id" type="string" required>
+  The currency to be received by the recipient. Can be ID or currency code (e.g., NGN).
+</ParamField>
+
+<ParamField body="to_amount" type="string">
+  The target amount for the payout. Use this when you want the recipient to receive an exact amount.
+</ParamField>
+
+<ParamField body="type" type="string">
+  Required if method is `ach` or `wire`. Options: `individual`, `business`.
+</ParamField>
+
+<ParamField body="phone_number" type="string">
+  The recipient's phone number.
 </ParamField>
 
 <ParamField body="email" type="string">
-  The recipient's email (required for interac method)
+  The recipient's email address. Required if the method is `interac`.
 </ParamField>
 
-<ParamField body="reference" type="string">
-  Your unique reference for this transaction
+<ParamField body="interac_first_name" type="string">
+  The recipient's first name for Interac payouts. Required if the method is `interac`.
 </ParamField>
 
-<ParamField body="narration" type="string">
-  Description or note for the payout
+<ParamField body="interac_last_name" type="string">
+  The recipient's last name for Interac payouts. Required if the method is `interac`.
 </ParamField>
 
-<ParamField body="interac_question" type="string">
-  Security question for Interac transfer (required for interac method)
+<ParamField body="bank_id" type="string">
+  The ID of the bank where the recipient holds an account. Required if the payout method is `bank_transfer` and the currency code is NGN.
 </ParamField>
 
-<ParamField body="interac_answer" type="string">
-  Answer to the security question (required for interac method)
+<ParamField body="account_number" type="string">
+  The recipient's bank account number. Required if the method is `bank_transfer`, `ach`, or `wire` and currency is not EUR or CAD.
+</ParamField>
+
+<ParamField body="account_name" type="string">
+  The recipient's bank account name. Required if the method is `bank_transfer`, `ach`, or `wire` and currency is USD, GBP, or EUR.
+</ParamField>
+
+<ParamField body="account_type" type="string">
+  Required if method is `ach` or `wire` and currency code is USD. Options: `checking`, `savings`.
+</ParamField>
+
+<ParamField body="bank_name" type="string">
+  Required if method is `ach` or `wire` and currency code is USD.
+</ParamField>
+
+<ParamField body="routing_number" type="string">
+  Required if method is `ach` or `wire` and currency code is USD.
+</ParamField>
+
+<ParamField body="swift_code" type="string">
+  Required if method is `wire` and currency code is USD.
+</ParamField>
+
+<ParamField body="sort_code" type="string">
+  Required if the method is `bank_transfer` and the currency is GBP.
+</ParamField>
+
+<ParamField body="iban" type="string">
+  Required if the method is `bank_transfer` and the currency is EUR.
+</ParamField>
+
+<ParamField body="bic_code" type="string">
+  Required if the method is `bank_transfer` and the currency is EUR.
+</ParamField>
+
+<ParamField body="country" type="string">
+  The country of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="state" type="string">
+  The state of the recipient. Required if the method is `ach` or `wire` and the currency is USD.
+</ParamField>
+
+<ParamField body="street" type="string">
+  The street address of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="city" type="string">
+  The city of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="zip_code" type="string">
+  The postal/ZIP code of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="country_id" type="string">
+  Optional. Helps to further narrow down the from/to currency.
+</ParamField>
+
+<ParamField body="wallet_address" type="string">
+  Required if the method is `crypto`.
+</ParamField>
+
+<ParamField body="wallet_token" type="string">
+  Required if the method is `crypto`. Allowed values: `USDT`, `USDC`.
+</ParamField>
+
+<ParamField body="wallet_network" type="string">
+  Required if the method is `crypto`. Allowed values: `BSC_MAINNET`, `ETHEREUM_MAINNET`, `TRON_MAINNET`, `MATIC_MAINNET`.
+</ParamField>
+
+<ParamField body="note" type="string">
+  Optional. Serves as the narration for the transaction. If left empty, the name of the business will be used.
 </ParamField>
 
 ## Response
 
-<ResponseField name="status" type="boolean">
-  Indicates if the request was successful
-</ResponseField>
-
 <ResponseField name="message" type="string">
-  Response message
+  Response message.
 </ResponseField>
 
-<ResponseField name="data" type="object">
-  The payout transaction details
+<ResponseField name="transaction" type="object">
+  The payout transaction details.
   
-  <Expandable title="Payout object">
+  <Expandable title="Transaction object">
     <ResponseField name="id" type="string">
-      Unique identifier for the payout
+      Unique identifier for the transaction.
     </ResponseField>
     
-    <ResponseField name="transaction_id" type="string">
-      The transaction ID
+    <ResponseField name="business_id" type="string">
+      The business ID.
     </ResponseField>
     
-    <ResponseField name="customer_id" type="string">
-      The customer ID
+    <ResponseField name="business_customer_id" type="string">
+      The customer ID.
     </ResponseField>
     
-    <ResponseField name="wallet_id" type="string">
-      The wallet ID
-    </ResponseField>
-    
-    <ResponseField name="amount" type="number">
-      The payout amount
-    </ResponseField>
-    
-    <ResponseField name="currency" type="string">
-      The currency code
-    </ResponseField>
-    
-    <ResponseField name="method" type="string">
-      The payout method used
+    <ResponseField name="business_wallet_id" type="string">
+      The wallet ID.
     </ResponseField>
     
     <ResponseField name="status" type="string">
-      Status of the payout (pending, processing, completed, failed)
+      Status of the payout (PENDING, PROCESSING, SUCCESSFUL, FAILED).
     </ResponseField>
     
     <ResponseField name="reference" type="string">
-      Your unique reference
+      Transaction reference.
     </ResponseField>
     
-    <ResponseField name="created_at" type="string">
-      Timestamp when the payout was created
+    <ResponseField name="currency" type="string">
+      The currency code.
+    </ResponseField>
+    
+    <ResponseField name="amount" type="number">
+      The total payout amount.
+    </ResponseField>
+    
+    <ResponseField name="amount_without_fee" type="number">
+      The amount without fees.
+    </ResponseField>
+    
+    <ResponseField name="fee" type="number">
+      The transaction fee.
+    </ResponseField>
+    
+    <ResponseField name="rate" type="number">
+      The exchange rate applied.
+    </ResponseField>
+    
+    <ResponseField name="date" type="string">
+      Timestamp when the payout was created.
+    </ResponseField>
+    
+    <ResponseField name="recipient" type="object">
+      Recipient details.
+      
+      <Expandable title="Recipient object">
+        <ResponseField name="id" type="string">
+          Recipient ID.
+        </ResponseField>
+        
+        <ResponseField name="account_number" type="string">
+          Recipient account number.
+        </ResponseField>
+        
+        <ResponseField name="account_name" type="string">
+          Recipient account name.
+        </ResponseField>
+        
+        <ResponseField name="amount" type="number">
+          Amount received.
+        </ResponseField>
+        
+        <ResponseField name="currency" type="string">
+          Currency code.
+        </ResponseField>
+        
+        <ResponseField name="bank_name" type="string">
+          Bank name.
+        </ResponseField>
+        
+        <ResponseField name="bank_code" type="string">
+          Bank code.
+        </ResponseField>
+      </Expandable>
     </ResponseField>
   </Expandable>
 </ResponseField>
 
 <RequestExample>
-```bash cURL - Bank Transfer
+```bash cURL - NGN Bank Transfer
 curl --request POST \
   --url https://api-dev.blaaiz.com/api/external/payout \
   --header 'Content-Type: application/json' \
   --header 'x-blaaiz-api-key: YOUR_API_KEY' \
   --data '{
-    "customer_id": "customer_123",
-    "wallet_id": "wallet_123",
-    "amount": 50000,
-    "currency": "NGN",
+    "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+    "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
     "method": "bank_transfer",
-    "bank_code": "044",
-    "account_number": "0123456789",
-    "account_name": "John Doe",
-    "reference": "payout_ref_001",
-    "narration": "Payment for services"
+    "from_amount": 100,
+    "from_currency_id": "NGN",
+    "to_currency_id": "NGN",
+    "account_number": "1234567890",
+    "bank_id": "1"
   }'
 ```
 
-```bash cURL - Interac
+```bash cURL - Interac (CAD)
 curl --request POST \
   --url https://api-dev.blaaiz.com/api/external/payout \
   --header 'Content-Type: application/json' \
   --header 'x-blaaiz-api-key: YOUR_API_KEY' \
   --data '{
-    "customer_id": "customer_123",
-    "wallet_id": "wallet_123",
-    "amount": 10000,
-    "currency": "CAD",
+    "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+    "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
     "method": "interac",
-    "email": "john@example.com",
-    "reference": "payout_ref_002",
-    "narration": "Payment for services",
-    "interac_question": "Favorite color?",
-    "interac_answer": "Blue"
+    "from_amount": 100,
+    "from_currency_id": "CAD",
+    "to_currency_id": "CAD",
+    "email": "user@example.com",
+    "interac_first_name": "John",
+    "interac_last_name": "Doe"
+  }'
+```
+
+```bash cURL - Crypto
+curl --request POST \
+  --url https://api-dev.blaaiz.com/api/external/payout \
+  --header 'Content-Type: application/json' \
+  --header 'x-blaaiz-api-key: YOUR_API_KEY' \
+  --data '{
+    "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+    "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+    "method": "crypto",
+    "from_amount": 100,
+    "from_currency_id": "USD",
+    "to_currency_id": "USD",
+    "wallet_address": "0x1234567890abcdef",
+    "wallet_network": "ETHEREUM_MAINNET",
+    "wallet_token": "USDT"
   }'
 ```
 
@@ -175,16 +304,14 @@ const response = await fetch('https://api-dev.blaaiz.com/api/external/payout', {
     'x-blaaiz-api-key': 'YOUR_API_KEY'
   },
   body: JSON.stringify({
-    customer_id: 'customer_123',
-    wallet_id: 'wallet_123',
-    amount: 50000,
-    currency: 'NGN',
+    wallet_id: 'b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01',
+    customer_id: '9d4c4ec5-59ea-4130-bf8a-6a5edec401ee',
     method: 'bank_transfer',
-    bank_code: '044',
-    account_number: '0123456789',
-    account_name: 'John Doe',
-    reference: 'payout_ref_001',
-    narration: 'Payment for services'
+    from_amount: 100,
+    from_currency_id: 'NGN',
+    to_currency_id: 'NGN',
+    account_number: '1234567890',
+    bank_id: '1'
   })
 });
 
@@ -200,16 +327,14 @@ headers = {
     "x-blaaiz-api-key": "YOUR_API_KEY"
 }
 payload = {
-    "customer_id": "customer_123",
-    "wallet_id": "wallet_123",
-    "amount": 50000,
-    "currency": "NGN",
+    "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+    "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
     "method": "bank_transfer",
-    "bank_code": "044",
-    "account_number": "0123456789",
-    "account_name": "John Doe",
-    "reference": "payout_ref_001",
-    "narration": "Payment for services"
+    "from_amount": 100,
+    "from_currency_id": "NGN",
+    "to_currency_id": "NGN",
+    "account_number": "1234567890",
+    "bank_id": "1"
 }
 
 response = requests.post(url, json=payload, headers=headers)
@@ -218,21 +343,31 @@ data = response.json()
 </RequestExample>
 
 <ResponseExample>
-```json 201 Created
+```json 200 Success
 {
-  "status": true,
-  "message": "Payout initiated successfully",
-  "data": {
-    "id": "payout_123456789",
-    "transaction_id": "txn_987654321",
-    "customer_id": "customer_123",
-    "wallet_id": "wallet_123",
-    "amount": 50000,
+  "message": "Payout Initiated Successfully.",
+  "transaction": {
+    "id": "f20199fd-bdaf-483b-8ff1-08f9ab12f4ca",
+    "business_id": "9d46461e-f991-423e-9f23-1dbff4079119",
+    "business_customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+    "business_wallet_id": "9228327b-d448-43f4-a78a-0211edad4365",
+    "status": "SUCCESSFUL",
+    "reference": "ef5ba1ca-2a5f-4092-b19d-11f9f7ecbbac",
     "currency": "NGN",
-    "method": "bank_transfer",
-    "status": "processing",
-    "reference": "payout_ref_001",
-    "created_at": "2024-01-15T10:30:00Z"
+    "amount": 473,
+    "amount_without_fee": 473,
+    "fee": 0,
+    "rate": 1,
+    "date": "2024-10-18T11:38:17.000000Z",
+    "recipient": {
+      "id": "6c258e65-de94-4d9d-87fb-117480a9d0e7",
+      "account_number": "1234567890",
+      "account_name": "Tunde Balogun",
+      "amount": 473,
+      "currency": "NGN",
+      "bank_name": "Access Bank",
+      "bank_code": "044"
+    }
   }
 }
 ```
