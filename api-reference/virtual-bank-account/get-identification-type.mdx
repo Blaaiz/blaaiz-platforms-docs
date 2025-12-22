@@ -4,7 +4,9 @@ description: Retrieve identification types for virtual bank account creation
 api: GET /api/external/virtual-bank-account/identification-type
 ---
 
-Retrieve the available identification types for virtual bank account creation. This endpoint helps you determine which identification documents are required based on customer type and country.
+Retrieve the expected identification type label based on country and customer type. This endpoint returns the label for the `tin` field required when [creating a customer](/api-reference/customer/create#param-tin).
+
+For example, if the customer country is Nigeria, it returns the label "Bank Verification Number", indicating what value should be collected for the `tin` property during customer creation.
 
 ## Headers
 
@@ -29,99 +31,19 @@ Retrieve the available identification types for virtual bank account creation. T
 ## Response
 
 <ResponseField name="message" type="string">
-  Response message
+  Response message.
 </ResponseField>
 
 <ResponseField name="data" type="object">
-  The virtual bank account details
+  The identification type details.
   
-  <Expandable title="Virtual bank account object">
-    <ResponseField name="id" type="string">
-      Unique identifier for the virtual bank account
+  <Expandable title="Identification type object">
+    <ResponseField name="label" type="string">
+      The human-readable label for the identification type (e.g., "Bank Verification Number" for Nigeria).
     </ResponseField>
     
-    <ResponseField name="business_wallet_id" type="string">
-      The business wallet ID associated with this virtual account
-    </ResponseField>
-    
-    <ResponseField name="currency_id" type="integer">
-      The currency ID
-    </ResponseField>
-    
-    <ResponseField name="currency" type="string">
-      The currency code (e.g., NGN)
-    </ResponseField>
-    
-    <ResponseField name="account_number" type="string">
-      The virtual account number
-    </ResponseField>
-    
-    <ResponseField name="account_name" type="string">
-      The name on the virtual account
-    </ResponseField>
-    
-    <ResponseField name="bank_name" type="string">
-      The bank name for the virtual account
-    </ResponseField>
-    
-    <ResponseField name="bank_code" type="string">
-      The bank code
-    </ResponseField>
-    
-    <ResponseField name="account_reference" type="string">
-      The account reference
-    </ResponseField>
-    
-    <ResponseField name="reservation_reference" type="string">
-      The reservation reference (if applicable)
-    </ResponseField>
-    
-    <ResponseField name="wallet" type="object">
-      The associated wallet details
-      
-      <Expandable title="Wallet object">
-        <ResponseField name="id" type="string">
-          Wallet ID
-        </ResponseField>
-        
-        <ResponseField name="currency" type="string">
-          Wallet currency
-        </ResponseField>
-        
-        <ResponseField name="is_active" type="boolean">
-          Whether the wallet is active
-        </ResponseField>
-      </Expandable>
-    </ResponseField>
-    
-    <ResponseField name="business_customer" type="object">
-      The associated customer details
-      
-      <Expandable title="Customer object">
-        <ResponseField name="id" type="string">
-          Customer ID
-        </ResponseField>
-        
-        <ResponseField name="first_name" type="string">
-          Customer first name
-        </ResponseField>
-        
-        <ResponseField name="last_name" type="string">
-          Customer last name
-        </ResponseField>
-        
-        <ResponseField name="business_name" type="string">
-          Business name (for business customers)
-        </ResponseField>
-        
-        <ResponseField name="type" type="string">
-          Customer type (individual or business)
-        </ResponseField>
-        
-        <ResponseField name="email" type="string">
-          Customer email
-        </ResponseField>
-      </Expandable>
+    <ResponseField name="type" type="string">
+      The identification type code.
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -164,31 +86,10 @@ data = response.json()
 <ResponseExample>
 ```json 200 Success
 {
-  "message": "Virtual bank account retrieved successfully.",
+  "message": "Identification type retrieved successfully.",
   "data": {
-    "id": "34e4864b-d6cb-4041-bbed-ddcfdb61c3cc",
-    "business_wallet_id": "5ac1a1a5-cafa-4685-af49-b55d70c3e22f",
-    "currency_id": 2,
-    "currency": "NGN",
-    "account_number": "7880000024",
-    "account_name": "John Doe",
-    "bank_name": "78 Finance Company Limited",
-    "bank_code": "123456",
-    "account_reference": "885ae193-98a8-3feb-bc19-0e6377a0a140",
-    "reservation_reference": null,
-    "wallet": {
-      "id": "5ac1a1a5-cafa-4685-af49-b55d70c3e22f",
-      "currency": "NGN",
-      "is_active": true
-    },
-    "business_customer": {
-      "id": "",
-      "first_name": "",
-      "last_name": "",
-      "business_name": null,
-      "type": "individual",
-      "email": ""
-    }
+    "label": "Bank Verification Number",
+    "type": "bvn"
   }
 }
 ```
