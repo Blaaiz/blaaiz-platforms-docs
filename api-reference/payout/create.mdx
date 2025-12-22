@@ -305,21 +305,31 @@ data = response.json()
 </RequestExample>
 
 <ResponseExample>
-```json 201 Created
+```json 200 Success
 {
-  "status": true,
-  "message": "Payout initiated successfully",
-  "data": {
-    "id": "payout_123456789",
-    "transaction_id": "txn_987654321",
-    "customer_id": "customer_123",
-    "wallet_id": "wallet_123",
-    "amount": 50000,
+  "message": "Payout Initiated Successfully.",
+  "transaction": {
+    "id": "f20199fd-bdaf-483b-8ff1-08f9ab12f4ca",
+    "business_id": "9d46461e-f991-423e-9f23-1dbff4079119",
+    "business_customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+    "business_wallet_id": "9228327b-d448-43f4-a78a-0211edad4365",
+    "status": "SUCCESSFUL",
+    "reference": "ef5ba1ca-2a5f-4092-b19d-11f9f7ecbbac",
     "currency": "NGN",
-    "method": "bank_transfer",
-    "status": "processing",
-    "reference": "payout_ref_001",
-    "created_at": "2024-01-15T10:30:00Z"
+    "amount": 473,
+    "amount_without_fee": 473,
+    "fee": 0,
+    "rate": 1,
+    "date": "2024-10-18T11:38:17.000000Z",
+    "recipient": {
+      "id": "6c258e65-de94-4d9d-87fb-117480a9d0e7",
+      "account_number": "1234567890",
+      "account_name": "Tunde Balogun",
+      "amount": 473,
+      "currency": "NGN",
+      "bank_name": "Access Bank",
+      "bank_code": "044"
+    }
   }
 }
 ```
