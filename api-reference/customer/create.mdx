@@ -146,18 +146,18 @@ curl --request POST \
     "type": "individual",
     "first_name": "John",
     "last_name": "Doe",
-    "email": "john@example.com",
-    "phone_number": "+2348012345678",
-    "date_of_birth": "1990-01-15",
-    "address": {
-      "street": "123 Main Street",
-      "city": "Lagos",
-      "state": "Lagos",
-      "country": "NG",
-      "postal_code": "100001"
-    },
+    "email": "john.doe@company.com",
+    "country": "NG",
     "id_type": "passport",
-    "id_number": "A12345678"
+    "id_number": "6733823632872",
+    "phone": "+2348012345678",
+    "dob": "1990-01-15",
+    "street": "123 Main Street",
+    "city": "Lagos",
+    "state": "Lagos",
+    "zip_code": "100001",
+    "id_expiry_date": "2030-01-15",
+    "id_issue_date": "2020-01-15"
   }'
 ```
 
@@ -170,16 +170,15 @@ curl --request POST \
     "type": "business",
     "business_name": "Acme Corp",
     "email": "contact@acme.com",
-    "phone_number": "+2348012345678",
-    "address": {
-      "street": "456 Business Ave",
-      "city": "Lagos",
-      "state": "Lagos",
-      "country": "NG",
-      "postal_code": "100001"
-    },
+    "country": "NG",
     "id_type": "certificate_of_incorporation",
-    "id_number": "RC123456"
+    "id_number": "RC123456",
+    "phone": "+2348012345678",
+    "tin": "12345678-0001",
+    "street": "456 Business Ave",
+    "city": "Lagos",
+    "state": "Lagos",
+    "zip_code": "100001"
   }'
 ```
 
@@ -194,18 +193,16 @@ const response = await fetch('https://api-dev.blaaiz.com/api/external/customer',
     type: 'individual',
     first_name: 'John',
     last_name: 'Doe',
-    email: 'john@example.com',
-    phone_number: '+2348012345678',
-    date_of_birth: '1990-01-15',
-    address: {
-      street: '123 Main Street',
-      city: 'Lagos',
-      state: 'Lagos',
-      country: 'NG',
-      postal_code: '100001'
-    },
+    email: 'john.doe@company.com',
+    country: 'NG',
     id_type: 'passport',
-    id_number: 'A12345678'
+    id_number: '6733823632872',
+    phone: '+2348012345678',
+    dob: '1990-01-15',
+    street: '123 Main Street',
+    city: 'Lagos',
+    state: 'Lagos',
+    zip_code: '100001'
   })
 });
 
@@ -224,18 +221,16 @@ payload = {
     "type": "individual",
     "first_name": "John",
     "last_name": "Doe",
-    "email": "john@example.com",
-    "phone_number": "+2348012345678",
-    "date_of_birth": "1990-01-15",
-    "address": {
-        "street": "123 Main Street",
-        "city": "Lagos",
-        "state": "Lagos",
-        "country": "NG",
-        "postal_code": "100001"
-    },
+    "email": "john.doe@company.com",
+    "country": "NG",
     "id_type": "passport",
-    "id_number": "A12345678"
+    "id_number": "6733823632872",
+    "phone": "+2348012345678",
+    "dob": "1990-01-15",
+    "street": "123 Main Street",
+    "city": "Lagos",
+    "state": "Lagos",
+    "zip_code": "100001"
 }
 
 response = requests.post(url, json=payload, headers=headers)
