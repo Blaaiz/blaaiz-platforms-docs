@@ -241,17 +241,19 @@ data = response.json()
 <ResponseExample>
 ```json 201 Created
 {
-  "status": true,
-  "message": "Customer created successfully",
+  "message": "Customer created successfully.",
   "data": {
-    "id": "customer_123456789",
-    "type": "individual",
+    "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+    "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
     "first_name": "John",
     "last_name": "Doe",
-    "email": "john@example.com",
-    "phone_number": "+2348012345678",
-    "status": "pending",
-    "created_at": "2024-01-15T10:30:00Z"
+    "business_name": null,
+    "type": "individual",
+    "email": "john.doe@company.com",
+    "country": "NG",
+    "id_type": "passport",
+    "id_number": "6733823632872",
+    "verification_status": "PENDING"
   }
 }
 ```
