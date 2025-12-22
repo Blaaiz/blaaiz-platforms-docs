@@ -20,56 +20,132 @@ For payouts in all currencies, we deliver a webhook when the payment is complete
 
 ## Body Parameters
 
-<ParamField body="customer_id" type="string" required>
-  The unique identifier of the customer receiving the payout
-</ParamField>
-
 <ParamField body="wallet_id" type="string" required>
-  The wallet ID from which funds will be debited
+  The ID of the business wallet associated with the payout.
 </ParamField>
 
-<ParamField body="amount" type="number" required>
-  The amount to send (in the smallest currency unit, e.g., kobo for NGN)
-</ParamField>
-
-<ParamField body="currency" type="string" required>
-  The currency code (e.g., NGN, CAD, USD)
+<ParamField body="customer_id" type="string" required>
+  The unique identifier of the customer receiving the payout.
 </ParamField>
 
 <ParamField body="method" type="string" required>
-  The payout method. Options: `bank_transfer`, `interac`
+  The payout method. Options: `bank_transfer`, `interac`, `crypto`, `wire`, `ach`.
 </ParamField>
 
-<ParamField body="bank_code" type="string">
-  The bank code (required for bank_transfer method)
+<ParamField body="from_amount" type="string" required>
+  The amount being sent. Required without `to_amount` value.
 </ParamField>
 
-<ParamField body="account_number" type="string">
-  The recipient's account number (required for bank_transfer method)
+<ParamField body="from_currency_id" type="string" required>
+  The currency used for the payout. Can be ID or currency code (e.g., NGN).
 </ParamField>
 
-<ParamField body="account_name" type="string">
-  The recipient's account name (required for bank_transfer method)
+<ParamField body="to_currency_id" type="string" required>
+  The currency to be received by the recipient. Can be ID or currency code (e.g., NGN).
+</ParamField>
+
+<ParamField body="to_amount" type="string">
+  The target amount for the payout. Use this when you want the recipient to receive an exact amount.
+</ParamField>
+
+<ParamField body="type" type="string">
+  Required if method is `ach` or `wire`. Options: `individual`, `business`.
+</ParamField>
+
+<ParamField body="phone_number" type="string">
+  The recipient's phone number.
 </ParamField>
 
 <ParamField body="email" type="string">
-  The recipient's email (required for interac method)
+  The recipient's email address. Required if the method is `interac`.
 </ParamField>
 
-<ParamField body="reference" type="string">
-  Your unique reference for this transaction
+<ParamField body="interac_first_name" type="string">
+  The recipient's first name for Interac payouts. Required if the method is `interac`.
 </ParamField>
 
-<ParamField body="narration" type="string">
-  Description or note for the payout
+<ParamField body="interac_last_name" type="string">
+  The recipient's last name for Interac payouts. Required if the method is `interac`.
 </ParamField>
 
-<ParamField body="interac_question" type="string">
-  Security question for Interac transfer (required for interac method)
+<ParamField body="bank_id" type="string">
+  The ID of the bank where the recipient holds an account. Required if the payout method is `bank_transfer` and the currency code is NGN.
 </ParamField>
 
-<ParamField body="interac_answer" type="string">
-  Answer to the security question (required for interac method)
+<ParamField body="account_number" type="string">
+  The recipient's bank account number. Required if the method is `bank_transfer`, `ach`, or `wire` and currency is not EUR or CAD.
+</ParamField>
+
+<ParamField body="account_name" type="string">
+  The recipient's bank account name. Required if the method is `bank_transfer`, `ach`, or `wire` and currency is USD, GBP, or EUR.
+</ParamField>
+
+<ParamField body="account_type" type="string">
+  Required if method is `ach` or `wire` and currency code is USD. Options: `checking`, `savings`.
+</ParamField>
+
+<ParamField body="bank_name" type="string">
+  Required if method is `ach` or `wire` and currency code is USD.
+</ParamField>
+
+<ParamField body="routing_number" type="string">
+  Required if method is `ach` or `wire` and currency code is USD.
+</ParamField>
+
+<ParamField body="swift_code" type="string">
+  Required if method is `wire` and currency code is USD.
+</ParamField>
+
+<ParamField body="sort_code" type="string">
+  Required if the method is `bank_transfer` and the currency is GBP.
+</ParamField>
+
+<ParamField body="iban" type="string">
+  Required if the method is `bank_transfer` and the currency is EUR.
+</ParamField>
+
+<ParamField body="bic_code" type="string">
+  Required if the method is `bank_transfer` and the currency is EUR.
+</ParamField>
+
+<ParamField body="country" type="string">
+  The country of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="state" type="string">
+  The state of the recipient. Required if the method is `ach` or `wire` and the currency is USD.
+</ParamField>
+
+<ParamField body="street" type="string">
+  The street address of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="city" type="string">
+  The city of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="zip_code" type="string">
+  The postal/ZIP code of the recipient. Required if the method is `bank_transfer`, `ach`, or `wire` and the currency is USD, EUR, or GBP.
+</ParamField>
+
+<ParamField body="country_id" type="string">
+  Optional. Helps to further narrow down the from/to currency.
+</ParamField>
+
+<ParamField body="wallet_address" type="string">
+  Required if the method is `crypto`.
+</ParamField>
+
+<ParamField body="wallet_token" type="string">
+  Required if the method is `crypto`. Allowed values: `USDT`, `USDC`.
+</ParamField>
+
+<ParamField body="wallet_network" type="string">
+  Required if the method is `crypto`. Allowed values: `BSC_MAINNET`, `ETHEREUM_MAINNET`, `TRON_MAINNET`, `MATIC_MAINNET`.
+</ParamField>
+
+<ParamField body="note" type="string">
+  Optional. Serves as the narration for the transaction. If left empty, the name of the business will be used.
 </ParamField>
 
 ## Response
