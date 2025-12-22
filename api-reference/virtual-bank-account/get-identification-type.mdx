@@ -1,10 +1,12 @@
 ---
 title: Get identification type
-description: Retrieve identification types for virtual bank account creation
-api: GET /api/externa/virtual-bank-account/identification-type
+description: Retrieve the expected identification type label for customer creation
+api: GET /api/external/virtual-bank-account/identification-type
 ---
 
-Retrieve the available identification types for virtual bank account creation. This endpoint helps you determine which identification documents are required based on customer type and country.
+Retrieve the expected identification type label based on country and customer type. This endpoint returns the label for the `tin` field required when [creating a customer](/api-reference/customer/create#param-tin).
+
+For example, if the customer country is Nigeria, it returns the label "Bank Verification Number", indicating what value should be collected for the `tin` property during customer creation.
 
 ## Headers
 
