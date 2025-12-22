@@ -12,6 +12,16 @@ This endpoint retrieves all virtual bank accounts (VBAs) associated with a speci
   Your API key for authentication
 </ParamField>
 
+## Query Parameters
+
+<ParamField query="wallet_id" type="string" required>
+  The unique identifier of the wallet to which the virtual bank accounts are linked.
+</ParamField>
+
+<ParamField query="customer_id" type="string">
+  The unique identifier of the customer you want to retrieve for (if provided).
+</ParamField>
+
 ## Response
 
 <ResponseField name="status" type="boolean">
