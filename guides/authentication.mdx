@@ -1,19 +1,32 @@
 ---
 title: Authentication
-description: Learn how to authenticate your API requests
+description: Learn how to authenticate your API requests to the Blaaiz API.
 ---
 
-Blaaiz RaaS uses API keys for authentication/authorization of all API requests. After generating your API key (as described in the Getting Started section), you must include it in the headers of every API request.
+## Overview
 
-The API key should be included as a header named `x-blaaiz-api-key` in every request you send. Failure to include the API key or using an incorrect one will result in an authentication error.
+The Blaaiz Platform API uses API keys to authenticate and authorize all requests. Every request to the API must include a valid API key in the request headers.
 
-```json
-x-blaaiz-api-key: YOUR_API_KEY_HERE
+You can generate and manage your API keys from the Blaaiz Dashboard (see Getting Started).
+
+## Using Your API Key
+
+Include your API key in the request headers. Example (curl):
+
+```bash
+curl -X GET https://api-prod.blaaiz.com/api/wallets \
+  -H "x-blaaiz-api-key: YOUR_API_KEY_HERE"
 ```
+
+## Important Notes
+
+- The API key must be included with every request.
+- API keys are secret credentials. Do not expose them in client-side code or public repositories.
+- Requests without a valid API key will fail with an authentication error.
 
 ## Authentication errors
 
-Blaaiz RaaS API provides specific error messages for authentication issues:
+Blaaiz Platform API provides specific error messages for authentication issues:
 
 ### 401 Unauthorized
 
@@ -21,7 +34,7 @@ Blaaiz RaaS API provides specific error messages for authentication issues:
 - The API key is malformed or improperly formatted.
 
 <Note>
-Ensure that the API key is correctly included in your request headers.
+  Ensure that the API key is correctly included in your request headers.
 </Note>
 
 ### 403 Access Denied
@@ -32,5 +45,6 @@ This error occurs in the following cases:
 - Your access to the API services has been disabled by Blaaiz.
 
 <Warning>
-Make sure that your API key is active and your account is properly set up for API service access to avoid these errors.
+  Make sure that your API key is active and your account is properly set up for
+  API service access to avoid these errors.
 </Warning>
