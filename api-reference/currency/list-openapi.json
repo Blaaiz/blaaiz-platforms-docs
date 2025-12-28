@@ -42,15 +42,16 @@
                         "type": "string",
                         "description": "Full name of the currency"
                     },
-                    "country": {
-                        "type": "string",
-                        "description": "Country or region where the currency is used"
+                    "active": {
+                        "type": "boolean",
+                        "description": "Indicates if the currency is active"
                     }
                 },
                 "required": [
                     "id",
                     "code",
-                    "name"
+                    "name",
+                    "active"
                 ]
             },
             "CurrencyListResponse": {
@@ -112,31 +113,31 @@
                                             "id": "currency_001",
                                             "code": "NGN",
                                             "name": "Nigerian Naira",
-                                            "country": "Nigeria"
+                                            "active": true
                                         },
                                         {
                                             "id": "currency_002",
                                             "code": "CAD",
                                             "name": "Canadian Dollar",
-                                            "country": "Canada"
+                                            "active": true
                                         },
                                         {
                                             "id": "currency_003",
                                             "code": "USD",
                                             "name": "United States Dollar",
-                                            "country": "United States"
+                                            "active": true
                                         },
                                         {
                                             "id": "currency_004",
                                             "code": "EUR",
                                             "name": "Euro",
-                                            "country": "European Union"
+                                            "active": true
                                         },
                                         {
                                             "id": "currency_005",
                                             "code": "GBP",
                                             "name": "British Pound",
-                                            "country": "United Kingdom"
+                                            "active": true
                                         }
                                     ]
                                 }
