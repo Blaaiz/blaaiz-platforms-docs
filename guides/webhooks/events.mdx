@@ -1,0 +1,44 @@
+---
+title: Webhook events and payloads
+description: Reference for Blaaiz webhook event types and common payload structure
+---
+
+Use this page to quickly see which events Blaaiz emits and what every webhook payload contains.
+
+## Event types
+
+### Payout events
+
+- `payout.initiated` — Payout has been created
+- `payout.processing` — Payout is being processed
+- `payout.completed` — Payout completed successfully
+- `payout.failed` — Payout failed
+
+### Collection events
+
+- `collection.initiated` — Collection request created
+- `collection.pending` — Awaiting customer payment
+- `collection.completed` — Payment received successfully
+- `collection.failed` — Payment failed
+
+### Customer events
+
+- `customer.created` — New customer created
+- `customer.verified` — Customer KYC verified
+- `customer.rejected` — Customer KYC rejected
+
+### Virtual account events
+
+- `virtual_account.created` — Virtual account created
+- `virtual_account.credited` — Funds received in virtual account
+
+## Payload structure
+
+All webhook payloads include:
+
+- `event` — The event type
+- `data` — The event data object
+- `timestamp` — When the event occurred
+- `signature` — HMAC signature for verification (header: `x-blaaiz-signature`)
+
+> Always verify the `x-blaaiz-signature` to ensure the webhook originates from Blaaiz.
