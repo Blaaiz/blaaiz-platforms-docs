@@ -132,9 +132,6 @@
             "Error": {
                 "type": "object",
                 "properties": {
-                    "status": {
-                        "type": "boolean"
-                    },
                     "message": {
                         "type": "string"
                     }
@@ -182,6 +179,26 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/VirtualBankAccountResponse"
+                                },
+                                "example": {
+                                    "message": "Virtual bank accounts retrieved successfully.",
+                                    "data": [
+                                        {
+                                            "id": "33580c65-d063-4138-a875-82ff09dfaeb5",
+                                            "business_wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                            "currency_id": 1,
+                                            "currency": "NGN",
+                                            "account_number": "7880000024",
+                                            "iban": null,
+                                            "account_name": "John Doe",
+                                            "bank_name": "78 Finance Company Limited",
+                                            "bank_code": "123456",
+                                            "account_reference": "2327323232",
+                                            "reservation_reference": null,
+                                            "sort_code": null,
+                                            "bank_address": null
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -192,6 +209,9 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
                                 }
                             }
                         }
