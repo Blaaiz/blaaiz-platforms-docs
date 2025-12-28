@@ -66,9 +66,6 @@
             "BankListResponse": {
                 "type": "object",
                 "properties": {
-                    "status": {
-                        "type": "boolean"
-                    },
                     "message": {
                         "type": "string"
                     },
@@ -141,7 +138,6 @@
                                     "$ref": "#/components/schemas/BankListResponse"
                                 },
                                 "example": {
-                                    "status": true,
                                     "message": "Banks retrieved successfully.",
                                     "data": [
                                         {
