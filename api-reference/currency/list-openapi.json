@@ -1,0 +1,200 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - List Currencies",
+        "version": "1.0.0",
+        "description": "Retrieve all supported currencies"
+    },
+    "tags": [
+        {
+            "name": "Currency"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "Currency": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the currency"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "Currency code (e.g., NGN, CAD, USD, EUR, GBP)"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Full name of the currency"
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "description": "Currency symbol (e.g., ₦, $, €, £)"
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "Country or region where the currency is used"
+                    },
+                    "supported_methods": {
+                        "type": "array",
+                        "description": "Supported payment methods for this currency",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "code",
+                    "name"
+                ]
+            },
+            "CurrencyListResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Currency"
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/currency": {
+            "get": {
+                "summary": "List all currencies",
+                "description": "Retrieve all supported currencies.",
+                "tags": [
+                    "Currency"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Currencies retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CurrencyListResponse"
+                                },
+                                "example": {
+                                    "message": "Currencies retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "currency_001",
+                                            "code": "NGN",
+                                            "name": "Nigerian Naira",
+                                            "symbol": "₦",
+                                            "country": "Nigeria",
+                                            "supported_methods": [
+                                                "bank_transfer",
+                                                "card",
+                                                "virtual_account"
+                                            ]
+                                        },
+                                        {
+                                            "id": "currency_002",
+                                            "code": "CAD",
+                                            "name": "Canadian Dollar",
+                                            "symbol": "$",
+                                            "country": "Canada",
+                                            "supported_methods": [
+                                                "interac",
+                                                "bank_transfer"
+                                            ]
+                                        },
+                                        {
+                                            "id": "currency_003",
+                                            "code": "USD",
+                                            "name": "United States Dollar",
+                                            "symbol": "$",
+                                            "country": "United States",
+                                            "supported_methods": [
+                                                "bank_transfer",
+                                                "virtual_account"
+                                            ]
+                                        },
+                                        {
+                                            "id": "currency_004",
+                                            "code": "EUR",
+                                            "name": "Euro",
+                                            "symbol": "€",
+                                            "country": "European Union",
+                                            "supported_methods": [
+                                                "open_banking",
+                                                "bank_transfer"
+                                            ]
+                                        },
+                                        {
+                                            "id": "currency_005",
+                                            "code": "GBP",
+                                            "name": "British Pound",
+                                            "symbol": "£",
+                                            "country": "United Kingdom",
+                                            "supported_methods": [
+                                                "open_banking",
+                                                "bank_transfer"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
