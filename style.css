@@ -1,0 +1,196 @@
+/* Global styles for custom landing pages */
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  color: #0f172a;
+}
+.home-page h1,
+.home-page h2,
+.home-page p {
+  margin: 0;
+}
+.home-page h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.home-hero {
+  padding-top: 200px;
+  padding-bottom: 200px;
+
+  background:
+    /* Bottom fade into pure white */ 
+    /*  */ linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 1) 100%
+    ),
+    /* Main color wash */
+      linear-gradient(
+        180deg,
+        rgba(76, 99, 245, 0.08) 10%,
+        rgba(245, 247, 255, 0.9) 70%,
+        rgba(255, 255, 255, 1) 100%
+      ),
+    /* Dot grid */
+      repeating-radial-gradient(
+        circle,
+        rgba(76, 99, 245, 0.18) 0 1px,
+        transparent 1px 14px
+      );
+
+  background-color: #ffffff;
+}
+
+.home-hero__content {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+.home-hero__title {
+  font-size: 48px;
+  line-height: 1.2;
+  margin: 0 0 30px 0 !important;
+  color: #0f172a;
+}
+.home-hero__body {
+  font-size: 17px;
+  line-height: 1.7;
+  margin: 0 0 28px 0;
+  color: #1f2937;
+}
+.home-hero__actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.home-hero__cta {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: #4c63f5;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.home-hero__cta:hover {
+  background: #4559da;
+  transform: translateY(-1px);
+}
+.home-hero__cta:active {
+  transform: translateY(0);
+}
+
+/* Main content container */
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 10px;
+  padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.home-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.home-section__title {
+  font-size: 1.1rem;
+  margin-bottom: 15px !important;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+/* Card tweaks for parity */
+.home-section .CardGroup,
+.home-section .card-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 960px) {
+  .home-section .CardGroup,
+  .home-section .card-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .home-section .CardGroup,
+  .home-section .card-group {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+.home-section .Card,
+.home-section .card {
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.home-section .Card:hover,
+.home-section .card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+.home-section .Card h3,
+.home-section .Card h2,
+.home-section .card h3,
+.home-section .card h2 {
+  margin-top: 10px;
+  margin-bottom: 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.home-section .Card svg,
+.home-section .card svg {
+  color: #15803d;
+  width: 20px;
+  height: 20px;
+}
+.home-section .Card p,
+.home-section .card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Hide sidebars on custom landing */
+body .home-page-left-sidebar,
+body nav[aria-label="Primary"],
+body aside[class*="sidebar"],
+body div[class*="SideNav"],
+body div[class*="SideBar"],
+body aside[aria-label="On this page"] {
+  display: none !important;
+}
+body main[class*="content"] {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 0 48px;
+}
+
+.coming-soon {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(76, 99, 245, 0.12);
+  color: #4c63f5;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
