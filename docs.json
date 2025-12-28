@@ -177,10 +177,9 @@
           {
             "group": "Webhook",
             "pages": [
-              "api-reference/webhook/register",
-              "api-reference/webhook/get",
-              "api-reference/webhook/update",
-              "api-reference/webhook/replay"
+              "/api-reference/webhook/get-openapi.json GET /api/external/webhook",
+              "/api-reference/webhook/update-openapi.json PUT /api/external/webhook",
+              "/api-reference/webhook/replay-openapi.json POST /api/external/webhook-replay"
             ]
           }
         ]
