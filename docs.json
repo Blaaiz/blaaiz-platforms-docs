@@ -157,8 +157,8 @@
           {
             "group": "Transaction",
             "pages": [
-              "api-reference/transaction/get",
-              "api-reference/transaction/list"
+              "/api-reference/transaction/get-openapi.json GET /api/external/transaction/{id}",
+              "/api-reference/transaction/list-openapi.json POST /api/external/transaction"
             ]
           },
           {

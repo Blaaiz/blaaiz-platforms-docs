@@ -1,0 +1,347 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Transaction",
+        "version": "1.0.0",
+        "description": "Retrieve details of a specific transaction"
+    },
+    "tags": [
+        {
+            "name": "Transaction"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "SourceInformation": {
+                "type": "object",
+                "properties": {
+                    "collection_email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Collection email used"
+                    }
+                }
+            },
+            "Recipient": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Recipient ID"
+                    },
+                    "account_number": {
+                        "type": "string",
+                        "description": "Account number"
+                    },
+                    "account_name": {
+                        "type": "string",
+                        "description": "Account name"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount received"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code"
+                    },
+                    "bank_name": {
+                        "type": "string",
+                        "description": "Bank name"
+                    },
+                    "bank_code": {
+                        "type": "string",
+                        "description": "Bank code"
+                    },
+                    "status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Recipient status"
+                    },
+                    "routing_number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Routing number if applicable"
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Recipient email"
+                    }
+                }
+            },
+            "Transaction": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Transaction ID"
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Business ID"
+                    },
+                    "business_customer_id": {
+                        "type": "string",
+                        "description": "Customer ID"
+                    },
+                    "business_wallet_id": {
+                        "type": "string",
+                        "description": "Wallet ID"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Transaction status"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Transaction type (collection, payout)"
+                    },
+                    "reference": {
+                        "type": "string",
+                        "description": "Transaction reference"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Total amount"
+                    },
+                    "amount_without_fee": {
+                        "type": "number",
+                        "description": "Amount without fee"
+                    },
+                    "fee": {
+                        "type": "number",
+                        "description": "Transaction fee"
+                    },
+                    "rate": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Exchange rate"
+                    },
+                    "date": {
+                        "type": "string",
+                        "description": "Transaction date"
+                    },
+                    "payee_collection_email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Payee collection email"
+                    },
+                    "source_information": {
+                        "$ref": "#/components/schemas/SourceInformation"
+                    },
+                    "recipient": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Recipient"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "business_customer_id",
+                    "business_wallet_id",
+                    "status",
+                    "type",
+                    "reference",
+                    "currency",
+                    "amount",
+                    "amount_without_fee",
+                    "fee",
+                    "date",
+                    "source_information"
+                ]
+            },
+            "TransactionResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Transaction"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/transaction/{id}": {
+            "get": {
+                "summary": "Get transaction",
+                "description": "Retrieve information about a specific transaction.",
+                "tags": [
+                    "Transaction"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier of the transaction",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                },
+                                "examples": {
+                                    "Payout": {
+                                        "value": {
+                                            "message": "Transaction retrieved successfully",
+                                            "data": {
+                                                "id": "txn_123456789",
+                                                "business_id": "business_123",
+                                                "business_customer_id": "customer_123",
+                                                "business_wallet_id": "wallet_123",
+                                                "status": "completed",
+                                                "type": "payout",
+                                                "reference": "payout_ref_001",
+                                                "currency": "NGN",
+                                                "amount": 50000,
+                                                "amount_without_fee": 49500,
+                                                "fee": 500,
+                                                "rate": null,
+                                                "date": "2024-01-15T10:30:00Z",
+                                                "payee_collection_email": null,
+                                                "source_information": {
+                                                    "collection_email": null
+                                                },
+                                                "recipient": {
+                                                    "id": "recipient_123",
+                                                    "account_number": "0123456789",
+                                                    "account_name": "John Doe",
+                                                    "amount": 50000,
+                                                    "currency": "NGN",
+                                                    "bank_name": "Access Bank",
+                                                    "bank_code": "044",
+                                                    "status": "completed",
+                                                    "routing_number": null,
+                                                    "email": null
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "Collection": {
+                                        "value": {
+                                            "message": "Transaction retrieved successfully",
+                                            "data": {
+                                                "id": "txn_987654321",
+                                                "business_id": "business_123",
+                                                "business_customer_id": "customer_123",
+                                                "business_wallet_id": "wallet_123",
+                                                "status": "completed",
+                                                "type": "collection",
+                                                "reference": "collection_ref_001",
+                                                "currency": "NGN",
+                                                "amount": 50000,
+                                                "amount_without_fee": 50000,
+                                                "fee": 0,
+                                                "rate": null,
+                                                "date": "2024-01-15T09:10:00Z",
+                                                "payee_collection_email": "customer@company.com",
+                                                "source_information": {
+                                                    "collection_email": "collections@blaaiz.com"
+                                                },
+                                                "recipient": null
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Transaction not found"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
