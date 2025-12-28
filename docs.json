@@ -115,7 +115,7 @@
           {
             "group": "Payout",
             "pages": [
-              "api-reference/payout/create"
+              "/api-reference/payout/create-openapi.json POST /api/external/payout"
             ]
           },
           {

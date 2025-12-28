@@ -1,0 +1,429 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Create Payout",
+        "version": "1.0.0",
+        "description": "Initiate a payout to a recipient. We advise calling the fees breakdown endpoint first to get up-to-date fees. For payouts in all currencies, a webhook is delivered when the payment is completed; for some currencies (e.g., CAD), a webhook is delivered at initiation and again at completion."
+    },
+    "tags": [
+        {
+            "name": "Payout"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "PayoutRequest": {
+                "type": "object",
+                "properties": {
+                    "wallet_id": {
+                        "type": "string",
+                        "description": "Business wallet ID"
+                    },
+                    "customer_id": {
+                        "type": "string",
+                        "description": "Customer receiving the payout"
+                    },
+                    "method": {
+                        "type": "string",
+                        "description": "Payout method",
+                        "enum": [
+                            "bank_transfer",
+                            "interac",
+                            "crypto",
+                            "wire",
+                            "ach"
+                        ]
+                    },
+                    "from_amount": {
+                        "type": "number",
+                        "description": "Amount being sent (omit if using to_amount)"
+                    },
+                    "to_amount": {
+                        "type": "number",
+                        "description": "Exact amount the recipient should receive"
+                    },
+                    "from_currency_id": {
+                        "type": "string",
+                        "description": "Currency the business pays with (ID or code)"
+                    },
+                    "to_currency_id": {
+                        "type": "string",
+                        "description": "Currency the recipient gets (ID or code)"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Required if method is ach/wire",
+                        "enum": [
+                            "individual",
+                            "business"
+                        ]
+                    },
+                    "phone_number": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Required for interac"
+                    },
+                    "interac_first_name": {
+                        "type": "string",
+                        "description": "Required for interac"
+                    },
+                    "interac_last_name": {
+                        "type": "string",
+                        "description": "Required for interac"
+                    },
+                    "bank_id": {
+                        "type": "string",
+                        "description": "Required when method=bank_transfer and currency=NGN"
+                    },
+                    "account_number": {
+                        "type": "string",
+                        "description": "Required for bank_transfer/ach/wire when currency not EUR/CAD"
+                    },
+                    "account_name": {
+                        "type": "string",
+                        "description": "Required for bank_transfer/ach/wire when currency is USD/GBP/EUR"
+                    },
+                    "account_type": {
+                        "type": "string",
+                        "description": "Required for ach/wire when currency=USD",
+                        "enum": [
+                            "checking",
+                            "savings"
+                        ]
+                    },
+                    "bank_name": {
+                        "type": "string",
+                        "description": "Required for ach/wire when currency=USD"
+                    },
+                    "routing_number": {
+                        "type": "string",
+                        "description": "Required for ach/wire when currency=USD"
+                    },
+                    "swift_code": {
+                        "type": "string",
+                        "description": "Required for wire when currency=USD"
+                    },
+                    "sort_code": {
+                        "type": "string",
+                        "description": "Required for bank_transfer when currency=GBP"
+                    },
+                    "iban": {
+                        "type": "string",
+                        "description": "Required for bank_transfer when currency=EUR"
+                    },
+                    "bic_code": {
+                        "type": "string",
+                        "description": "Required for bank_transfer when currency=EUR"
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "Required for bank_transfer/ach/wire when currency is USD/EUR/GBP"
+                    },
+                    "state": {
+                        "type": "string",
+                        "description": "Required for ach/wire when currency=USD"
+                    },
+                    "street": {
+                        "type": "string",
+                        "description": "Required for bank_transfer/ach/wire when currency is USD/EUR/GBP"
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "Required for bank_transfer/ach/wire when currency is USD/EUR/GBP"
+                    },
+                    "zip_code": {
+                        "type": "string",
+                        "description": "Required for bank_transfer/ach/wire when currency is USD/EUR/GBP"
+                    },
+                    "country_id": {
+                        "type": "string",
+                        "description": "Optional country helper"
+                    },
+                    "wallet_address": {
+                        "type": "string",
+                        "description": "Required for crypto"
+                    },
+                    "wallet_token": {
+                        "type": "string",
+                        "description": "Required for crypto",
+                        "enum": [
+                            "USDT",
+                            "USDC"
+                        ]
+                    },
+                    "wallet_network": {
+                        "type": "string",
+                        "description": "Required for crypto",
+                        "enum": [
+                            "BSC_MAINNET",
+                            "ETHEREUM_MAINNET",
+                            "TRON_MAINNET",
+                            "MATIC_MAINNET"
+                        ]
+                    },
+                    "note": {
+                        "type": "string",
+                        "description": "Narration; defaults to business name if empty"
+                    }
+                },
+                "required": [
+                    "wallet_id",
+                    "customer_id",
+                    "method",
+                    "from_currency_id",
+                    "to_currency_id"
+                ],
+                "oneOf": [
+                    {
+                        "title": "Specify amount to send (from_amount)",
+                        "required": [
+                            "from_amount"
+                        ],
+                        "not": {
+                            "required": [
+                                "to_amount"
+                            ]
+                        }
+                    },
+                    {
+                        "title": "Specify amount recipient receives (to_amount)",
+                        "required": [
+                            "to_amount"
+                        ],
+                        "not": {
+                            "required": [
+                                "from_amount"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Recipient": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "account_number": {
+                        "type": "string"
+                    },
+                    "account_name": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "bank_name": {
+                        "type": "string"
+                    },
+                    "bank_code": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PayoutTransaction": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "business_id": {
+                        "type": "string"
+                    },
+                    "business_customer_id": {
+                        "type": "string"
+                    },
+                    "business_wallet_id": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "reference": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "amount_without_fee": {
+                        "type": "number"
+                    },
+                    "fee": {
+                        "type": "number"
+                    },
+                    "rate": {
+                        "type": "number"
+                    },
+                    "date": {
+                        "type": "string"
+                    },
+                    "recipient": {
+                        "$ref": "#/components/schemas/Recipient"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "business_customer_id",
+                    "business_wallet_id",
+                    "status",
+                    "reference",
+                    "currency",
+                    "amount",
+                    "amount_without_fee",
+                    "fee",
+                    "date"
+                ]
+            },
+            "PayoutResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "transaction": {
+                        "$ref": "#/components/schemas/PayoutTransaction"
+                    }
+                },
+                "required": [
+                    "message",
+                    "transaction"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/payout": {
+            "post": {
+                "summary": "Create a payout",
+                "description": "This endpoint is used to initiate a payout from a business wallet to a recipient using the specified payout method. \n \n We advise to call the `fees breakdown` endpoint to get up-to-date fees before proceeding with transaction. \n \n For payouts in all currencies, we deliver a webhook when the payment is completed. However, for some currencies (i.e., CAD), we deliver a webhook when the payment is initiated, and also when it is completed.",
+                "tags": [
+                    "Payout"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PayoutRequest"
+                            },
+                            "example": {
+                                "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                "method": "bank_transfer",
+                                "from_amount": 100,
+                                "from_currency_id": "NGN",
+                                "to_currency_id": "NGN",
+                                "account_number": "1234567890",
+                                "bank_id": "1"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payout initiated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PayoutResponse"
+                                },
+                                "example": {
+                                    "message": "Payout Initiated Successfully.",
+                                    "transaction": {
+                                        "id": "f20199fd-bdaf-483b-8ff1-08f9ab12f4ca",
+                                        "business_id": "9d46461e-f991-423e-9f23-1dbff4079119",
+                                        "business_customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "business_wallet_id": "9228327b-d448-43f4-a78a-0211edad4365",
+                                        "status": "SUCCESSFUL",
+                                        "reference": "ef5ba1ca-2a5f-4092-b19d-11f9f7ecbbac",
+                                        "currency": "NGN",
+                                        "amount": 473,
+                                        "amount_without_fee": 473,
+                                        "fee": 0,
+                                        "rate": 1,
+                                        "date": "2024-10-18T11:38:17.000000Z",
+                                        "recipient": {
+                                            "id": "6c258e65-de94-4d9d-87fb-117480a9d0e7",
+                                            "account_number": "1234567890",
+                                            "account_name": "Tunde Balogun",
+                                            "amount": 473,
+                                            "currency": "NGN",
+                                            "bank_name": "Access Bank",
+                                            "bank_code": "044"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Insufficient funds."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
