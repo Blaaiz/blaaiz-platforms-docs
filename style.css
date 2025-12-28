@@ -183,6 +183,94 @@ body main[class*="content"] {
   padding: 0 0 48px;
 }
 
+/* Changelog page */
+.changelog-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 0 72px;
+}
+.changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.changelog-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.changelog-date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #16a34a;
+  background: rgba(22, 163, 74, 0.08);
+  color: #166534;
+  font-weight: 600;
+  font-size: 12px;
+}
+.changelog-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+}
+.changelog-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #0f172a;
+}
+.changelog-card p {
+  margin: 0 0 10px 0;
+  color: #334155;
+  line-height: 1.6;
+}
+.changelog-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #334155;
+  line-height: 1.6;
+}
+.changelog-card li + li {
+  margin-top: 4px;
+}
+
+/* Changelog dark mode */
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .changelog-page {
+  color: #e5e7eb;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .changelog-date {
+  border-color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  color: #22c55e;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .changelog-card {
+  background: #090b0f;
+  border: 1px solid #1f2937;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .changelog-card
+  h3 {
+  color: #f8fafc;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .changelog-card
+  p,
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .changelog-card
+  ul {
+  color: #cbd5e1;
+}
+
 .coming-soon {
   display: inline-block;
   margin-left: 2px;

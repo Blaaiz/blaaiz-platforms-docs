@@ -196,7 +196,7 @@
         "iconType": "duotone",
         "groups": [
           {
-            "group": "Latest",
+            "group": "Changelog",
             "pages": [
               "changelog"
             ]
