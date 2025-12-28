@@ -1,0 +1,286 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Initiate Collection",
+        "version": "1.0.0",
+        "description": "Create a collection request to receive payment from a customer using card, open_banking, or virtual_account. For card and open_banking, redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed."
+    },
+    "tags": [
+        {
+            "name": "Collection"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "InitiateCollectionRequest": {
+                "type": "object",
+                "properties": {
+                    "customer_id": {
+                        "type": "string",
+                        "description": "Unique identifier of the customer making the payment."
+                    },
+                    "wallet_id": {
+                        "type": "string",
+                        "description": "Wallet ID where funds will be credited."
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount to collect (including all fees)."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code (e.g., NGN, USD, EUR, GBP)."
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": [
+                            "card",
+                            "open_banking",
+                            "virtual_account"
+                        ],
+                        "description": "Collection method."
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "description": "Customer's phone number (required for certain methods)."
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Customer's email address."
+                    },
+                    "reference": {
+                        "type": "string",
+                        "description": "Your unique reference for this transaction."
+                    },
+                    "narration": {
+                        "type": "string",
+                        "description": "Description or note for the collection."
+                    },
+                    "redirect_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to redirect the customer after payment completion."
+                    }
+                },
+                "required": [
+                    "customer_id",
+                    "wallet_id",
+                    "amount",
+                    "currency",
+                    "method"
+                ]
+            },
+            "CollectionData": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "transaction_id": {
+                        "type": "string"
+                    },
+                    "customer_id": {
+                        "type": "string"
+                    },
+                    "wallet_id": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "method": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Status (pending, processing, completed, failed)."
+                    },
+                    "payment_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true,
+                        "description": "URL for customer to complete payment (card and open_banking)."
+                    },
+                    "reference": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "transaction_id",
+                    "customer_id",
+                    "wallet_id",
+                    "amount",
+                    "currency",
+                    "method",
+                    "status",
+                    "created_at"
+                ]
+            },
+            "InitiateCollectionResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/CollectionData"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/collection": {
+            "post": {
+                "summary": "Initiate a collection",
+                "description": "Create a collection request to receive payment from a customer. For card and open_banking, redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed.",
+                "tags": [
+                    "Collection"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        },
+                        "required": false,
+                        "description": "Content type header."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InitiateCollectionRequest"
+                            },
+                            "example": {
+                                "customer_id": "customer_123",
+                                "wallet_id": "wallet_123",
+                                "amount": 50000,
+                                "currency": "NGN",
+                                "method": "card",
+                                "phone_number": "+2348012345678",
+                                "email": "john@example.com",
+                                "reference": "collection_ref_001",
+                                "narration": "Payment for services",
+                                "redirect_url": "https://yourapp.com/payment/success"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Collection initiated successfully. Redirect customer to payment_url for card/open_banking.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InitiateCollectionResponse"
+                                },
+                                "example": {
+                                    "status": true,
+                                    "message": "Collection initiated successfully",
+                                    "data": {
+                                        "id": "collection_123456789",
+                                        "transaction_id": "txn_987654321",
+                                        "customer_id": "customer_123",
+                                        "wallet_id": "wallet_123",
+                                        "amount": 50000,
+                                        "currency": "NGN",
+                                        "method": "card",
+                                        "status": "pending",
+                                        "payment_url": "https://checkout.blaaiz.com/pay/abc123xyz",
+                                        "reference": "collection_ref_001",
+                                        "created_at": "2024-01-15T10:30:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid request parameters"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

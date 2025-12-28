@@ -141,8 +141,7 @@
           {
             "group": "Collection",
             "pages": [
-              "api-reference/collection/create",
-              "/api-reference/collection/initiate-openapi.json POST /api/external/collection",
+              "/api-reference/collection/create-openapi.json POST /api/external/collection",
               "/api-reference/collection/attach-customer-openapi.json POST /api/external/collection/attach-customer",
               "/api-reference/collection/accept-interac-openapi.json POST /api/external/accept-interac-money-request",
               "/api-reference/collection/initiate-crypto-openapi.json POST /api/external/collection/crypto",
