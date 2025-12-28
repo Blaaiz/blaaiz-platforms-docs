@@ -4,8 +4,8 @@
   "name": "Blaaiz",
   "colors": {
     "primary": "#4c63f5",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "light": "#4c63f5",
+    "dark": "#4c63f5"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -86,20 +86,20 @@
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "icon": "code",
         "iconType": "duotone",
         "groups": [
           {
-            "group": "Overview",
+            "group": "Blaaiz Platform API",
             "pages": [
               "api-reference/overview"
             ]
           },
           {
-            "group": "Virtual bank account",
+            "group": "Virtual Bank Account",
             "pages": [
-              "api-reference/virtual-bank-account/list",
+              "/api-reference/virtual-bank-account-list-openapi.json GET /api/external/virtual-bank-account",
               "api-reference/virtual-bank-account/create",
               "api-reference/virtual-bank-account/get",
               "api-reference/virtual-bank-account/get-identification-type"
@@ -244,6 +244,9 @@
     ]
   },
   "api": {
+    "playground": {
+      "display": "interactive"
+    },
     "examples": {
       "languages": [
         "curl",
@@ -251,7 +254,9 @@
         "javascript",
         "ruby",
         "php"
-      ]
+      ],
+      "defaults": "all",
+      "prefill": true
     }
   },
   "footer": {
