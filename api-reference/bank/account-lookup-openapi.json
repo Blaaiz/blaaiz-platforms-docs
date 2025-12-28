@@ -1,0 +1,195 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Resolve Bank Account",
+        "version": "1.0.0",
+        "description": "Verify and resolve bank account details"
+    },
+    "tags": [
+        {
+            "name": "Bank"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "AccountLookupRequest": {
+                "type": "object",
+                "description": "This endpoint allows you to verify the validity of a bank account by providing the account number and the associated bank ID. It returns information about the account, such as the account holder's name, to ensure accuracy before initiating transactions. \n We advise using this to confirm recipient details for payments, transfers, or any transaction involving a bank account. \n **Example Use Cases:** \n - Validate a recipient's bank account details during payment setup. \n - Ensure accurate data entry before processing a transaction. \n - Provide real-time verification for user onboarding or payout processes.",
+                "properties": {
+                    "account_number": {
+                        "type": "string",
+                        "description": "Bank account number to verify"
+                    },
+                    "bank_code": {
+                        "type": "string",
+                        "description": "Bank code (see List Banks endpoint)"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code of the account (e.g., NGN, USD)"
+                    }
+                },
+                "required": [
+                    "account_number",
+                    "bank_code",
+                    "currency"
+                ]
+            },
+            "AccountLookupResult": {
+                "type": "object",
+                "properties": {
+                    "account_number": {
+                        "type": "string",
+                        "description": "Verified account number"
+                    },
+                    "account_name": {
+                        "type": "string",
+                        "description": "Name of the account holder"
+                    },
+                    "bank_code": {
+                        "type": "string",
+                        "description": "Bank code"
+                    },
+                    "bank_name": {
+                        "type": "string",
+                        "description": "Bank name"
+                    }
+                },
+                "required": [
+                    "account_number",
+                    "account_name",
+                    "bank_code",
+                    "bank_name"
+                ]
+            },
+            "AccountLookupResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/AccountLookupResult"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/bank/account-lookup": {
+            "post": {
+                "summary": "Resolve bank account",
+                "description": "Verify the validity of a bank account by providing account number, bank code, and currency.",
+                "tags": [
+                    "Bank"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AccountLookupRequest"
+                            },
+                            "example": {
+                                "account_number": "0123456789",
+                                "bank_code": "044",
+                                "currency": "NGN"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Account resolved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountLookupResponse"
+                                },
+                                "example": {
+                                    "status": true,
+                                    "message": "Account resolved successfully",
+                                    "data": {
+                                        "account_number": "0123456789",
+                                        "account_name": "John Doe",
+                                        "bank_code": "044",
+                                        "bank_name": "Access Bank"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid account number or bank code"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
