@@ -1,0 +1,160 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - List Wallets",
+        "version": "1.0.0",
+        "description": "Retrieve all business wallets"
+    },
+    "tags": [
+        {
+            "name": "Wallet"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "Wallet": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the wallet"
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Business identifier"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code for this wallet (e.g., NGN, CAD, USD)"
+                    },
+                    "currency_id": {
+                        "type": "string",
+                        "description": "Currency identifier"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Current wallet balance"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "description": "Whether the wallet is active"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "currency",
+                    "currency_id",
+                    "amount",
+                    "is_active"
+                ]
+            },
+            "WalletListResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Wallet"
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/wallet": {
+            "get": {
+                "summary": "List all wallets",
+                "description": "Retrieve all business wallets.",
+                "tags": [
+                    "Wallet"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Wallets retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WalletListResponse"
+                                },
+                                "example": {
+                                    "message": "Wallets retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "e7efc60f-247d-4ecc-b04b-c4810df25758",
+                                            "business_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                            "currency": "NGN",
+                                            "currency_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                            "amount": 0,
+                                            "is_active": true
+                                        },
+                                        {
+                                            "id": "wallet_cad_456",
+                                            "business_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                            "currency": "CAD",
+                                            "currency_id": "currency_cad_id",
+                                            "amount": 25000,
+                                            "is_active": true
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

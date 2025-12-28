@@ -1,0 +1,140 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Wallet",
+        "version": "1.0.0",
+        "description": "Retrieve a single wallet by ID."
+    },
+    "tags": [
+        {
+            "name": "Wallet"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "Wallet": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the wallet"
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Business identifier"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code (e.g., NGN, CAD, USD)"
+                    },
+                    "currency_id": {
+                        "type": "string",
+                        "description": "Currency identifier"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Current wallet balance"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "description": "Whether the wallet is active"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "currency",
+                    "currency_id",
+                    "amount",
+                    "is_active"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/wallet/{id}": {
+            "get": {
+                "summary": "Get wallet",
+                "description": "Retrieve a single wallet by ID.",
+                "tags": [
+                    "Wallet"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier of the wallet",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Wallet retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Wallet"
+                                },
+                                "example": {
+                                    "id": "e7efc60f-247d-4ecc-b04b-c4810df25758",
+                                    "business_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                    "currency": "NGN",
+                                    "currency_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                    "amount": 0,
+                                    "is_active": true
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
