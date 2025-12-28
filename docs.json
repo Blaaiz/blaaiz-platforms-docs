@@ -108,8 +108,8 @@
           {
             "group": "Bank",
             "pages": [
-              "api-reference/bank/list",
-              "api-reference/bank/account-lookup"
+              "/api-reference/bank/list-openapi.json GET /api/external/bank",
+              "/api-reference/bank/account-lookup-openapi.json POST /api/external/bank/account-lookup"
             ]
           },
           {
