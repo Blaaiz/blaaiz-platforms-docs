@@ -1,0 +1,208 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Register Webhook URLs",
+        "version": "1.0.0",
+        "description": "Configure webhook URLs to receive event notifications. Webhook URLs must be HTTPS. Blaaiz sends POST requests with event payloads and an x-blaaiz-signature header for verification."
+    },
+    "tags": [
+        {
+            "name": "Webhook"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "WebhookRegisterRequest": {
+                "type": "object",
+                "properties": {
+                    "payout_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to receive payout event notifications"
+                    },
+                    "collection_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to receive collection event notifications"
+                    },
+                    "customer_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to receive customer event notifications"
+                    },
+                    "virtual_account_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to receive virtual account event notifications"
+                    }
+                },
+                "required": [
+                    "payout_url",
+                    "collection_url"
+                ]
+            },
+            "WebhookRegisterData": {
+                "type": "object",
+                "properties": {
+                    "payout_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "collection_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "customer_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "virtual_account_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "payout_url",
+                    "collection_url",
+                    "updated_at"
+                ]
+            },
+            "WebhookRegisterResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/WebhookRegisterData"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/webhook": {
+            "post": {
+                "summary": "Register webhook URLs",
+                "description": "Register webhook URLs to receive event notifications. URLs must be HTTPS; Blaaiz signs requests via x-blaaiz-signature.",
+                "tags": [
+                    "Webhook"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WebhookRegisterRequest"
+                            },
+                            "example": {
+                                "payout_url": "https://yourapp.com/webhooks/payout",
+                                "collection_url": "https://yourapp.com/webhooks/collection",
+                                "customer_url": "https://yourapp.com/webhooks/customer",
+                                "virtual_account_url": "https://yourapp.com/webhooks/virtual-account"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook URLs registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WebhookRegisterResponse"
+                                },
+                                "example": {
+                                    "status": true,
+                                    "message": "Webhook URLs registered successfully",
+                                    "data": {
+                                        "payout_url": "https://yourapp.com/webhooks/payout",
+                                        "collection_url": "https://yourapp.com/webhooks/collection",
+                                        "customer_url": "https://yourapp.com/webhooks/customer",
+                                        "virtual_account_url": "https://yourapp.com/webhooks/virtual-account",
+                                        "updated_at": "2024-01-15T10:30:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid webhook URL format"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
