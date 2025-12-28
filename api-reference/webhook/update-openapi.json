@@ -1,0 +1,127 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Update Webhook URLs",
+        "version": "1.0.0",
+        "description": "Update your registered webhook URLs."
+    },
+    "tags": [
+        {
+            "name": "Webhook"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "WebhookUpdateRequest": {
+                "type": "object",
+                "properties": {
+                    "collection_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Collection webhook URL"
+                    },
+                    "payout_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Payout webhook URL"
+                    }
+                }
+            },
+            "WebhookUpdateResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/webhook": {
+            "put": {
+                "summary": "Update webhook URL",
+                "description": "Update your registered webhook URLs.",
+                "tags": [
+                    "Webhook"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WebhookUpdateRequest"
+                            },
+                            "example": {
+                                "collection_url": "https://yourapp.com/webhooks/collection",
+                                "payout_url": "https://yourapp.com/webhooks/payout"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook record updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WebhookUpdateResponse"
+                                },
+                                "example": {
+                                    "message": "Webhook record updated successfully"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
