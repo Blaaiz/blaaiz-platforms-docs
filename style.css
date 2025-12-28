@@ -148,14 +148,14 @@
 .home-section .Card h2,
 .home-section .card h3,
 .home-section .card h2 {
-  margin-top: 10px;
-  margin-bottom: 6px;
+  margin-top: 12px;
+  margin-bottom: 8px;
   font-size: 16px;
   font-weight: 600;
 }
 .home-section .Card svg,
 .home-section .card svg {
-  color: #15803d;
+  color: #4c63f5;
   width: 20px;
   height: 20px;
 }
@@ -292,7 +292,7 @@ body main[class*="content"] {
   .home-section
   .card
   svg {
-  color: #22d3ee;
+  color: #4c63f5;
 }
 :is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .coming-soon {
   background: rgba(76, 99, 245, 0.3);
