@@ -1,0 +1,141 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Attach Customer to Collection",
+        "version": "1.0.0",
+        "description": "Associate a collection transaction with a customer.\n\n**Important:** Only collections can be updated this way."
+    },
+    "tags": [
+        {
+            "name": "Collection"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "AttachCustomerRequest": {
+                "type": "object",
+                "properties": {
+                    "customer_id": {
+                        "type": "string",
+                        "description": "Unique identifier of the customer."
+                    },
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "Unique identifier of the collection transaction."
+                    }
+                },
+                "required": [
+                    "customer_id",
+                    "transaction_id"
+                ]
+            },
+            "AttachCustomerResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/collection/attach-customer": {
+            "post": {
+                "summary": "Attach customer to collection",
+                "description": "Associate a collection transaction with a customer.\n\n**Important:** Only collections can be updated this way.",
+                "tags": [
+                    "Collection"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        },
+                        "required": false,
+                        "description": "Content type header."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachCustomerRequest"
+                            },
+                            "example": {
+                                "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                "transaction_id": "fb87c0f8-31e3-46f3-b0d3-1ff2618565bc"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AttachCustomerResponse"
+                                },
+                                "example": {
+                                    "message": "Transaction updated successfully."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
