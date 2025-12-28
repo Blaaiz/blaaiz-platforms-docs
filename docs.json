@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint", 
+  "theme": "mint",
   "name": "Blaaiz",
   "colors": {
     "primary": "#16A34A",
@@ -11,7 +11,23 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Home",
+        "icon": "house",
+        "iconType": "duotone",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "quickstart",
+              "development"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Get Started",
+        "icon": "circle-play",
+        "iconType": "duotone",
         "groups": [
           {
             "group": "Getting started",
@@ -77,6 +93,8 @@
       },
       {
         "tab": "API reference",
+        "icon": "code",
+        "iconType": "duotone",
         "groups": [
           {
             "group": "Overview",
@@ -172,6 +190,19 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Changelog",
+        "icon": "clock-rotate-left",
+        "iconType": "duotone",
+        "groups": [
+          {
+            "group": "Latest",
+            "pages": [
+              "changelog"
+            ]
+          }
+        ]
       }
     ],
     "global": {
@@ -208,19 +239,25 @@
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "api": {
     "examples": {
-      "languages": ["curl", "python", "javascript", "ruby", "php"]
+      "languages": [
+        "curl",
+        "python",
+        "javascript",
+        "ruby",
+        "php"
+      ]
     }
   },
   "footer": {
