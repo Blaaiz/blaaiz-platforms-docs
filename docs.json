@@ -99,7 +99,7 @@
           {
             "group": "Virtual Bank Account",
             "pages": [
-              "/api-reference/virtual-bank-account-list-openapi.json GET /api/external/virtual-bank-account",
+              "/api-reference/virtual-bank-account/virtual-bank-account-list-openapi.json GET /api/external/virtual-bank-account",
               "api-reference/virtual-bank-account/create",
               "api-reference/virtual-bank-account/get",
               "api-reference/virtual-bank-account/get-identification-type"
