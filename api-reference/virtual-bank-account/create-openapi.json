@@ -1,9 +1,9 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "Blaaiz Platform API - Virtual Bank Accounts",
+        "title": "Blaaiz Platform API - Create Virtual Bank Account",
         "version": "1.0.0",
-        "description": "Retrieve all virtual bank accounts (VBAs) for a wallet"
+        "description": "Create a new virtual bank account (VBA) for a wallet"
     },
     "tags": [
         {
@@ -27,77 +27,66 @@
             }
         },
         "schemas": {
+            "CreateVBARequest": {
+                "type": "object",
+                "description": "Supports NGN, GBP, USD, EUR. \n For NGN, account_name is required. \n For GBP/USD/EUR, customer must have type=individual (business not supported).",
+                "properties": {
+                    "wallet_id": {
+                        "type": "string",
+                        "description": "ID of the business wallet the account will be associated with."
+                    },
+                    "account_name": {
+                        "type": "string",
+                        "description": "Name for the virtual bank account holder (max 255 chars).\nRequired when currency is NGN."
+                    },
+                    "customer_id": {
+                        "type": "string",
+                        "description": "Customer ID the VBA should be created for.\nFor GBP/USD/EUR, customer must have type=individual (business not supported)."
+                    }
+                },
+                "required": [
+                    "wallet_id"
+                ]
+            },
             "VirtualBankAccount": {
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string",
-                        "description": "Unique identifier for the virtual bank account"
+                        "type": "string"
                     },
                     "business_wallet_id": {
-                        "type": "string",
-                        "description": "Business wallet ID associated with this virtual account"
+                        "type": "string"
                     },
                     "currency_id": {
                         "type": "integer",
-                        "format": "int32",
-                        "description": "Currency identifier"
+                        "format": "int32"
                     },
                     "currency": {
-                        "type": "string",
-                        "description": "Currency code (e.g., NGN, USD)"
+                        "type": "string"
                     },
                     "account_number": {
-                        "type": "string",
-                        "description": "Virtual account number"
-                    },
-                    "iban": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "IBAN if applicable"
+                        "type": "string"
                     },
                     "account_name": {
-                        "type": "string",
-                        "description": "Name on the virtual account"
+                        "type": "string"
                     },
                     "bank_name": {
-                        "type": "string",
-                        "description": "Bank name"
+                        "type": "string"
                     },
                     "bank_code": {
-                        "type": "string",
-                        "description": "Bank code"
+                        "type": "string"
+                    },
+                    "provider": {
+                        "type": "string"
                     },
                     "account_reference": {
-                        "type": "string",
-                        "description": "Reference associated with the virtual account"
+                        "type": "string"
                     },
                     "reservation_reference": {
                         "type": [
                             "string",
                             "null"
-                        ],
-                        "description": "Reservation reference if present"
-                    },
-                    "sort_code": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "Sort code if applicable"
-                    },
-                    "bank_address": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "Bank address if applicable"
-                    },
-                    "status": {
-                        "type": "string",
-                        "description": "Status of the virtual account (e.g., SUCCESSFUL)"
+                        ]
                     }
                 },
                 "required": [
@@ -111,7 +100,7 @@
                     "status"
                 ]
             },
-            "VirtualBankAccountResponse": {
+            "CreateVBAResponse": {
                 "type": "object",
                 "properties": {
                     "message": {
@@ -144,44 +133,46 @@
     },
     "paths": {
         "/api/external/virtual-bank-account": {
-            "get": {
-                "summary": "Retrieve all virtual bank accounts",
-                "description": "Fetches all virtual bank accounts (VBAs) for the specified wallet.",
+            "post": {
+                "summary": "Create virtual bank account",
+                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.",
+                "tags": [
+                    "Virtual Bank Accounts"
+                ],
                 "security": [
                     {
                         "apiKeyAuth": []
                     }
                 ],
-                "parameters": [
-                    {
-                        "name": "wallet_id",
-                        "in": "query",
-                        "required": true,
-                        "description": "Unique identifier of the wallet",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "customer_id",
-                        "in": "query",
-                        "required": false,
-                        "description": "Unique identifier of the customer (optional)",
-                        "schema": {
-                            "type": "string"
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateVBARequest"
+                            },
+                            "examples": {
+                                "default": {
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "account_name": "Jane Doe",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee"
+                                    }
+                                }
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
-                    "200": {
-                        "description": "Virtual bank accounts retrieved successfully.",
+                    "201": {
+                        "description": "Virtual bank account created successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/VirtualBankAccountResponse"
+                                    "$ref": "#/components/schemas/CreateVBAResponse"
                                 },
                                 "example": {
-                                    "message": "Virtual bank accounts retrieved successfully.",
+                                    "message": "Virtual bank account created successfully.",
                                     "data": [
                                         {
                                             "id": "33580c65-d063-4138-a875-82ff09dfaeb5",
@@ -189,28 +180,46 @@
                                             "currency_id": 1,
                                             "currency": "NGN",
                                             "account_number": "7880000024",
-                                            "iban": null,
                                             "account_name": "John Doe",
                                             "bank_name": "78 Finance Company Limited",
                                             "bank_code": "123456",
+                                            "provider": "BANK78",
                                             "account_reference": "2327323232",
-                                            "reservation_reference": null,
-                                            "sort_code": null,
-                                            "bank_address": null
+                                            "reservation_reference": null
                                         }
                                     ]
                                 }
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "currency_not_supported": {
+                                        "value": {
+                                            "message": "Currency GBP not supported."
+                                        }
+                                    },
+                                    "duplicate_account": {
+                                        "value": {
+                                            "message": "A virtual bank account with the name 'John Doe' already exists for this business wallet using the 'BANK78' provider. Please choose a different name."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "401": {
-                        "description": "Invalid or missing API key",
+                        "description": "Unauthorized",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
+                                    "status": false,
                                     "message": "Invalid or missing API key"
                                 }
                             }
