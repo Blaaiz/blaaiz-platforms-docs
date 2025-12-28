@@ -35,12 +35,11 @@
         rgba(245, 247, 255, 0.9) 70%,
         rgba(255, 255, 255, 1) 100%
       ),
-    /* Dot grid */
-      repeating-radial-gradient(
-        circle,
-        rgba(76, 99, 245, 0.18) 0 1px,
-        transparent 1px 14px
-      );
+    repeating-radial-gradient(
+      circle,
+      rgba(76, 99, 245, 0.18) 0 1px,
+      transparent 1px 14px
+    );
 
   background-color: #ffffff;
 }
@@ -193,4 +192,109 @@ body main[class*="content"] {
   color: #4c63f5;
   font-size: 9px;
   letter-spacing: 0.04em;
+}
+
+/* Dark mode (Mintlify dark or explicit color-scheme) */
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .home-page {
+  background: #090b0f;
+  color: #e5e7eb;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .home-hero {
+  margin: 0;
+  padding: 200px;
+
+  background:
+    /* Bottom fade into dark background */ linear-gradient(
+      180deg,
+      rgba(11, 15, 26, 0) 60%,
+      rgb(9, 11, 15) 100%
+    ),
+    /* Main color wash */
+      linear-gradient(
+        180deg,
+        rgba(76, 99, 245, 0.141) 10%,
+        rgba(15, 20, 45, 0.949) 70%,
+        rgb(24, 26, 11) 100%
+      ),
+    repeating-radial-gradient(
+      circle,
+      rgba(76, 99, 245, 0.22) 0 1px,
+      transparent 1px 14px
+    );
+
+  background-color: #090b0f;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-hero__title {
+  color: #f8fafc;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-hero__body {
+  color: #cbd5e1;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-hero__cta {
+  background: linear-gradient(135deg, #4c63f5, #7c3aed);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-hero__cta:hover {
+  background: linear-gradient(135deg, #4559da, #6d28d9);
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section__title {
+  color: #e2e8f0;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .Card,
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .Card
+  h3,
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .Card
+  h2,
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .card
+  h3,
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .card
+  h2 {
+  color: #f1f5f9;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .Card
+  p,
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .card
+  p {
+  color: #cbd5e1;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .Card
+  svg,
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+  .home-section
+  .card
+  svg {
+  color: #22d3ee;
+}
+:is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .coming-soon {
+  background: rgba(76, 99, 245, 0.3);
+  color: #e5e7eb;
 }
