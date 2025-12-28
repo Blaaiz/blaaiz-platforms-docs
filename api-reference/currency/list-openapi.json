@@ -42,20 +42,9 @@
                         "type": "string",
                         "description": "Full name of the currency"
                     },
-                    "symbol": {
-                        "type": "string",
-                        "description": "Currency symbol (e.g., ₦, $, €, £)"
-                    },
                     "country": {
                         "type": "string",
                         "description": "Country or region where the currency is used"
-                    },
-                    "supported_methods": {
-                        "type": "array",
-                        "description": "Supported payment methods for this currency",
-                        "items": {
-                            "type": "string"
-                        }
                     }
                 },
                 "required": [
@@ -123,57 +112,31 @@
                                             "id": "currency_001",
                                             "code": "NGN",
                                             "name": "Nigerian Naira",
-                                            "symbol": "₦",
-                                            "country": "Nigeria",
-                                            "supported_methods": [
-                                                "bank_transfer",
-                                                "card",
-                                                "virtual_account"
-                                            ]
+                                            "country": "Nigeria"
                                         },
                                         {
                                             "id": "currency_002",
                                             "code": "CAD",
                                             "name": "Canadian Dollar",
-                                            "symbol": "$",
-                                            "country": "Canada",
-                                            "supported_methods": [
-                                                "interac",
-                                                "bank_transfer"
-                                            ]
+                                            "country": "Canada"
                                         },
                                         {
                                             "id": "currency_003",
                                             "code": "USD",
                                             "name": "United States Dollar",
-                                            "symbol": "$",
-                                            "country": "United States",
-                                            "supported_methods": [
-                                                "bank_transfer",
-                                                "virtual_account"
-                                            ]
+                                            "country": "United States"
                                         },
                                         {
                                             "id": "currency_004",
                                             "code": "EUR",
                                             "name": "Euro",
-                                            "symbol": "€",
-                                            "country": "European Union",
-                                            "supported_methods": [
-                                                "open_banking",
-                                                "bank_transfer"
-                                            ]
+                                            "country": "European Union"
                                         },
                                         {
                                             "id": "currency_005",
                                             "code": "GBP",
                                             "name": "British Pound",
-                                            "symbol": "£",
-                                            "country": "United Kingdom",
-                                            "supported_methods": [
-                                                "open_banking",
-                                                "bank_transfer"
-                                            ]
+                                            "country": "United Kingdom"
                                         }
                                     ]
                                 }
