@@ -1,0 +1,41 @@
+---
+title: Getting Started
+description: Guidelines for using the Blaaiz Platform API
+---
+
+Before integrating with the Blaaiz Platform API, review the following guidelines to ensure a smooth and reliable development experience.
+
+## Using the Blaaiz Platform API
+
+### Authentication
+
+- All requests to the Blaaiz API must be authenticated using a valid API key.
+- You can generate and manage your API keys from the Blaaiz Dashboard.
+- Include your API key in every request.
+- Keep your API keys secure and never expose them in client-side code or public repositories.
+
+### Rate Limits & Usage
+
+- To ensure fair usage and maintain platform stability, the Blaaiz API enforces rate and usage limits.
+- Requests exceeding these limits may be throttled or temporarily blocked.
+- If you anticipate high request volumes, contact Blaaiz [support](mailto:support@blaaiz.com) to discuss your use case.
+
+### Response Format
+
+- All API responses are returned in JSON format.
+- Successful responses include the requested data.
+- Error responses include a descriptive `message` field to help you understand and resolve the issue.
+
+**Example error response:**
+
+```json
+{
+  "message": "Invalid API key"
+}
+```
+
+### Best Practices
+
+- Handle errors gracefully by checking HTTP status codes and error messages.
+- Log API responses during development to aid debugging.
+- Always test integrations in a safe environment before going live.
