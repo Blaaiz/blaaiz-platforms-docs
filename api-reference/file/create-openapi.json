@@ -1,0 +1,204 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Request file upload URL",
+        "version": "1.0.0",
+        "description": "Get a pre-signed URL to upload customer documents"
+    },
+    "tags": [
+        {
+            "name": "File"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "FileUploadRequest": {
+                "type": "object",
+                "description": "This endpoint allows you to request a pre-signed URL to upload a file for a customer. You will specify the file type you want to upload and for whom. \n \n File Category \n identity - Identity. Required to verify a customer. \n proof_of_address - Proof of address. \n liveness_check - Liveness check.",
+                "properties": {
+                    "customer_id": {
+                        "type": "string",
+                        "description": "Unique identifier of the customer"
+                    },
+                    "file_category": {
+                        "type": "string",
+                        "description": "Category of the file",
+                        "enum": [
+                            "identity",
+                            "proof_of_address",
+                            "liveness_check"
+                        ]
+                    },
+                    "file_name": {
+                        "type": "string",
+                        "description": "Name of the file (including extension)"
+                    },
+                    "file_type": {
+                        "type": "string",
+                        "description": "MIME type of the file (e.g., image/jpeg, image/png, application/pdf)"
+                    }
+                },
+                "required": [
+                    "customer_id",
+                    "file_category",
+                    "file_name",
+                    "file_type"
+                ]
+            },
+            "UploadDetails": {
+                "type": "object",
+                "properties": {
+                    "file_id": {
+                        "type": "string",
+                        "description": "Unique identifier for the file"
+                    },
+                    "upload_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Pre-signed URL to upload the file"
+                    },
+                    "headers": {
+                        "type": "object",
+                        "description": "Headers to include when uploading the file",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the upload URL expires"
+                    }
+                },
+                "required": [
+                    "file_id",
+                    "upload_url",
+                    "headers",
+                    "expires_at"
+                ]
+            },
+            "FileUploadResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/UploadDetails"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/file/get-presigned-url": {
+            "post": {
+                "summary": "Request file upload URL",
+                "description": "Request a pre-signed URL to upload a file for a customer.\n\nUpload process:\n1. Make a PUT request to the upload_url.\n2. Include the headers from the response.\n3. Send the file as binary data in the request body.\n4. Once uploaded, use the file_id to attach the file to the customer record.",
+                "tags": [
+                    "File"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FileUploadRequest"
+                            },
+                            "example": {
+                                "customer_id": "customer_123",
+                                "file_category": "identity",
+                                "file_name": "passport.jpg",
+                                "file_type": "image/jpeg"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upload URL generated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FileUploadResponse"
+                                },
+                                "example": {
+                                    "message": "Upload URL generated successfully",
+                                    "data": {
+                                        "file_id": "file_123456789",
+                                        "upload_url": "https://s3.amazonaws.com/bucket/path?signature=xyz",
+                                        "headers": {
+                                            "Content-Type": "image/jpeg"
+                                        },
+                                        "expires_at": "2024-01-15T11:30:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid request parameters"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
