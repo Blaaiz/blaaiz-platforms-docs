@@ -1,0 +1,159 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Identification Type",
+        "version": "1.0.0",
+        "description": "Retrieve the identification type label based on country and customer type for virtual bank account creation"
+    },
+    "tags": [
+        {
+            "name": "Virtual Bank Accounts"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "IdentificationType": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "description": "Human-readable label for the identification type (e.g., Bank Verification Number)"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Identification type code (e.g., bvn)"
+                    }
+                },
+                "required": [
+                    "label",
+                    "type"
+                ]
+            },
+            "IdentificationTypeResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/IdentificationType"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/virtual-bank-account/identification-type": {
+            "get": {
+                "summary": "Get identification type",
+                "description": "Retrieve the expected identification type label based on country and customer type.",
+                "tags": [
+                    "Virtual Bank Accounts"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "customer_id",
+                        "in": "query",
+                        "required": false,
+                        "description": "Unique identifier of the customer. If provided, country and type are not required.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "required": false,
+                        "description": "Two-letter country code (e.g., NG). Required if customer_id is not provided.",
+                        "schema": {
+                            "type": "string",
+                            "minLength": 2,
+                            "maxLength": 2
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Customer type. Required if customer_id is not provided. Possible values: business, individual.",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "business",
+                                "individual"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Identification type retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IdentificationTypeResponse"
+                                },
+                                "example": {
+                                    "message": "Identification type retrieved successfully.",
+                                    "data": {
+                                        "label": "Bank Verification Number",
+                                        "type": "bvn"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
