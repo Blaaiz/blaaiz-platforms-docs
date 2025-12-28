@@ -11,10 +11,13 @@ While interacting with our API, you may encounter specific parameters in the req
 
 The `method` parameter appears in the **Payout API** when initiating a payout. It represents the channel through which the money will be sent.
 
-- `bank_transfer` – Sends the payout via bank transfer.
+- `bank_transfer` – Sends the payout via bank transfer (available for NGN, GBP, EUR transactions).
 - `interac` – Sends the payout using Interac (available for CAD transactions).
+- `ach` - Sends the payout using ACH (available for USD transactions).
+- `wire` - Sends the payout using Wire (available for USD transactions).
+- `crypto` - Sends the payout using Crypto (available for USD transactions).
 
-Use either of these values depending on which provider you want to use for the virtual account creation process.
+Use either of these values depending on which provider you want to use for the payout process.
 
 ### File category
 
