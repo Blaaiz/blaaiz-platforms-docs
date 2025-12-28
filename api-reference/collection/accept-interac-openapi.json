@@ -1,0 +1,159 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Accept Interac Money Request",
+        "version": "1.0.0",
+        "description": "Accept an Interac transfer into your business wallet."
+    },
+    "tags": [
+        {
+            "name": "Collection"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "AcceptInteracRequest": {
+                "type": "object",
+                "properties": {
+                    "reference_number": {
+                        "type": "string",
+                        "description": "Interac reference number."
+                    },
+                    "security_answer": {
+                        "type": "string",
+                        "description": "Security answer for the Interac transfer."
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Email address associated with the Interac transfer."
+                    }
+                },
+                "required": [
+                    "reference_number",
+                    "security_answer"
+                ]
+            },
+            "AcceptInteracResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "transaction_id": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "message",
+                    "transaction_id",
+                    "url"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/accept-interac-money-request": {
+            "post": {
+                "summary": "Accept Interac money request",
+                "description": "Accept an Interac transfer into your business wallet.",
+                "tags": [
+                    "Collection"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        },
+                        "required": false,
+                        "description": "Content type header."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AcceptInteracRequest"
+                            },
+                            "example": {
+                                "reference_number": "ABC123456",
+                                "security_answer": "MySecretAnswer",
+                                "email": "payer@example.com"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Collection initiated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AcceptInteracResponse"
+                                },
+                                "example": {
+                                    "message": "Collection initiated successfully.",
+                                    "transaction_id": "fb87c0f8-31e3-46f3-b0d3-1ff2618565bc",
+                                    "url": ""
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

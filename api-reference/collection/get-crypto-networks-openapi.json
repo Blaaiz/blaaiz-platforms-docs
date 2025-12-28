@@ -1,0 +1,228 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Crypto Networks",
+        "version": "1.0.0",
+        "description": "Retrieve all available blockchain networks and their supported tokens."
+    },
+    "tags": [
+        {
+            "name": "Collection"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "Token": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "symbol": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "symbol",
+                    "address"
+                ]
+            },
+            "Network": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "identifier": {
+                        "type": "string"
+                    },
+                    "tokens": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Token"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "identifier",
+                    "tokens"
+                ]
+            },
+            "CryptoNetworksData": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Network"
+                        }
+                    }
+                },
+                "required": [
+                    "success",
+                    "message",
+                    "status",
+                    "data"
+                ]
+            },
+            "CryptoNetworksResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/CryptoNetworksData"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/collection/crypto/networks": {
+            "get": {
+                "summary": "Get crypto networks",
+                "description": "Retrieve all available blockchain networks and their supported tokens.",
+                "tags": [
+                    "Collection"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        },
+                        "required": false,
+                        "description": "Content type header."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Crypto networks retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CryptoNetworksResponse"
+                                },
+                                "example": {
+                                    "message": "Crypto networks retrieved successfully.",
+                                    "data": {
+                                        "success": true,
+                                        "message": "Networks fetched successfully",
+                                        "status": 200,
+                                        "data": [
+                                            {
+                                                "id": 1,
+                                                "name": "Ethereum Mainnet",
+                                                "identifier": "ETHEREUM_MAINNET",
+                                                "tokens": [
+                                                    {
+                                                        "id": 1,
+                                                        "name": "USDT",
+                                                        "symbol": "USDT",
+                                                        "address": "0x1234567890"
+                                                    },
+                                                    {
+                                                        "id": 2,
+                                                        "name": "USDC",
+                                                        "symbol": "USDC",
+                                                        "address": "0x0987654321"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "id": 2,
+                                                "name": "Polygon Mainnet",
+                                                "identifier": "MATIC_MAINNET",
+                                                "tokens": [
+                                                    {
+                                                        "id": 1,
+                                                        "name": "USDT",
+                                                        "symbol": "USDT",
+                                                        "address": "0x1234567890"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
