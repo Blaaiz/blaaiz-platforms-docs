@@ -1,0 +1,171 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Webhook URLs",
+        "version": "1.0.0",
+        "description": "Retrieve your registered webhook URLs."
+    },
+    "tags": [
+        {
+            "name": "Webhook"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "WebhookConfig": {
+                "type": "object",
+                "properties": {
+                    "payout_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "collection_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "customer_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "virtual_account_url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "payout_url",
+                    "collection_url",
+                    "customer_url",
+                    "virtual_account_url",
+                    "created_at",
+                    "updated_at"
+                ]
+            },
+            "WebhookGetResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/WebhookConfig"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/webhook": {
+            "get": {
+                "summary": "Get webhook URLs",
+                "description": "Retrieve your registered webhook URLs.",
+                "tags": [
+                    "Webhook"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Webhook URLs retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WebhookGetResponse"
+                                },
+                                "example": {
+                                    "status": true,
+                                    "message": "Webhook URLs retrieved successfully",
+                                    "data": {
+                                        "payout_url": "https://yourapp.com/webhooks/payout",
+                                        "collection_url": "https://yourapp.com/webhooks/collection",
+                                        "customer_url": "https://yourapp.com/webhooks/customer",
+                                        "virtual_account_url": "https://yourapp.com/webhooks/virtual-account",
+                                        "created_at": "2024-01-01T00:00:00Z",
+                                        "updated_at": "2024-01-15T10:30:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No webhook URLs configured",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "No webhook URLs configured"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
