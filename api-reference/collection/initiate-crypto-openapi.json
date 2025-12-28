@@ -1,0 +1,212 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Initiate Crypto Collection",
+        "version": "1.0.0",
+        "description": "Initiate a crypto collection to fund a wallet using cryptocurrency."
+    },
+    "tags": [
+        {
+            "name": "Collection"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "InitiateCryptoRequest": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "minimum": 0.1,
+                        "description": "Amount to collect (minimum 0.1)."
+                    },
+                    "wallet_id": {
+                        "type": "string",
+                        "description": "Wallet ID to fund."
+                    },
+                    "network": {
+                        "type": "string",
+                        "description": "Blockchain network (e.g., ETHEREUM_MAINNET, MATIC_MAINNET, TRON_MAINNET)."
+                    },
+                    "token": {
+                        "type": "string",
+                        "description": "Token to use (e.g., USDT, USDC)."
+                    },
+                    "customer_id": {
+                        "type": "string",
+                        "description": "Existing customer ID to associate with the collection."
+                    }
+                },
+                "required": [
+                    "amount",
+                    "wallet_id",
+                    "network",
+                    "token"
+                ]
+            },
+            "CryptoTransaction": {
+                "type": "object",
+                "properties": {
+                    "transaction_id": {
+                        "type": "string"
+                    },
+                    "reference": {
+                        "type": "string"
+                    },
+                    "token": {
+                        "type": "string"
+                    },
+                    "token_amount": {
+                        "type": "number"
+                    },
+                    "network": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "transaction_id",
+                    "reference",
+                    "token",
+                    "token_amount",
+                    "network",
+                    "address",
+                    "status",
+                    "expires_at"
+                ]
+            },
+            "InitiateCryptoResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "transaction": {
+                        "$ref": "#/components/schemas/CryptoTransaction"
+                    }
+                },
+                "required": [
+                    "message",
+                    "transaction"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/collection/crypto": {
+            "post": {
+                "summary": "Initiate crypto collection",
+                "description": "Initiate a crypto collection to fund a wallet using cryptocurrency.",
+                "tags": [
+                    "Collection"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        },
+                        "required": false,
+                        "description": "Content type header."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InitiateCryptoRequest"
+                            },
+                            "example": {
+                                "amount": 25,
+                                "wallet_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                "network": "MATIC_MAINNET",
+                                "token": "USDT"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Crypto collection initiated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InitiateCryptoResponse"
+                                },
+                                "example": {
+                                    "message": "Crypto collection initiated successfully.",
+                                    "transaction": {
+                                        "transaction_id": "fb87c0f8-31e3-46f3-b0d3-1ff2618565bc",
+                                        "reference": "7u5sXBFPA8IVDqV",
+                                        "token": "USDT",
+                                        "token_amount": 25,
+                                        "network": "MATIC_MAINNET",
+                                        "address": "0xdb664b89191eb50e0b45d7516c1adc2fcc327746",
+                                        "status": "PENDING",
+                                        "expires_at": "2024-02-26T14:24:15.000000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
