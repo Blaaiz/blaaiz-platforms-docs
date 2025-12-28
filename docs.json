@@ -121,7 +121,7 @@
           {
             "group": "Fees",
             "pages": [
-              "api-reference/fees/get-breakdown"
+              "/api-reference/fees/get-breakdown-openapi.json POST /api/external/fees/breakdown"
             ]
           },
           {
