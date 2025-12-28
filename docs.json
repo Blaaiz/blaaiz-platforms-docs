@@ -3,7 +3,7 @@
   "theme": "mint",
   "name": "Blaaiz",
   "colors": {
-    "primary": "#16A34A",
+    "primary": "#4c63f5",
     "light": "#07C983",
     "dark": "#15803D"
   },
@@ -14,14 +14,8 @@
         "tab": "Home",
         "icon": "house",
         "iconType": "duotone",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "quickstart",
-              "development"
-            ]
-          }
+        "pages": [
+          "home"
         ]
       },
       {
@@ -30,10 +24,10 @@
         "iconType": "duotone",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Introduction",
             "pages": [
               "guides/getting-started",
-              "guides/getting-started-guide",
+              "guides/general-guidelines",
               "guides/authentication",
               "guides/ip-whitelisting",
               "guides/rate-limits",
