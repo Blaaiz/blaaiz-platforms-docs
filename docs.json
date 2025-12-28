@@ -144,8 +144,13 @@
               "/api-reference/collection/create-openapi.json POST /api/external/collection",
               "/api-reference/collection/attach-customer-openapi.json POST /api/external/collection/attach-customer",
               "/api-reference/collection/accept-interac-openapi.json POST /api/external/accept-interac-money-request",
-              "/api-reference/collection/initiate-crypto-openapi.json POST /api/external/collection/crypto",
-              "/api-reference/collection/get-crypto-networks-openapi.json GET /api/external/collection/crypto/networks"
+              {
+                "group": "Crypto",
+                "pages": [
+                  "/api-reference/collection/initiate-crypto-openapi.json POST /api/external/collection/crypto",
+                  "/api-reference/collection/get-crypto-networks-openapi.json GET /api/external/collection/crypto/networks"
+                ]
+              }
             ]
           },
           {
