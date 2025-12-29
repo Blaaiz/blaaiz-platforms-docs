@@ -1,0 +1,244 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Add Customer KYC",
+        "version": "1.0.0",
+        "description": "Add KYC details for a customer. Verification remains PENDING until required documents are uploaded and reviewed."
+    },
+    "tags": [
+        {
+            "name": "Customer"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "AddKycRequest": {
+                "type": "object",
+                "properties": {
+                    "dob": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date of birth (YYYY-MM-DD)."
+                    },
+                    "street": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "zip_code": {
+                        "type": "string"
+                    },
+                    "id_expiry_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "id_issue_date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                }
+            },
+            "Customer": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "business_id": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "id_type": {
+                        "type": "string"
+                    },
+                    "id_number": {
+                        "type": "string"
+                    },
+                    "verification_status": {
+                        "type": "string"
+                    },
+                    "kyc_data": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "type",
+                    "email",
+                    "country",
+                    "id_type",
+                    "id_number",
+                    "verification_status"
+                ]
+            },
+            "AddKycResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Customer"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{id}/kyc-data": {
+            "post": {
+                "summary": "Add KYC details",
+                "description": "Add KYC details for a customer. Verification stays PENDING until documents are uploaded and reviewed.",
+                "tags": [
+                    "Customer"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Customer ID"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddKycRequest"
+                            },
+                            "example": {
+                                "dob": "1990-01-01",
+                                "street": "123 Main St",
+                                "city": "Lagos",
+                                "zip_code": "100001",
+                                "id_expiry_date": "2030-12-31"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "KYC data updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AddKycResponse"
+                                },
+                                "example": {
+                                    "message": "Business customer KYC data updated successfully.",
+                                    "data": {
+                                        "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                        "first_name": "John",
+                                        "last_name": "Doe",
+                                        "business_name": null,
+                                        "type": "individual",
+                                        "email": "john.doe@company.com",
+                                        "country": "NG",
+                                        "id_type": "passport",
+                                        "id_number": "6733823632872",
+                                        "verification_status": "PENDING",
+                                        "kyc_data": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid request parameters"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
