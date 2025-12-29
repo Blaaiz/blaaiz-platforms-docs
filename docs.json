@@ -169,14 +169,14 @@
           {
             "group": "Customer",
             "pages": [
-              "api-reference/customer/create",
-              "api-reference/customer/list",
-              "api-reference/customer/get",
-              "api-reference/customer/update",
-              "api-reference/customer/add-kyc",
-              "api-reference/customer/upload-files",
-              "api-reference/customer/list-beneficiaries",
-              "api-reference/customer/get-beneficiary"
+              "/api-reference/customer/create-openapi.json POST /api/external/customer",
+              "/api-reference/customer/list-openapi.json GET /api/external/customer",
+              "/api-reference/customer/get-openapi.json GET /api/external/customer/{id}",
+              "/api-reference/customer/update-openapi.json PATCH /api/external/customer/{id}",
+              "/api-reference/customer/add-kyc-openapi.json POST /api/external/customer/{id}/kyc-data",
+              "/api-reference/customer/upload-files-openapi.json POST /api/external/customer/{id}/files",
+              "/api-reference/customer/list-beneficiaries-openapi.json GET /api/external/customer/{customer_id}/beneficiary",
+              "/api-reference/customer/get-beneficiary-openapi.json GET /api/external/customer/{customer_id}/beneficiary/{beneficiary}"
             ]
           },
           {
