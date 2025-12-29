@@ -1,0 +1,295 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Update Customer",
+        "version": "1.0.0",
+        "description": "Update customer details and attach documents. Use file IDs from the File API for attachments."
+    },
+    "tags": [
+        {
+            "name": "Customer"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "Address": {
+                "type": "object",
+                "properties": {
+                    "street": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UpdateCustomerRequest": {
+                "type": "object",
+                "properties": {
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    },
+                    "business_name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "phone_number": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "id_file": {
+                        "type": "string",
+                        "description": "File ID for identity document."
+                    },
+                    "proof_of_address_file": {
+                        "type": "string"
+                    },
+                    "liveness_check_file": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Customer": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "phone_number": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type",
+                    "email",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ]
+            },
+            "UpdateCustomerResponse": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Customer"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{id}": {
+            "patch": {
+                "summary": "Update a customer",
+                "description": "Update customer details and attach documents. Use file IDs from the File API; once all required documents are attached, status moves from pending to verified.",
+                "tags": [
+                    "Customer"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Customer ID"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCustomerRequest"
+                            },
+                            "examples": {
+                                "update_details": {
+                                    "value": {
+                                        "phone_number": "+2348098765432",
+                                        "address": {
+                                            "street": "456 New Street",
+                                            "city": "Lagos",
+                                            "state": "Lagos",
+                                            "country": "NG",
+                                            "postal_code": "100001"
+                                        }
+                                    }
+                                },
+                                "attach_documents": {
+                                    "value": {
+                                        "id_file": "file_123456",
+                                        "proof_of_address_file": "file_789012",
+                                        "liveness_check_file": "file_345678"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Customer updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateCustomerResponse"
+                                },
+                                "example": {
+                                    "status": true,
+                                    "message": "Customer updated successfully",
+                                    "data": {
+                                        "id": "customer_123456789",
+                                        "type": "individual",
+                                        "first_name": "John",
+                                        "last_name": "Doe",
+                                        "email": "john@example.com",
+                                        "phone_number": "+2348098765432",
+                                        "status": "verified",
+                                        "created_at": "2024-01-15T10:30:00Z",
+                                        "updated_at": "2024-01-15T11:00:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid request parameters"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Customer not found"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
