@@ -1,0 +1,194 @@
+---
+title: Interac Auto Deposits
+description: Learn how Interac Auto Deposits work on Blaaiz and how to receive CAD collections seamlessly.
+---
+
+## Overview
+
+Blaaiz supports **Interac** as a payment rail for collecting **Canadian Dollars (CAD)** from your customers.
+
+Interac is one of the most widely used bank transfer systems in Canada, enabling fast and secure peer-to-peer and business payments directly between bank accounts.
+
+On Blaaiz, Interac is available **exclusively for CAD collections** and can be enhanced using **Interac Auto Deposits** to provide a seamless, no-friction payment experience for your customers.
+
+---
+
+## What is Interac?
+
+**Interac e-Transfer** allows individuals and businesses in Canada to send money directly from their bank accounts using an email address.
+
+Traditionally, recipients must:
+
+1. Receive a transfer notification
+2. Answer a security question
+3. Manually accept the funds
+
+While effective, this process introduces friction, especially for businesses handling high volumes of payments.
+
+---
+
+## What is Interac Auto Deposit?
+
+**Interac Auto Deposit** eliminates manual acceptance.
+
+When Auto Deposit is enabled:
+
+- Funds are deposited **automatically**
+- No security questions are required
+- Transfers are credited instantly to the recipient’s account
+
+### Benefits of Auto Deposit
+
+- **Faster settlements**
+- **No failed or missed transfers**
+- **Better customer experience**
+- **Reduced operational overhead**
+
+Blaaiz allows businesses to configure **custom, branded Auto Deposit email addresses** that their customers can send funds to.
+
+---
+
+## How Blaaiz Supports Interac Auto Deposits
+
+Blaaiz enables platform and merchant businesses to:
+
+- Configure a **custom Interac Auto Deposit email**
+- Receive CAD funds directly into their **CAD wallet**
+- Track incoming payments via **webhooks**
+
+### Example Scenario
+
+Let’s say:
+
+- **Company:** Envelopy
+- **Domain:** `envelopy.com`
+- **Business Type:** Platform business on Blaaiz
+
+Envelopy wants to receive CAD payments from customers using Interac.
+
+Blaaiz can configure a branded email such as:
+
+`payments@envelopy.com`
+
+This email becomes Envelopy’s **Interac Auto Deposit address**.
+
+Any funds sent to this email will:
+
+- Be auto-deposited
+- Land directly in Envelopy’s **CAD wallet on Blaaiz**
+
+---
+
+## Setting Up Interac Auto Deposit
+
+### Step 1: Access the CAD Wallet
+
+A **Super Admin** logs into the **Blaaiz Business Dashboard** and navigates to their **CAD wallet**.
+
+On the wallet screen, they will see an option labeled:
+
+> **Interac Auto Deposit**
+
+![Interac Auto Deposit](/images/interac.png)
+
+---
+
+### Step 2: Add an Auto Deposit Email
+
+Click **Interac Auto Deposit** to open the configuration interface.
+
+Here, you can:
+
+- Add the email address you want configured for Auto Deposit
+- Use a branded domain (recommended)
+- Following our example, Envelopy would add `payments@envelopy.com`
+
+---
+
+### Step 3: Configuration Statuses
+
+Auto Deposit setup is **not instant**. The status will move through the following states:
+
+| Status       | Meaning                                   |
+| ------------ | ----------------------------------------- |
+| `PENDING`    | Request submitted and awaiting review     |
+| `PROCESSING` | Blaaiz is configuring the Auto Deposit    |
+| `ACTIVE`     | Setup complete and ready to receive funds |
+
+Once the status becomes **ACTIVE**, Blaaiz will send an email notification to your business email address confirming completion.
+
+---
+
+## Receiving Funds from Customers
+
+Once active, all you need to do is:
+
+1. Display the configured Interac email address in your product
+2. Ask customers to send payments to that email
+3. Funds will be auto-deposited into your **CAD wallet**
+
+When a customer sends money:
+
+- Blaaiz receives the funds
+- Your CAD wallet is credited
+- A **collection webhook** is emitted
+
+---
+
+## Identifying Who Sent the Payment
+
+A common question we get is:
+
+> **“How do I know which customer made the deposit?”**
+
+We’ve got you covered.
+
+### Webhook Source Information
+
+Every CAD collection webhook includes a `source_information` object.
+
+This object contains:
+
+- The **sender’s Interac email address**
+
+You can use this to identify the customer who initiated the payment.
+
+👉 See the full webhook payload here:  
+**[CAD Collection Webhook Sample](/guides/webhooks/collection/cad)**
+
+---
+
+## Recommended Infrastructure Design
+
+To reliably map incoming Interac payments to your users, we recommend the following setup.
+
+### User → Interac Email Mapping
+
+If Envelopy has a `users` table, we strongly advise adding a related table:
+
+`user_interac_emails`
+
+#### Suggested Structure
+
+```text
+users
+└── id
+
+user_interac_emails
+├── id
+├── user_id (FK → users.id)
+├── email (unique)
+```
+
+#### Flowchart
+
+Here is a high-level overview of the process:
+
+```mermaid
+flowchart LR
+  Customer -->|Send Interac| Interac
+  Interac -->|Auto Deposit| Blaaiz
+  Blaaiz -->|Credit Wallet| CAD_Wallet
+  Blaaiz -->|Webhook| Envelopy
+  Envelopy -->|Match sender email| User
+```

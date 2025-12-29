@@ -69,7 +69,8 @@
                   "guides/webhooks/virtual-account"
                 ]
               },
-              "guides/sdks"
+              "guides/sdks",
+              "guides/interac-auto-deposits"
             ]
           },
           {
