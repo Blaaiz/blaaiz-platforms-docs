@@ -1,0 +1,160 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Upload Customer Files",
+        "version": "1.0.0",
+        "description": "Upload verification files for a customer using file_id values from the File API presigned upload. \n Newly uploaded files override previous records. \n The id_file must be uploaded for the customer to be verified."
+    },
+    "tags": [
+        {
+            "name": "Customer"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "UploadFilesRequest": {
+                "type": "object",
+                "properties": {
+                    "id_file": {
+                        "type": "string",
+                        "description": "file_id for identity document (from File API presigned upload)."
+                    },
+                    "proof_of_address_file": {
+                        "type": "string",
+                        "description": "file_id for proof of address."
+                    },
+                    "liveness_check_file": {
+                        "type": "string",
+                        "description": "file_id for liveness check."
+                    }
+                }
+            },
+            "UploadFilesResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{id}/files": {
+            "post": {
+                "summary": "Upload files for a customer",
+                "description": "Upload verification files for a customer. Use file_id values from the File API presigned upload. Newly uploaded files override previous records. The id_file must be uploaded for verification.",
+                "tags": [
+                    "Customer"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Customer ID"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadFilesRequest"
+                            },
+                            "example": {
+                                "id_file": "file_123456",
+                                "proof_of_address_file": "file_789012",
+                                "liveness_check_file": "file_345678"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Files uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UploadFilesResponse"
+                                },
+                                "example": {
+                                    "message": "Customer files uploaded successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid request parameters"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
