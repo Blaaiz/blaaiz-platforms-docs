@@ -1,0 +1,191 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Beneficiary",
+        "version": "1.0.0",
+        "description": "Retrieve details of a specific beneficiary for a customer."
+    },
+    "tags": [
+        {
+            "name": "Customer"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "Beneficiary": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "business_id": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "id_type": {
+                        "type": "string"
+                    },
+                    "id_number": {
+                        "type": "string"
+                    },
+                    "verification_status": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "type",
+                    "email",
+                    "country",
+                    "id_type",
+                    "id_number",
+                    "verification_status"
+                ]
+            },
+            "GetBeneficiaryResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Beneficiary"
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer_id}/beneficiary/{beneficiary}": {
+            "get": {
+                "summary": "Get beneficiary",
+                "description": "Retrieve details of a specific beneficiary for a customer.",
+                "tags": [
+                    "Customer"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "customer_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Customer ID"
+                    },
+                    {
+                        "name": "beneficiary",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Beneficiary ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Beneficiary retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetBeneficiaryResponse"
+                                },
+                                "example": {
+                                    "message": "Customers retrieved successfully.",
+                                    "data": [
+                                        {
+                                            "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                            "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                            "first_name": "Halie",
+                                            "last_name": "Skiles",
+                                            "business_name": null,
+                                            "type": "individual",
+                                            "email": "danyka66@example.org",
+                                            "country": "NG",
+                                            "id_type": "id_card",
+                                            "id_number": "1DaRjlBTMZ",
+                                            "verification_status": "PENDING"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
