@@ -1,0 +1,317 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Create Customer",
+        "version": "1.0.0",
+        "description": "Create a new customer. Verification remains PENDING until files are uploaded and KYC is completed."
+    },
+    "tags": [
+        {
+            "name": "Customer"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "CreateCustomerRequest": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "individual",
+                            "business"
+                        ],
+                        "description": "Customer type."
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "Country code (e.g., NG, CA, US)."
+                    },
+                    "id_type": {
+                        "type": "string",
+                        "enum": [
+                            "drivers_license",
+                            "passport",
+                            "id_card",
+                            "resident_permit",
+                            "certificate_of_incorporation"
+                        ],
+                        "description": "ID type; certificate_of_incorporation only valid for business."
+                    },
+                    "id_number": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "description": "Required if type is individual."
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "description": "Required if type is individual."
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "description": "Required if type is business."
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "tin": {
+                        "type": "string",
+                        "description": "Tax identification number (varies by country)."
+                    },
+                    "dob": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "street": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "zip_code": {
+                        "type": "string"
+                    },
+                    "id_expiry_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "id_issue_date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "type",
+                    "email",
+                    "country",
+                    "id_type",
+                    "id_number"
+                ]
+            },
+            "Customer": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "business_id": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "id_type": {
+                        "type": "string"
+                    },
+                    "id_number": {
+                        "type": "string"
+                    },
+                    "verification_status": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "type",
+                    "email",
+                    "country",
+                    "id_type",
+                    "id_number",
+                    "verification_status"
+                ]
+            },
+            "CreateCustomerResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Customer"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "status",
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer": {
+            "post": {
+                "summary": "Create a customer",
+                "description": "Create a new customer. Verification remains PENDING until KYC files are uploaded and reviewed.",
+                "tags": [
+                    "Customer"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCustomerRequest"
+                            },
+                            "examples": {
+                                "individual": {
+                                    "value": {
+                                        "type": "individual",
+                                        "first_name": "John",
+                                        "last_name": "Doe",
+                                        "email": "john.doe@company.com",
+                                        "country": "NG",
+                                        "id_type": "passport",
+                                        "id_number": "6733823632872",
+                                        "phone": "+2348012345678",
+                                        "dob": "1990-01-15",
+                                        "street": "123 Main Street",
+                                        "city": "Lagos",
+                                        "state": "Lagos",
+                                        "zip_code": "100001",
+                                        "id_expiry_date": "2030-01-15",
+                                        "id_issue_date": "2020-01-15"
+                                    }
+                                },
+                                "business": {
+                                    "value": {
+                                        "type": "business",
+                                        "business_name": "Acme Corp",
+                                        "email": "contact@acme.com",
+                                        "country": "NG",
+                                        "id_type": "certificate_of_incorporation",
+                                        "id_number": "RC123456",
+                                        "phone": "+2348012345678",
+                                        "tin": "12345678-0001",
+                                        "street": "456 Business Ave",
+                                        "city": "Lagos",
+                                        "state": "Lagos",
+                                        "zip_code": "100001"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Customer created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateCustomerResponse"
+                                },
+                                "example": {
+                                    "message": "Customer created successfully.",
+                                    "data": {
+                                        "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                        "first_name": "John",
+                                        "last_name": "Doe",
+                                        "business_name": null,
+                                        "type": "individual",
+                                        "email": "john.doe@company.com",
+                                        "country": "NG",
+                                        "id_type": "passport",
+                                        "id_number": "6733823632872",
+                                        "verification_status": "PENDING"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid request parameters"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
