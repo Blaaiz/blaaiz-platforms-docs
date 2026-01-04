@@ -46,236 +46,160 @@
                     "to_amount": {
                         "type": "number",
                         "description": "Exact amount the recipient should receive"
-                    },
-                    "method": {
-                        "type": "string",
-                        "description": "Transaction method",
-                        "enum": [
-                            "bank_transfer",
-                            "interac",
-                            "card",
-                            "open_banking"
-                        ]
                     }
                 },
                 "required": [
                     "from_currency_id",
                     "to_currency_id",
-                    "method"
-                ],
-                "oneOf": [
-                    {
-                        "title": "Specify amount to send (from_amount)",
-                        "required": [
-                            "from_amount"
-                        ],
-                        "not": {
-                            "required": [
-                                "to_amount"
-                            ]
-                        }
-                    },
-                    {
-                        "title": "Specify amount recipient gets (to_amount)",
-                        "required": [
-                            "to_amount"
-                        ],
-                        "not": {
-                            "required": [
-                                "from_amount"
-                            ]
-                        }
-                    }
+                    "from_amount"
                 ]
             },
-            "FeeBreakdownData": {
+            "FeeItem": {
                 "type": "object",
                 "properties": {
-                    "you_send": {
-                        "type": "number",
-                        "description": "Total amount deducted from your wallet (includes all fees)"
-                    },
-                    "total_amount_to_send": {
-                        "type": "number",
-                        "description": "Base amount being sent before recipient fees"
-                    },
-                    "recipient_gets": {
-                        "type": "number",
-                        "description": "Final amount the recipient receives after all fees"
-                    },
-                    "total_fees": {
-                        "type": "number",
-                        "description": "Total fees charged"
-                    },
-                    "platform_fee": {
-                        "type": "number",
-                        "description": "Blaaiz platform fee"
-                    },
-                    "method_fee": {
-                        "type": "number",
-                        "description": "Fee specific to the payment method"
-                    },
-                    "exchange_rate": {
-                        "type": "number",
-                        "description": "Exchange rate applied for cross-currency transactions"
-                    },
-                    "from_currency": {
-                        "type": "string",
-                        "description": "Source currency"
-                    },
-                    "to_currency": {
-                        "type": "string",
-                        "description": "Destination currency"
-                    },
                     "method": {
                         "type": "string",
-                        "description": "Payment method"
+                        "description": "Method this fee applies to (e.g., open_banking, card, ach, bank_transfer, interac)"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Fee amount"
                     }
                 },
                 "required": [
-                    "you_send",
-                    "total_amount_to_send",
-                    "recipient_gets",
-                    "total_fees",
-                    "platform_fee",
-                    "method_fee",
-                    "exchange_rate",
-                    "from_currency",
-                    "to_currency",
-                    "method"
+                    "method",
+                    "amount"
                 ]
             },
             "FeeBreakdownResponse": {
                 "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "$ref": "#/components/schemas/FeeBreakdownData"
+                "properties": {},
+                "to_amount": {
+                    "type": "number",
+                    "description": "Exact amount the recipient should receive"
+                },
+                "our_fee": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "description": "Overall fee object returned by the system."
+                },
+                "collection_fees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/FeeItem"
                     }
                 },
-                "required": [
-                    "message",
-                    "data"
-                ]
+                "payout_fees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/FeeItem"
+                    }
+                }
             },
-            "Error": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "message"
-                ]
-            }
+            "required": [
+                "our_fee",
+                "collection_fees",
+                "payout_fees"
+            ]
+        },
+        "Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "message"
+            ]
         }
-    },
-    "paths": {
-        "/api/external/fees/breakdown": {
-            "post": {
-                "summary": "Get fees breakdown",
-                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both).",
-                "tags": [
-                    "Fees"
-                ],
-                "security": [
-                    {
-                        "apiKeyAuth": []
+    }
+},
+"paths": {
+    "/api/external/fees/breakdown": {
+        "post": {
+            "summary": "Get fees breakdown",
+            "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both).",
+            "tags": [
+                "Fees"
+            ],
+            "security": [
+                {
+                    "apiKeyAuth": []
+                }
+            ],
+            "requestBody": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/FeeBreakdownRequest"
+                        },
+                        "example": {
+                            "from_currency_id": "NGN",
+                            "to_currency_id": "NGN",
+                            "from_amount": 50000,
+                            "method": "bank_transfer"
+                        }
                     }
-                ],
-                "requestBody": {
-                    "required": true,
+                }
+            },
+            "responses": {
+                "200": {
+                    "description": "Fee breakdown calculated successfully",
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/FeeBreakdownRequest"
+                                "$ref": "#/components/schemas/FeeBreakdownResponse"
                             },
                             "example": {
-                                "from_currency_id": "NGN",
-                                "to_currency_id": "NGN",
-                                "from_amount": 50000,
-                                "method": "bank_transfer"
+                                "our_fee": {
+                                    "open_banking": 100
+                                },
+                                "collection_fees": [
+                                    {
+                                        "method": "open_banking",
+                                        "amount": 100
+                                    },
+                                    {
+                                        "method": "card",
+                                        "amount": 200
+                                    }
+                                ],
+                                "payout_fees": [
+                                    {
+                                        "method": "bank_transfer",
+                                        "amount": 150
+                                    }
+                                ]
                             }
                         }
                     }
                 },
-                "responses": {
-                    "200": {
-                        "description": "Fee breakdown calculated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/FeeBreakdownResponse"
-                                },
-                                "examples": {
-                                    "SameCurrency": {
-                                        "value": {
-                                            "status": true,
-                                            "message": "Fee breakdown calculated successfully",
-                                            "data": {
-                                                "you_send": 50500,
-                                                "total_amount_to_send": 50000,
-                                                "recipient_gets": 50000,
-                                                "total_fees": 500,
-                                                "platform_fee": 300,
-                                                "method_fee": 200,
-                                                "exchange_rate": 1,
-                                                "from_currency": "NGN",
-                                                "to_currency": "NGN",
-                                                "method": "bank_transfer"
-                                            }
-                                        }
-                                    },
-                                    "CrossCurrency": {
-                                        "value": {
-                                            "status": true,
-                                            "message": "Fee breakdown calculated successfully",
-                                            "data": {
-                                                "you_send": 85.5,
-                                                "total_amount_to_send": 50000,
-                                                "recipient_gets": 50000,
-                                                "total_fees": 2.5,
-                                                "platform_fee": 1.5,
-                                                "method_fee": 1.0,
-                                                "exchange_rate": 600.5,
-                                                "from_currency": "CAD",
-                                                "to_currency": "NGN",
-                                                "method": "bank_transfer"
-                                            }
-                                        }
-                                    }
-                                }
+                "400": {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            },
+                            "example": {
+                                "status": false,
+                                "message": "Invalid request parameters"
                             }
                         }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                },
-                                "example": {
-                                    "status": false,
-                                    "message": "Invalid request parameters"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Error"
-                                },
-                                "example": {
-                                    "status": false,
-                                    "message": "Invalid or missing API key"
-                                }
+                    }
+                },
+                "401": {
+                    "description": "Unauthorized",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Error"
+                            },
+                            "example": {
+                                "status": false,
+                                "message": "Invalid or missing API key"
                             }
                         }
                     }
@@ -283,4 +207,5 @@
             }
         }
     }
+}
 }
