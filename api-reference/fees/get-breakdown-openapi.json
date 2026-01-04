@@ -113,93 +113,93 @@
                 "message"
             ]
         }
-    }
-},
-"paths": {
-    "/api/external/fees/breakdown": {
-        "post": {
-            "summary": "Get fees breakdown",
-            "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both).",
-            "tags": [
-                "Fees"
-            ],
-            "security": [
-                {
-                    "apiKeyAuth": []
-                }
-            ],
-            "requestBody": {
-                "required": true,
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "$ref": "#/components/schemas/FeeBreakdownRequest"
-                        },
-                        "example": {
-                            "from_currency_id": "NGN",
-                            "to_currency_id": "NGN",
-                            "from_amount": 50000,
-                            "method": "bank_transfer"
-                        }
+    },
+    "paths": {
+        "/api/external/fees/breakdown": {
+            "post": {
+                "summary": "Get fees breakdown",
+                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both).",
+                "tags": [
+                    "Fees"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
                     }
-                }
-            },
-            "responses": {
-                "200": {
-                    "description": "Fee breakdown calculated successfully",
+                ],
+                "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/FeeBreakdownResponse"
+                                "$ref": "#/components/schemas/FeeBreakdownRequest"
                             },
                             "example": {
-                                "our_fee": {
-                                    "open_banking": 100
+                                "from_currency_id": "NGN",
+                                "to_currency_id": "NGN",
+                                "from_amount": 50000,
+                                "method": "bank_transfer"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Fee breakdown calculated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FeeBreakdownResponse"
                                 },
-                                "collection_fees": [
-                                    {
-                                        "method": "open_banking",
-                                        "amount": 100
+                                "example": {
+                                    "our_fee": {
+                                        "open_banking": 100
                                     },
-                                    {
-                                        "method": "card",
-                                        "amount": 200
-                                    }
-                                ],
-                                "payout_fees": [
-                                    {
-                                        "method": "bank_transfer",
-                                        "amount": 150
-                                    }
-                                ]
+                                    "collection_fees": [
+                                        {
+                                            "method": "open_banking",
+                                            "amount": 100
+                                        },
+                                        {
+                                            "method": "card",
+                                            "amount": 200
+                                        }
+                                    ],
+                                    "payout_fees": [
+                                        {
+                                            "method": "bank_transfer",
+                                            "amount": 150
+                                        }
+                                    ]
+                                }
                             }
                         }
-                    }
-                },
-                "400": {
-                    "description": "Bad Request",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Error"
-                            },
-                            "example": {
-                                "status": false,
-                                "message": "Invalid request parameters"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid request parameters"
+                                }
                             }
                         }
-                    }
-                },
-                "401": {
-                    "description": "Unauthorized",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Error"
-                            },
-                            "example": {
-                                "status": false,
-                                "message": "Invalid or missing API key"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "status": false,
+                                    "message": "Invalid or missing API key"
+                                }
                             }
                         }
                     }
@@ -207,5 +207,4 @@
             }
         }
     }
-}
 }
