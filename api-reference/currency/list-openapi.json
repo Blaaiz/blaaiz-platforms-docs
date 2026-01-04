@@ -54,24 +54,6 @@
                     "active"
                 ]
             },
-            "CurrencyListResponse": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Currency"
-                        }
-                    }
-                },
-                "required": [
-                    "message",
-                    "data"
-                ]
-            },
             "Error": {
                 "type": "object",
                 "properties": {
@@ -104,43 +86,43 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CurrencyListResponse"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Currency"
+                                    }
                                 },
-                                "example": {
-                                    "message": "Currencies retrieved successfully",
-                                    "data": [
-                                        {
-                                            "id": "currency_001",
-                                            "code": "NGN",
-                                            "name": "Nigerian Naira",
-                                            "active": true
-                                        },
-                                        {
-                                            "id": "currency_002",
-                                            "code": "CAD",
-                                            "name": "Canadian Dollar",
-                                            "active": true
-                                        },
-                                        {
-                                            "id": "currency_003",
-                                            "code": "USD",
-                                            "name": "United States Dollar",
-                                            "active": true
-                                        },
-                                        {
-                                            "id": "currency_004",
-                                            "code": "EUR",
-                                            "name": "Euro",
-                                            "active": true
-                                        },
-                                        {
-                                            "id": "currency_005",
-                                            "code": "GBP",
-                                            "name": "British Pound",
-                                            "active": true
-                                        }
-                                    ]
-                                }
+                                "example": [
+                                    {
+                                        "id": "currency_001",
+                                        "code": "NGN",
+                                        "name": "Nigerian Naira",
+                                        "active": true
+                                    },
+                                    {
+                                        "id": "currency_002",
+                                        "code": "CAD",
+                                        "name": "Canadian Dollar",
+                                        "active": true
+                                    },
+                                    {
+                                        "id": "currency_003",
+                                        "code": "USD",
+                                        "name": "United States Dollar",
+                                        "active": true
+                                    },
+                                    {
+                                        "id": "currency_004",
+                                        "code": "EUR",
+                                        "name": "Euro",
+                                        "active": true
+                                    },
+                                    {
+                                        "id": "currency_005",
+                                        "code": "GBP",
+                                        "name": "British Pound",
+                                        "active": true
+                                    }
+                                ]
                             }
                         }
                     },
