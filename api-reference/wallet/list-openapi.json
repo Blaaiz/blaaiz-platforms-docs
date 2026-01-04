@@ -64,24 +64,6 @@
                     "is_active"
                 ]
             },
-            "WalletListResponse": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Wallet"
-                        }
-                    }
-                },
-                "required": [
-                    "message",
-                    "data"
-                ]
-            },
             "Error": {
                 "type": "object",
                 "properties": {
@@ -114,29 +96,29 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WalletListResponse"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Wallet"
+                                    }
                                 },
-                                "example": {
-                                    "message": "Wallets retrieved successfully",
-                                    "data": [
-                                        {
-                                            "id": "e7efc60f-247d-4ecc-b04b-c4810df25758",
-                                            "business_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
-                                            "currency": "NGN",
-                                            "currency_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
-                                            "amount": 0,
-                                            "is_active": true
-                                        },
-                                        {
-                                            "id": "wallet_cad_456",
-                                            "business_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
-                                            "currency": "CAD",
-                                            "currency_id": "currency_cad_id",
-                                            "amount": 25000,
-                                            "is_active": true
-                                        }
-                                    ]
-                                }
+                                "example": [
+                                    {
+                                        "id": "e7efc60f-247d-4ecc-b04b-c4810df25758",
+                                        "business_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                        "currency": "NGN",
+                                        "currency_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                        "amount": 0,
+                                        "is_active": true
+                                    },
+                                    {
+                                        "id": "wallet_cad_456",
+                                        "business_id": "9d469b3f-ca6c-4e82-8b4f-5f323c9ab03e",
+                                        "currency": "CAD",
+                                        "currency_id": "currency_cad_id",
+                                        "amount": 25000,
+                                        "is_active": true
+                                    }
+                                ]
                             }
                         }
                     },
