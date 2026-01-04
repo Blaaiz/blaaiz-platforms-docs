@@ -43,21 +43,11 @@
                             "proof_of_address",
                             "liveness_check"
                         ]
-                    },
-                    "file_name": {
-                        "type": "string",
-                        "description": "Name of the file (including extension)"
-                    },
-                    "file_type": {
-                        "type": "string",
-                        "description": "MIME type of the file (e.g., image/jpeg, image/png, application/pdf)"
                     }
                 },
                 "required": [
                     "customer_id",
-                    "file_category",
-                    "file_name",
-                    "file_type"
+                    "file_category"
                 ]
             },
             "FileUploadResponse": {
