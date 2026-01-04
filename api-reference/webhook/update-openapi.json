@@ -67,7 +67,7 @@
         }
     },
     "paths": {
-        "/api/external/webhook": {
+        "/api/external/webhook/{businessWebhook}": {
             "put": {
                 "summary": "Update webhook URL",
                 "description": "Update your registered webhook URLs.",
@@ -77,6 +77,17 @@
                 "security": [
                     {
                         "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "businessWebhook",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Webhook ID or reference to update."
                     }
                 ],
                 "requestBody": {
