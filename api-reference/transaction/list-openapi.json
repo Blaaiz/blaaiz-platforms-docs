@@ -155,7 +155,7 @@
                     },
                     "type": {
                         "type": "string",
-                        "description": "Transaction type (collection, payout)"
+                        "description": "Transaction type (SEND_MONEY, FUND_WALLET)"
                     },
                     "reference": {
                         "type": "string",
@@ -316,8 +316,8 @@
                             "example": {
                                 "start_date": "2025-01-01",
                                 "end_date": "2025-12-31",
-                                "status": "completed",
-                                "type": "collection"
+                                "status": "SUCCESSFUL",
+                                "type": "SEND_MONEY"
                             }
                         }
                     }
@@ -338,7 +338,7 @@
                                             "business_id": "business_123",
                                             "business_customer_id": "customer_123",
                                             "business_wallet_id": "wallet_123",
-                                            "status": "completed",
+                                            "status": "SUCCESSFUL",
                                             "type": "collection",
                                             "reference": "collection_ref_001",
                                             "currency": "NGN",
@@ -358,7 +358,7 @@
                                             "business_id": "business_123",
                                             "business_customer_id": "customer_123",
                                             "business_wallet_id": "wallet_123",
-                                            "status": "completed",
+                                            "status": "SUCCESSFUL",
                                             "type": "payout",
                                             "reference": "payout_ref_001",
                                             "currency": "NGN",
@@ -379,7 +379,7 @@
                                                 "currency": "NGN",
                                                 "bank_name": "Access Bank",
                                                 "bank_code": "044",
-                                                "status": "completed",
+                                                "status": "SUCCESSFUL",
                                                 "routing_number": null,
                                                 "email": null
                                             }

@@ -84,77 +84,25 @@
                     "method"
                 ]
             },
-            "CollectionData": {
+            "InitiateCollectionResponse": {
                 "type": "object",
                 "properties": {
-                    "id": {
+                    "message": {
                         "type": "string"
                     },
                     "transaction_id": {
                         "type": "string"
                     },
-                    "customer_id": {
-                        "type": "string"
-                    },
-                    "wallet_id": {
-                        "type": "string"
-                    },
-                    "amount": {
-                        "type": "number"
-                    },
-                    "currency": {
-                        "type": "string"
-                    },
-                    "method": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "string",
-                        "description": "Status (pending, processing, completed, failed)."
-                    },
-                    "payment_url": {
+                    "url": {
                         "type": "string",
                         "format": "uri",
-                        "nullable": true,
-                        "description": "URL for customer to complete payment (card and open_banking)."
-                    },
-                    "reference": {
-                        "type": "string"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
+                        "description": "URL to redirect customer to complete payment"
                     }
                 },
                 "required": [
-                    "id",
-                    "transaction_id",
-                    "customer_id",
-                    "wallet_id",
-                    "amount",
-                    "currency",
-                    "method",
-                    "status",
-                    "created_at"
-                ]
-            },
-            "InitiateCollectionResponse": {
-                "type": "object",
-                "properties": {
-                    "status": {
-                        "type": "boolean"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "$ref": "#/components/schemas/CollectionData"
-                    }
-                },
-                "required": [
-                    "status",
                     "message",
-                    "data"
+                    "transaction_id",
+                    "url"
                 ]
             },
             "Error": {

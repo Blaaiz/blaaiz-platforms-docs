@@ -135,9 +135,6 @@
             "GetCustomerResponse": {
                 "type": "object",
                 "properties": {
-                    "status": {
-                        "type": "boolean"
-                    },
                     "message": {
                         "type": "string"
                     },
@@ -146,7 +143,6 @@
                     }
                 },
                 "required": [
-                    "status",
                     "message",
                     "data"
                 ]
