@@ -60,14 +60,17 @@
                     "file_type"
                 ]
             },
-            "UploadDetails": {
+            "FileUploadResponse": {
                 "type": "object",
                 "properties": {
+                    "message": {
+                        "type": "string"
+                    },
                     "file_id": {
                         "type": "string",
                         "description": "Unique identifier for the file"
                     },
-                    "upload_url": {
+                    "url": {
                         "type": "string",
                         "format": "uri",
                         "description": "Pre-signed URL to upload the file"
@@ -78,33 +81,13 @@
                         "additionalProperties": {
                             "type": "string"
                         }
-                    },
-                    "expires_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Timestamp when the upload URL expires"
-                    }
-                },
-                "required": [
-                    "file_id",
-                    "upload_url",
-                    "headers",
-                    "expires_at"
-                ]
-            },
-            "FileUploadResponse": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "$ref": "#/components/schemas/UploadDetails"
                     }
                 },
                 "required": [
                     "message",
-                    "data"
+                    "file_id",
+                    "url",
+                    "headers"
                 ]
             },
             "Error": {
@@ -159,13 +142,10 @@
                                 },
                                 "example": {
                                     "message": "Upload URL generated successfully",
-                                    "data": {
-                                        "file_id": "file_123456789",
-                                        "upload_url": "https://s3.amazonaws.com/bucket/path?signature=xyz",
-                                        "headers": {
-                                            "Content-Type": "image/jpeg"
-                                        },
-                                        "expires_at": "2024-01-15T11:30:00Z"
+                                    "file_id": "file_123456789",
+                                    "url": "https://s3.amazonaws.com/bucket/path?signature=xyz",
+                                    "headers": {
+                                        "Content-Type": "image/jpeg"
                                     }
                                 }
                             }
