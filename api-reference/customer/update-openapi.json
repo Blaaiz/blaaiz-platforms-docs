@@ -167,7 +167,7 @@
     },
     "paths": {
         "/api/external/customer/{id}": {
-            "patch": {
+            "put": {
                 "summary": "Update a customer",
                 "description": "Update customer details and attach documents. Use file IDs from the File API; once all required documents are attached, status moves from pending to verified.",
                 "tags": [
