@@ -46,19 +46,16 @@
                         "type": "string",
                         "description": "Transaction type",
                         "enum": [
-                            "collection",
-                            "payout"
+                            "SEND_MONEY",
+                            "FUND_WALLET"
                         ]
                     },
                     "status": {
                         "type": "string",
                         "description": "Transaction status",
                         "enum": [
-                            "pending",
-                            "processing",
-                            "completed",
-                            "failed",
-                            "cancelled"
+                            "FAILED",
+                            "SUCCESSFUL"
                         ]
                     },
                     "customer_id": {
