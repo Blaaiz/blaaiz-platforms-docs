@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Initiate Collection",
         "version": "1.0.0",
-        "description": "Create a collection request to receive payment from a customer using card, open_banking, or virtual_account. For card and open_banking, redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed."
+        "description": "Create a collection request to receive payment from a customer using open_banking. Redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed."
     },
     "tags": [
         {
@@ -49,11 +49,9 @@
                     "method": {
                         "type": "string",
                         "enum": [
-                            "card",
-                            "open_banking",
-                            "virtual_account"
+                            "open_banking"
                         ],
-                        "description": "Collection method."
+                        "description": "Collection method. Only open_banking is currently supported."
                     },
                     "phone_number": {
                         "type": "string",
@@ -179,8 +177,8 @@
     "paths": {
         "/api/external/collection": {
             "post": {
-                "summary": "Initiate a collection",
-                "description": "Create a collection request to receive payment from a customer. For card and open_banking, redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed.",
+                "summary": "Initiate a collection (open_banking only)",
+                "description": "Create a collection request to receive payment from a customer using open_banking. Redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed.",
                 "tags": [
                     "Collection"
                 ],
@@ -213,7 +211,7 @@
                                 "wallet_id": "wallet_123",
                                 "amount": 50000,
                                 "currency": "NGN",
-                                "method": "card",
+                                "method": "open_banking",
                                 "phone_number": "+2348012345678",
                                 "email": "john@example.com",
                                 "reference": "collection_ref_001",
@@ -225,7 +223,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Collection initiated successfully. Redirect customer to payment_url for card/open_banking.",
+                        "description": "Collection initiated successfully. Redirect customer to payment_url for open_banking.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -241,7 +239,7 @@
                                         "wallet_id": "wallet_123",
                                         "amount": 50000,
                                         "currency": "NGN",
-                                        "method": "card",
+                                        "method": "open_banking",
                                         "status": "pending",
                                         "payment_url": "https://checkout.blaaiz.com/pay/abc123xyz",
                                         "reference": "collection_ref_001",
