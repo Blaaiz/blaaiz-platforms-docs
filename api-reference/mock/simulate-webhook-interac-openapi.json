@@ -1,0 +1,134 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Mock Interac Webhook",
+        "version": "1.0.0",
+        "description": "Simulate an Interac collection webhook to your configured collection_url. Available only in non-production environments."
+    },
+    "tags": [
+        {
+            "name": "Webhook"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "SimulateInteracRequest": {
+                "type": "object",
+                "properties": {
+                    "interac_email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Sender email to include in source_information.collection_email."
+                    }
+                }
+            },
+            "SimulateInteracResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/mock/simulate-webhook/interac": {
+            "post": {
+                "summary": "Simulate Interac webhook (non-production)",
+                "description": "Sends a mock Interac collection webhook to your configured collection_url. Only available outside production; returns 400 in production.",
+                "tags": [
+                    "Webhook"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SimulateInteracRequest"
+                            },
+                            "example": {
+                                "interac_email": "customer@example.com"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook sent successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SimulateInteracResponse"
+                                },
+                                "example": {
+                                    "message": "Webhook sent successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Unavailable in production or missing configuration.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "This endpoint is only available in development environment"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
