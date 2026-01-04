@@ -35,61 +35,26 @@
                         "type": "string",
                         "description": "Bank account number to verify"
                     },
-                    "bank_code": {
+                    "bank_id": {
                         "type": "string",
-                        "description": "Bank code (see List Banks endpoint)"
-                    },
-                    "currency": {
-                        "type": "string",
-                        "description": "Currency code of the account (e.g., NGN, USD)"
+                        "description": "Bank ID (see List Banks endpoint)"
                     }
                 },
                 "required": [
                     "account_number",
-                    "bank_code",
-                    "currency"
-                ]
-            },
-            "AccountLookupResult": {
-                "type": "object",
-                "properties": {
-                    "account_number": {
-                        "type": "string",
-                        "description": "Verified account number"
-                    },
-                    "account_name": {
-                        "type": "string",
-                        "description": "Name of the account holder"
-                    },
-                    "bank_code": {
-                        "type": "string",
-                        "description": "Bank code"
-                    },
-                    "bank_name": {
-                        "type": "string",
-                        "description": "Bank name"
-                    }
-                },
-                "required": [
-                    "account_number",
-                    "account_name",
-                    "bank_code",
-                    "bank_name"
+                    "bank_id"
                 ]
             },
             "AccountLookupResponse": {
                 "type": "object",
                 "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "$ref": "#/components/schemas/AccountLookupResult"
+                    "account_name": {
+                        "type": "string",
+                        "description": "Name of the account holder"
                     }
                 },
                 "required": [
-                    "message",
-                    "data"
+                    "account_name"
                 ]
             },
             "Error": {
@@ -109,7 +74,7 @@
         "/api/external/bank/account-lookup": {
             "post": {
                 "summary": "Resolve bank account",
-                "description": "Verify the validity of a bank account by providing account number, bank code, and currency.",
+                "description": "Verify the validity of a bank account by providing account number and bank_id.",
                 "tags": [
                     "Bank"
                 ],
@@ -127,8 +92,7 @@
                             },
                             "example": {
                                 "account_number": "0123456789",
-                                "bank_code": "044",
-                                "currency": "NGN"
+                                "bank_id": "044"
                             }
                         }
                     }
@@ -143,12 +107,7 @@
                                 },
                                 "example": {
                                     "message": "Account resolved successfully",
-                                    "data": {
-                                        "account_number": "0123456789",
-                                        "account_name": "John Doe",
-                                        "bank_code": "044",
-                                        "bank_name": "Access Bank"
-                                    }
+                                    "account_name": "John Doe"
                                 }
                             }
                         }
