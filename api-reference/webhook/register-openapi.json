@@ -39,16 +39,6 @@
                         "type": "string",
                         "format": "uri",
                         "description": "URL to receive collection event notifications"
-                    },
-                    "customer_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "description": "URL to receive customer event notifications"
-                    },
-                    "virtual_account_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "description": "URL to receive virtual account event notifications"
                     }
                 },
                 "required": [
@@ -56,53 +46,15 @@
                     "collection_url"
                 ]
             },
-            "WebhookRegisterData": {
-                "type": "object",
-                "properties": {
-                    "payout_url": {
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    "collection_url": {
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    "customer_url": {
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    "virtual_account_url": {
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                },
-                "required": [
-                    "payout_url",
-                    "collection_url",
-                    "updated_at"
-                ]
-            },
             "WebhookRegisterResponse": {
                 "type": "object",
                 "properties": {
-                    "status": {
-                        "type": "boolean"
-                    },
                     "message": {
                         "type": "string"
-                    },
-                    "data": {
-                        "$ref": "#/components/schemas/WebhookRegisterData"
                     }
                 },
                 "required": [
-                    "status",
-                    "message",
-                    "data"
+                    "message"
                 ]
             },
             "Error": {
@@ -144,9 +96,7 @@
                             },
                             "example": {
                                 "payout_url": "https://yourapp.com/webhooks/payout",
-                                "collection_url": "https://yourapp.com/webhooks/collection",
-                                "customer_url": "https://yourapp.com/webhooks/customer",
-                                "virtual_account_url": "https://yourapp.com/webhooks/virtual-account"
+                                "collection_url": "https://yourapp.com/webhooks/collection"
                             }
                         }
                     }
@@ -160,15 +110,7 @@
                                     "$ref": "#/components/schemas/WebhookRegisterResponse"
                                 },
                                 "example": {
-                                    "status": true,
-                                    "message": "Webhook URLs registered successfully",
-                                    "data": {
-                                        "payout_url": "https://yourapp.com/webhooks/payout",
-                                        "collection_url": "https://yourapp.com/webhooks/collection",
-                                        "customer_url": "https://yourapp.com/webhooks/customer",
-                                        "virtual_account_url": "https://yourapp.com/webhooks/virtual-account",
-                                        "updated_at": "2024-01-15T10:30:00Z"
-                                    }
+                                    "message": "Webhook URLs registered successfully"
                                 }
                             }
                         }

@@ -38,14 +38,6 @@
                         "type": "string",
                         "format": "uri"
                     },
-                    "customer_url": {
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    "virtual_account_url": {
-                        "type": "string",
-                        "format": "uri"
-                    },
                     "created_at": {
                         "type": "string",
                         "format": "date-time"
@@ -58,29 +50,8 @@
                 "required": [
                     "payout_url",
                     "collection_url",
-                    "customer_url",
-                    "virtual_account_url",
                     "created_at",
                     "updated_at"
-                ]
-            },
-            "WebhookGetResponse": {
-                "type": "object",
-                "properties": {
-                    "status": {
-                        "type": "boolean"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "$ref": "#/components/schemas/WebhookConfig"
-                    }
-                },
-                "required": [
-                    "status",
-                    "message",
-                    "data"
                 ]
             },
             "Error": {
@@ -119,19 +90,13 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/WebhookGetResponse"
+                                    "$ref": "#/components/schemas/WebhookConfig"
                                 },
                                 "example": {
-                                    "status": true,
-                                    "message": "Webhook URLs retrieved successfully",
-                                    "data": {
-                                        "payout_url": "https://yourapp.com/webhooks/payout",
-                                        "collection_url": "https://yourapp.com/webhooks/collection",
-                                        "customer_url": "https://yourapp.com/webhooks/customer",
-                                        "virtual_account_url": "https://yourapp.com/webhooks/virtual-account",
-                                        "created_at": "2024-01-01T00:00:00Z",
-                                        "updated_at": "2024-01-15T10:30:00Z"
-                                    }
+                                    "payout_url": "https://yourapp.com/webhooks/payout",
+                                    "collection_url": "https://yourapp.com/webhooks/collection",
+                                    "created_at": "2024-01-01T00:00:00Z",
+                                    "updated_at": "2024-01-15T10:30:00Z"
                                 }
                             }
                         }
