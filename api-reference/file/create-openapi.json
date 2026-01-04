@@ -115,9 +115,7 @@
                             },
                             "example": {
                                 "customer_id": "customer_123",
-                                "file_category": "identity",
-                                "file_name": "passport.jpg",
-                                "file_type": "image/jpeg"
+                                "file_category": "identity"
                             }
                         }
                     }
