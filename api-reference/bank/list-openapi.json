@@ -63,24 +63,6 @@
                     "code"
                 ]
             },
-            "BankListResponse": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Bank"
-                        }
-                    }
-                },
-                "required": [
-                    "message",
-                    "data"
-                ]
-            },
             "Error": {
                 "type": "object",
                 "properties": {
@@ -144,22 +126,22 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BankListResponse"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Bank"
+                                    }
                                 },
-                                "example": {
-                                    "message": "Banks retrieved successfully.",
-                                    "data": [
-                                        {
-                                            "id": "bank_123",
-                                            "name": "78 Finance Company Limited",
-                                            "code": "123456",
-                                            "country": {
-                                                "code": "NG",
-                                                "name": "Nigeria"
-                                            }
+                                "example": [
+                                    {
+                                        "id": "bank_123",
+                                        "name": "78 Finance Company Limited",
+                                        "code": "123456",
+                                        "country": {
+                                            "code": "NG",
+                                            "name": "Nigeria"
                                         }
-                                    ]
-                                }
+                                    }
+                                ]
                             }
                         }
                     },
