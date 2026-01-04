@@ -177,7 +177,7 @@
     "paths": {
         "/api/external/collection": {
             "post": {
-                "summary": "Initiate a collection (open_banking only)",
+                "summary": "Initiate a collection",
                 "description": "Create a collection request to receive payment from a customer using open_banking. Redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed.",
                 "tags": [
                     "Collection"
