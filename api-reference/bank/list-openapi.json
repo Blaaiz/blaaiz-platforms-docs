@@ -127,6 +127,15 @@
                             "minLength": 2,
                             "maxLength": 2
                         }
+                    },
+                    {
+                        "name": "country_id",
+                        "in": "query",
+                        "required": false,
+                        "description": "Filter banks by country identifier",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
