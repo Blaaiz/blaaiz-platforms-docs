@@ -42,17 +42,39 @@
                         "type": "string",
                         "description": "Bank code"
                     },
+                    "national_bank_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "National bank code"
+                    },
+                    "country_id": {
+                        "type": "string",
+                        "description": "Country identifier"
+                    },
                     "country": {
-                        "type": "object",
-                        "description": "Country information for the bank",
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "description": "Country information for the bank (null when not set)",
                         "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Country name"
+                            },
                             "code": {
                                 "type": "string",
                                 "description": "Two-letter country code (e.g., NG, US)"
                             },
-                            "name": {
+                            "short_name": {
                                 "type": "string",
-                                "description": "Country name"
+                                "description": "Short country name"
+                            },
+                            "alt_short_name": {
+                                "type": "string",
+                                "description": "Alternate short country name"
                             }
                         }
                     }
@@ -60,7 +82,8 @@
                 "required": [
                     "id",
                     "name",
-                    "code"
+                    "code",
+                    "country_id"
                 ]
             },
             "Error": {
