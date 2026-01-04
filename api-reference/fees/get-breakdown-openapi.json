@@ -64,6 +64,34 @@
                     "amount": {
                         "type": "number",
                         "description": "Fee amount"
+                    },
+                    "fee": {
+                        "type": "number",
+                        "description": "Alias for amount, as returned by the controller"
+                    },
+                    "you_send": {
+                        "type": "number"
+                    },
+                    "total_amount_to_send": {
+                        "type": "number"
+                    },
+                    "recipient_gets": {
+                        "type": "number"
+                    },
+                    "our_fee": {
+                        "type": "number"
+                    },
+                    "total_fees": {
+                        "type": "number"
+                    },
+                    "amountIsRecipientGets": {
+                        "type": "boolean"
+                    },
+                    "amountIsYouSend": {
+                        "type": "boolean"
+                    },
+                    "rate": {
+                        "type": "number"
                     }
                 },
                 "required": [
@@ -73,45 +101,41 @@
             },
             "FeeBreakdownResponse": {
                 "type": "object",
-                "properties": {},
-                "to_amount": {
-                    "type": "number",
-                    "description": "Exact amount the recipient should receive"
-                },
-                "our_fee": {
-                    "type": "object",
-                    "additionalProperties": true,
-                    "description": "Overall fee object returned by the system."
-                },
-                "collection_fees": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/components/schemas/FeeItem"
+                "properties": {
+                    "our_fee": {
+                        "type": "number",
+                        "description": "Total fee charged by Blaaiz for this breakdown."
+                    },
+                    "collection_fees": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeeItem"
+                        }
+                    },
+                    "payout_fees": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FeeItem"
+                        }
                     }
                 },
-                "payout_fees": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/components/schemas/FeeItem"
+                "required": [
+                    "our_fee",
+                    "collection_fees",
+                    "payout_fees"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
                     }
-                }
-            },
-            "required": [
-                "our_fee",
-                "collection_fees",
-                "payout_fees"
-            ]
-        },
-        "Error": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "message"
-            ]
+                },
+                "required": [
+                    "message"
+                ]
+            }
         }
     },
     "paths": {
@@ -137,8 +161,7 @@
                             "example": {
                                 "from_currency_id": "NGN",
                                 "to_currency_id": "NGN",
-                                "from_amount": 50000,
-                                "method": "bank_transfer"
+                                "from_amount": 50000
                             }
                         }
                     }
@@ -152,23 +175,61 @@
                                     "$ref": "#/components/schemas/FeeBreakdownResponse"
                                 },
                                 "example": {
-                                    "our_fee": {
-                                        "open_banking": 100
-                                    },
+                                    "our_fee": 1.50,
                                     "collection_fees": [
                                         {
-                                            "method": "open_banking",
-                                            "amount": 100
+                                            "method": "CARD",
+                                            "amount": 2.0,
+                                            "fee": 2.0,
+                                            "you_send": 100.0,
+                                            "total_amount_to_send": 96.5,
+                                            "recipient_gets": 58000.0,
+                                            "our_fee": 1.5,
+                                            "total_fees": 3.5,
+                                            "amountIsRecipientGets": false,
+                                            "amountIsYouSend": true,
+                                            "rate": 600.5
                                         },
                                         {
-                                            "method": "card",
-                                            "amount": 200
+                                            "method": "OPEN_BANKING",
+                                            "amount": 0.5,
+                                            "fee": 0.5,
+                                            "you_send": 100.0,
+                                            "total_amount_to_send": 98.0,
+                                            "recipient_gets": 58900.0,
+                                            "our_fee": 1.5,
+                                            "total_fees": 2.0,
+                                            "amountIsRecipientGets": false,
+                                            "amountIsYouSend": true,
+                                            "rate": 600.5
                                         }
                                     ],
                                     "payout_fees": [
                                         {
-                                            "method": "bank_transfer",
-                                            "amount": 150
+                                            "method": "BANK_TRANSFER",
+                                            "amount": 0.0,
+                                            "fee": 0.0,
+                                            "you_send": 100.0,
+                                            "total_amount_to_send": 98.5,
+                                            "recipient_gets": 59200.0,
+                                            "our_fee": 1.5,
+                                            "total_fees": 1.5,
+                                            "amountIsRecipientGets": false,
+                                            "amountIsYouSend": true,
+                                            "rate": 600.5
+                                        },
+                                        {
+                                            "method": "MOBILE_MONEY",
+                                            "amount": 1.0,
+                                            "fee": 1.0,
+                                            "you_send": 100.0,
+                                            "total_amount_to_send": 97.5,
+                                            "recipient_gets": 58600.0,
+                                            "our_fee": 1.5,
+                                            "total_fees": 2.5,
+                                            "amountIsRecipientGets": false,
+                                            "amountIsYouSend": true,
+                                            "rate": 600.5
                                         }
                                     ]
                                 }
