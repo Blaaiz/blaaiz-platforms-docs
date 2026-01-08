@@ -1,0 +1,166 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Close Virtual Bank Account",
+        "version": "1.0.0",
+        "description": "Initiate closure of a virtual bank account."
+    },
+    "tags": [
+        {
+            "name": "Virtual Bank Accounts"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "CloseVirtualBankAccountRequest": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 200,
+                        "description": "Optional reason for closing the virtual bank account."
+                    }
+                }
+            },
+            "CloseVirtualBankAccountResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "account_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message",
+                    "account_id"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/virtual-bank-account/{id}/close": {
+            "post": {
+                "summary": "Close a virtual bank account",
+                "description": "Initiate closure of a virtual bank account. Supported currencies: GBP, EUR, NGN, USD. Returns 400 if already closed or provider/currency not supported; 404 if not found.",
+                "tags": [
+                    "Virtual Bank Accounts"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Virtual bank account ID"
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CloseVirtualBankAccountRequest"
+                            },
+                            "example": {
+                                "reason": "No longer needed"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Virtual bank account closure initiated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CloseVirtualBankAccountResponse"
+                                },
+                                "example": {
+                                    "message": "Virtual bank account closure initiated successfully",
+                                    "account_id": "vba_123456789"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request (business rule violation)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Virtual bank account is already closed"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Virtual bank account not found"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
