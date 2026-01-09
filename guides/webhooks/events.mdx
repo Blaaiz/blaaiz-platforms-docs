@@ -42,3 +42,45 @@ All webhook payloads include:
 - `signature` — HMAC signature for verification (header: `x-blaaiz-signature`)
 
 > Always verify the `x-blaaiz-signature` to ensure the webhook originates from Blaaiz.
+
+## Webhook retries
+
+We retry deliveries with exponential backoff and jitter to avoid thundering herds.
+
+- Attempts: up to 10 total
+- Initial backoff: 5 minutes
+- Backoff factor: 2x per attempt
+- Max backoff cap: 24 hours (1440 minutes)
+- Jitter: 80–120% randomization on each delay
+- Success: any HTTP 2xx response stops retries
+- Any non-2xx (4xx/5xx/timeout/connection error) triggers the next retry
+
+Approximate schedule (actual delays vary ±20% because of jitter):
+
+| Attempt | Approx. delay | Cumulative time |
+| ------- | ------------- | --------------- |
+| 1       | Immediate     | 0               |
+| 2       | ~5 minutes    | ~5 min          |
+| 3       | ~10 minutes   | ~15 min         |
+| 4       | ~20 minutes   | ~35 min         |
+| 5       | ~40 minutes   | ~1.25 hours     |
+| 6       | ~80 minutes   | ~2.5 hours      |
+| 7       | ~160 minutes  | ~5 hours        |
+| 8       | ~320 minutes  | ~10 hours       |
+| 9       | ~640 minutes  | ~21 hours       |
+| 10      | ~1280 minutes | ~42 hours       |
+
+After 10 failed attempts, the webhook is marked permanently failed and no further automatic retries occur. You can manually replay via the API.
+
+> ⚙️ Best practices
+>
+> - Reply with a 2xx quickly (within 30 seconds) and process work asynchronously if needed.
+> - Implement idempotency using the `event_id` so duplicate deliveries don’t double-process work.
+> - Return non-2xx only when you truly want a retry.
+
+## Data retention
+
+Webhook logs (payloads, responses, attempt history) are retained for **90 days**. After 90 days, records are pruned for both successful and failed deliveries.
+
+- If you need webhook data beyond 90 days, store it in your own systems.
+- Replay is only available for webhooks within the 90-day window.
