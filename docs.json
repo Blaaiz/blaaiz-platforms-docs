@@ -104,7 +104,8 @@
               "/api-reference/virtual-bank-account/list-openapi.json GET /api/external/virtual-bank-account",
               "/api-reference/virtual-bank-account/create-openapi.json POST /api/external/virtual-bank-account",
               "/api-reference/virtual-bank-account/get-openapi.json GET /api/external/virtual-bank-account/{id}",
-              "/api-reference/virtual-bank-account/get-identification-type-openapi.json GET /api/external/virtual-bank-account/identification-type"
+              "/api-reference/virtual-bank-account/get-identification-type-openapi.json GET /api/external/virtual-bank-account/identification-type",
+              "/api-reference/virtual-bank-account/close-openapi.json POST /api/external/virtual-bank-account/{id}/close"
             ]
           },
           {
