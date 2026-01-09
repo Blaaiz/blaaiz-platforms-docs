@@ -6,16 +6,21 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
-      <div className="changelog-date">08/01/2026</div>
+      <div className="changelog-date">09/01/2026</div>
       <div className="changelog-card">
-        <h3>Virtual account closure endpoint</h3>
-        <ul>
-          <li>
-            Added POST{" "}
-            <code>/api/external/virtual-bank-account/{{ id }}/close</code> with
-            optional reason and success/error examples.
-          </li>
-        </ul>
+        <h3>Added Virtual account closure endpoint</h3>
+        <p>
+          We added a new endpoint that allows you to close a virtual account.
+          This could be useful for when a user no longer needs a virtual account
+          or when a virtual account is no longer needed.
+        </p>
+        <p>
+          Checkout the{" "}
+          <a href="/api-reference/virtual-bank-accounts/close-a-virtual-bank-account">
+            docs
+          </a>{" "}
+          for more information.
+        </p>
       </div>
     </div>
     <div className="changelog-item">
