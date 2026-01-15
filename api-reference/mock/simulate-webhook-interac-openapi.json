@@ -34,6 +34,10 @@
                         "type": "string",
                         "format": "email",
                         "description": "Sender email to include in source_information.collection_email."
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Optional amount for the simulated Interac transaction."
                     }
                 }
             },
