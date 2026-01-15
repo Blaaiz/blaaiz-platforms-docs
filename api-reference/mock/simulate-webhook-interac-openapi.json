@@ -86,7 +86,8 @@
                                 "$ref": "#/components/schemas/SimulateInteracRequest"
                             },
                             "example": {
-                                "interac_email": "customer@example.com"
+                                "interac_email": "customer@example.com",
+                                "amount": 100.50
                             }
                         }
                     }
