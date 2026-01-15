@@ -232,21 +232,22 @@
                             "examples": {
                                 "update_details": {
                                     "value": {
-                                        "phone_number": "+2348098765432",
-                                        "address": {
-                                            "street": "456 New Street",
-                                            "city": "Lagos",
-                                            "state": "Lagos",
-                                            "country": "NG",
-                                            "postal_code": "100001"
-                                        }
-                                    }
-                                },
-                                "attach_documents": {
-                                    "value": {
-                                        "id_file": "file_123456",
-                                        "proof_of_address_file": "file_789012",
-                                        "liveness_check_file": "file_345678"
+                                        "first_name": "Oluwatobi",
+                                        "last_name": "Ishola",
+                                        "business_name": "Blaaiz",
+                                        "email": "oluwatobi.ishola+customer@blaaiz.com",
+                                        "phone": "+2348012345678",
+                                        "country": "NG",
+                                        "id_type": "passport",
+                                        "id_number": "A123456789",
+                                        "tin": "12345-ABCDE",
+                                        "dob": "1996-08-21",
+                                        "street": "12 Admiralty Way",
+                                        "city": "Lagos",
+                                        "state": "Lagos",
+                                        "zip_code": "101233",
+                                        "id_expiry_date": "2030-12-31",
+                                        "id_issue_date": "2020-01-15"
                                     }
                                 }
                             }
