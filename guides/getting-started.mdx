@@ -3,6 +3,27 @@ title: Getting Started
 description: Learn how to get started with the Blaaiz Platform API Services
 ---
 
+## Environments
+
+Blaaiz operates two **completely isolated** environments. Each environment requires its own account and has separate API keys.
+
+| Environment     | Dashboard                                                  | API Base URL                  | IP Whitelisting |
+| --------------- | ---------------------------------------------------------- | ----------------------------- | --------------- |
+| **Production**  | [business.blaaiz.com](https://business.blaaiz.com)         | `https://api-prod.blaaiz.com` | Required        |
+| **Development** | [business-dev.blaaiz.com](https://business-dev.blaaiz.com) | `https://api-dev.blaaiz.com`  | Not required    |
+
+<Warning>
+  Production and development are **not linked**. You must create a separate
+  account on each dashboard. Data, customers, wallets, and API keys do not
+  transfer between environments.
+</Warning>
+
+**Recommended workflow:**
+
+1. Sign up at [business-dev.blaaiz.com](https://business-dev.blaaiz.com) to get a development account.
+2. Build and test your integration against `api-dev.blaaiz.com` — no IP whitelisting needed.
+3. When ready for production, sign up at [business.blaaiz.com](https://business.blaaiz.com), complete KYB, request API access, and whitelist your server IPs.
+
 ## Prerequisites
 
 Before you can use the Blaaiz Platform API, you'll need:
