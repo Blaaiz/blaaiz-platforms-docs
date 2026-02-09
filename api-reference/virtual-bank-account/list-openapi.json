@@ -95,9 +95,16 @@
                         ],
                         "description": "Bank address if applicable"
                     },
+                    "rejection_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Reason for rejection or failure, if applicable"
+                    },
                     "status": {
                         "type": "string",
-                        "description": "Status of the virtual account (e.g., SUCCESSFUL)"
+                        "description": "Status of the virtual account (e.g., SUCCESSFUL, PENDING, REJECTED, FAILED)"
                     }
                 },
                 "required": [
@@ -189,7 +196,8 @@
                                         "bank_name": "78 Finance Company Limited",
                                         "bank_code": "123456",
                                         "account_reference": "2327323232",
-                                        "reservation_reference": null
+                                        "reservation_reference": null,
+                                        "rejection_reason": null
                                     }
                                 }
                             }

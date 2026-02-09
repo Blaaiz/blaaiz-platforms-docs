@@ -7,24 +7,24 @@ All virtual account webhooks are sent to your `collection_url`.
 
 ## Parameter overview
 
-| Parameter            | Description                                         |
-| :------------------- | :-------------------------------------------------- |
-| `event`              | Event type identifier (e.g., "virtual_account.ready") |
-| `virtual_account_id` | Unique ID of the virtual account                    |
-| `customer_id`        | Your customer's ID (from customer creation)         |
-| `wallet_id`          | The wallet ID this account is linked to             |
-| `currency`           | Currency code (NGN, USD, GBP, EUR)                  |
-| `status`             | Current status (PENDING, SUCCESSFUL, REJECTED)      |
-| `account_number`     | Bank account number (only in ready event)           |
-| `account_name`       | Account holder name (only in ready event)           |
-| `bank_name`          | Bank institution name (only in ready event)         |
-| `bank_code`          | Bank code (NGN only)                                |
-| `routing_number`     | Routing/ABA number (USD only)                       |
-| `iban`               | IBAN number (GBP/EUR only)                          |
-| `sort_code`          | UK sort code (GBP only)                             |
-| `bank_address`       | Bank address (USD only)                             |
-| `rejection_reason`   | Technical reason for rejection (rejected event only) |
-| `user_reason`        | User-friendly rejection message (rejected event only) |
+| Parameter            | Description                                             |
+| :------------------- | :------------------------------------------------------ |
+| `event`              | Event type identifier (e.g., "virtual_account.ready")   |
+| `virtual_account_id` | Unique ID of the virtual account                        |
+| `customer_id`        | Your customer's ID (from customer creation)             |
+| `wallet_id`          | The wallet ID this account is linked to                 |
+| `currency`           | Currency code (NGN, USD, GBP, EUR)                      |
+| `status`             | Current status (PENDING, SUCCESSFUL, REJECTED, FAILED)  |
+| `account_number`     | Bank account number (only in ready event)               |
+| `account_name`       | Account holder name (only in ready event)               |
+| `bank_name`          | Bank institution name (only in ready event)             |
+| `bank_code`          | Bank code (NGN only)                                    |
+| `routing_number`     | Routing/ABA number (USD only)                           |
+| `iban`               | IBAN number (GBP/EUR only)                              |
+| `sort_code`          | UK sort code (GBP only)                                 |
+| `bank_address`       | Bank address (USD only)                                 |
+| `rejection_reason`   | Technical reason for rejection (rejected event only)    |
+| `user_reason`        | User-friendly rejection message (rejected event only)   |
 | `developer_reason`   | Developer-specific rejection code (rejected event only) |
 
 ## Event types
@@ -130,7 +130,7 @@ Account fully created and ready to receive funds.
 
 ### virtual_account.rejected
 
-Verification failed.
+Verification rejected.
 
 ```json
 {
@@ -143,5 +143,23 @@ Verification failed.
   "rejection_reason": "Customer verification failed: insufficient documentation provided",
   "user_reason": "Your application could not be processed",
   "developer_reason": "CUSTOMER_VERIFICATION_FAILED"
+}
+```
+
+### virtual_account.failed
+
+Account creation failed.
+
+```json
+{
+  "event": "virtual_account.failed",
+  "virtual_account_id": "vba_usd_failed999",
+  "customer_id": "cust_failed123",
+  "wallet_id": "wallet_usd999",
+  "currency": "USD",
+  "status": "FAILED",
+  "rejection_reason": "Provider error: unable to create account",
+  "user_reason": "Your account could not be created at this time",
+  "developer_reason": "PROVIDER_CREATION_FAILED"
 }
 ```
