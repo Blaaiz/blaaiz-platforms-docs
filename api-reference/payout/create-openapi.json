@@ -541,6 +541,12 @@
                                         "value": {
                                             "message": "Please create a virtual bank account for GBP for your business or business customer to proceed."
                                         }
+                                    },
+                                    "customer_not_eligible_usd": {
+                                        "summary": "Customer not eligible for USD payouts",
+                                        "value": {
+                                            "message": "Cannot facilitate USD payout for this customer."
+                                        }
                                     }
                                 }
                             }
