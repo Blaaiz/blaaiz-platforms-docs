@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Create Virtual Bank Account",
         "version": "1.0.0",
-        "description": "Create a new virtual bank account (VBA) for a wallet.\n\n**Note:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks."
+        "description": "Create a new virtual bank account (VBA) for a wallet.\n\n**Note:** Virtual bank accounts are not issued immediately. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks."
     },
     "tags": [
         {
