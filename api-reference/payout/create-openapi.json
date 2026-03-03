@@ -468,6 +468,128 @@
                                         "wallet_network": "ETHEREUM_MAINNET",
                                         "wallet_token": "USDT"
                                     }
+                                },
+                                "ngn_bank_transfer_to_amount": {
+                                    "summary": "NGN — Bank Transfer (to_amount)",
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "method": "bank_transfer",
+                                        "to_amount": 5000,
+                                        "from_currency_id": "NGN",
+                                        "to_currency_id": "NGN",
+                                        "account_number": "0222500691",
+                                        "bank_id": "1"
+                                    }
+                                },
+                                "gbp_bank_transfer_to_amount": {
+                                    "summary": "GBP — Bank Transfer (to_amount)",
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "method": "bank_transfer",
+                                        "to_amount": 400,
+                                        "from_currency_id": "USD",
+                                        "to_currency_id": "GBP",
+                                        "account_number": "12345678",
+                                        "account_name": "Jane Doe",
+                                        "sort_code": "20-00-00",
+                                        "street": "42 Oxford Street",
+                                        "city": "London",
+                                        "zip_code": "W1D 1BS",
+                                        "country": "GB"
+                                    }
+                                },
+                                "usd_ach_to_amount": {
+                                    "summary": "USD — ACH (to_amount)",
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "method": "ach",
+                                        "type": "individual",
+                                        "to_amount": 500,
+                                        "from_currency_id": "USD",
+                                        "to_currency_id": "USD",
+                                        "account_number": "123456789012",
+                                        "account_name": "Jane Doe",
+                                        "account_type": "checking",
+                                        "routing_number": "021000021",
+                                        "bank_name": "Chase Bank",
+                                        "street": "123 Main Street",
+                                        "city": "New York",
+                                        "state": "NY",
+                                        "zip_code": "10001",
+                                        "country": "US"
+                                    }
+                                },
+                                "usd_wire_to_amount": {
+                                    "summary": "USD — Wire (to_amount)",
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "method": "wire",
+                                        "type": "business",
+                                        "to_amount": 25000,
+                                        "from_currency_id": "USD",
+                                        "to_currency_id": "USD",
+                                        "account_number": "9876543210",
+                                        "account_name": "Acme Corporation",
+                                        "account_type": "checking",
+                                        "routing_number": "021000021",
+                                        "swift_code": "CHASUS33",
+                                        "bank_name": "JPMorgan Chase",
+                                        "street": "456 Broadway, Suite 200",
+                                        "city": "San Francisco",
+                                        "state": "CA",
+                                        "zip_code": "94105",
+                                        "country": "US"
+                                    }
+                                },
+                                "eur_bank_transfer_to_amount": {
+                                    "summary": "EUR — Bank Transfer (to_amount)",
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "method": "bank_transfer",
+                                        "to_amount": 1000,
+                                        "from_currency_id": "EUR",
+                                        "to_currency_id": "EUR",
+                                        "account_name": "Hans Mueller",
+                                        "iban": "DE89370400440532013000",
+                                        "bic_code": "COBADEFFXXX",
+                                        "street": "Friedrichstrasse 123",
+                                        "city": "Berlin",
+                                        "zip_code": "10117",
+                                        "country": "DE"
+                                    }
+                                },
+                                "cad_interac_to_amount": {
+                                    "summary": "CAD — Interac (to_amount)",
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "method": "interac",
+                                        "to_amount": 250,
+                                        "from_currency_id": "CAD",
+                                        "to_currency_id": "CAD",
+                                        "interac_first_name": "Jane",
+                                        "interac_last_name": "Doe",
+                                        "email": "jane.doe@example.com"
+                                    }
+                                },
+                                "crypto_to_amount": {
+                                    "summary": "Crypto — USDT on Ethereum (to_amount)",
+                                    "value": {
+                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "method": "crypto",
+                                        "to_amount": 150,
+                                        "from_currency_id": "USD",
+                                        "to_currency_id": "USD",
+                                        "wallet_address": "0x6b175474e89094c44da98b954eedeac495271d0f",
+                                        "wallet_network": "ETHEREUM_MAINNET",
+                                        "wallet_token": "USDT"
+                                    }
                                 }
                             }
                         }
