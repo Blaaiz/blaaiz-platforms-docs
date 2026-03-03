@@ -50,4 +50,84 @@ Now that the customer is verified, you can proceed to create a payout.
 - **Endpoint**: `/payout`
 - **Purpose**: Initiate a payout associated with the verified customer.
 
-That's all you need!
+Before initiating a payout, ensure the following prerequisites are in place for a smooth experience — requirements vary depending on the destination currency.
+
+<Tabs>
+  <Tab title="All Currencies">
+    The following requirements apply regardless of which currency you are sending to.
+
+    **Customer must be verified**
+
+    Every payout must be linked to a verified customer. If your customer's identity documents have not been uploaded and approved, the payout will be rejected. Make sure you have completed Step 1 and Step 2 above before attempting a payout.
+
+    **Wallet must exist**
+
+    The `wallet_id` you pass in the request must belong to your business. If the wallet does not exist or the ID is incorrect, the payout will fail.
+
+    **Sufficient balance**
+
+    Your wallet must have enough funds to cover both the payout amount and any applicable fees. We recommend calling the [fees breakdown](/api-reference/fees/get-breakdown) endpoint first to confirm the total cost before initiating the payout.
+
+    **Amount must exceed fees**
+
+    If you are specifying a `from_amount` (the amount you want to send), it must be greater than the total applicable fees. If the fees are equal to or exceed the amount, the payout will be rejected.
+
+    **Currency pair must be supported**
+
+    The combination of `from_currency_id` and `to_currency_id` must be an active, supported pair. If sending between those two currencies is not currently enabled, the payout will not go through.
+
+    **Payout method must be valid for the currency**
+
+    Each currency supports specific payout methods (e.g. `bank_transfer`, `interac`, `crypto`, `ach`, `wire`). If you use a method that is not available for the destination currency, the request will be rejected.
+
+    **Business must not be under Enhanced Due Diligence**
+
+    If your business has been placed under Enhanced Due Diligence (EDD) review, all payouts will be blocked until the review is resolved. Contact our support team if you encounter this.
+
+    **Customer must not be under Enhanced Due Diligence**
+
+    Similarly, if a specific customer has been flagged for Enhanced Due Diligence, payouts for that customer will be blocked. Reach out to support for assistance.
+  </Tab>
+  <Tab title="NGN">
+    **Valid bank account details**
+
+    When making a payout to NGN via `bank_transfer`, the `bank_id` and `account_number` must be correct and match a real bank account. We perform a name enquiry to validate the account before processing. If the account is invalid, the payout will fail.
+  </Tab>
+  <Tab title="GBP">
+    **Virtual Bank Account must be active**
+
+    Before you can make GBP payouts, your business (or your business customer) must have an active Virtual Bank Account for GBP. If the Virtual Bank Account has been created but is still pending activation, you will need to wait for it to be activated before proceeding.
+
+    To create a Virtual Bank Account, use the [create virtual bank account](/api-reference/virtual-bank-account/create) endpoint.
+
+    **Account name must match**
+
+    We perform a Confirmation of Payee (CoP) check for GBP payouts. The `account_name` you provide must match the name the recipient's bank has on file. If there is a mismatch, the payout will be rejected. Double-check the exact name on the recipient's bank account before submitting.
+  </Tab>
+  <Tab title="USD">
+    **Virtual Bank Account must be active**
+
+    Before you can make USD payouts, your business must have an active Virtual Bank Account for USD. If the Virtual Bank Account has been created but is still pending activation, you will need to wait for it to be activated before proceeding.
+
+    To create a Virtual Bank Account, use the [create virtual bank account](/api-reference/virtual-bank-account/create) endpoint.
+
+  </Tab>
+  <Tab title="EUR">
+    **Virtual Bank Account must be active**
+
+    Before you can make EUR payouts, your business (or your business customer) must have an active Virtual Bank Account for EUR. If the Virtual Bank Account has been created but is still pending activation, you will need to wait for it to be activated before proceeding.
+
+    To create a Virtual Bank Account, use the [create virtual bank account](/api-reference/virtual-bank-account/create) endpoint.
+
+    **Recipient's bank must be SEPA reachable**
+
+    EUR payouts are processed via the SEPA network. If the recipient's bank (identified by their IBAN and BIC code) is not reachable through SEPA, the payout cannot be completed. Verify that the recipient's bank supports SEPA transfers.
+
+    **Cannot send to Blaaiz Virtual Bank Accounts**
+
+    Payouts to IBAN numbers that belong to Blaaiz Virtual Bank Accounts are not permitted. If you need to transfer funds to another Blaaiz user, use the Blaaiz retail app and send via P2P instead.
+  </Tab>
+  <Tab title="CAD">
+    CAD payouts are sent via **Interac**. There are no additional prerequisites beyond the general requirements listed in the "All Currencies" tab. Ensure you provide the recipient's `email`, `interac_first_name`, and `interac_last_name` in your request.
+  </Tab>
+</Tabs>

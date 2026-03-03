@@ -33,6 +33,7 @@
               "guides/rate-limits",
               "guides/api-parameters",
               "guides/creating-first-payout",
+              "guides/virtual-bank-accounts",
               "guides/collections-overview",
               {
                 "group": "Webhooks",

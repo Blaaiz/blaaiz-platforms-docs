@@ -1,0 +1,179 @@
+---
+title: Virtual Bank Accounts
+description: How to create and manage Virtual Bank Accounts for receiving payments
+---
+
+## What are Virtual Bank Accounts?
+
+Virtual Bank Accounts are dedicated bank account numbers that allow your business and your customers to receive money. When someone sends funds to a Virtual Bank Account, the money is automatically credited to the associated wallet, and you are notified via a [webhook](/guides/webhooks/virtual-account).
+
+They are available in **NGN**, **GBP**, **EUR**, and **USD**.
+
+## How to create a Virtual Bank Account
+
+- **Endpoint**: `/virtual-bank-account`
+- **Method**: `POST`
+- **Purpose**: Generate a new Virtual Bank Account linked to a wallet.
+
+For **NGN**, the Virtual Bank Account is typically activated immediately and the response will return with a `SUCCESSFUL` status along with the account details.
+
+For **GBP**, **EUR**, and **USD**, the account is created asynchronously. The response will return with a `PENDING` status. Once the account is fully activated, you will receive a `virtual_account.ready` webhook with the account details (account number, bank name, etc.). If the account creation fails or is rejected, you will receive a `virtual_account.failed` or `virtual_account.rejected` webhook instead.
+
+<Note>
+For GBP, EUR, and USD, Virtual Bank Account creation requires a verified customer of type `individual`. Business-type customers are not supported for these currencies.
+</Note>
+
+Before creating a Virtual Bank Account, ensure the following prerequisites are in place. Requirements vary depending on the currency.
+
+<Tabs>
+  <Tab title="All Currencies">
+    **Wallet must exist**
+
+    You must have a wallet in the currency you want to create a Virtual Bank Account for. Pass a valid `wallet_id` in your request.
+
+    **No duplicate accounts**
+
+    You cannot create a second Virtual Bank Account for the same customer and wallet combination. If one already exists, the request will be rejected.
+  </Tab>
+  <Tab title="NGN">
+    **Account name is required**
+
+    For NGN Virtual Bank Accounts, you must provide an `account_name` in your request. This is the name that will appear on the virtual account.
+
+    **Customer is optional**
+
+    You can create NGN Virtual Bank Accounts with or without a `customer_id`. If you provide a `customer_id`, the customer must belong to your business.
+
+    **Duplicate check by account name**
+
+    When creating without a customer, the system checks for duplicates by `account_name`. You cannot create two Virtual Bank Accounts with the same name on the same wallet.
+  </Tab>
+  <Tab title="GBP">
+    **Customer is required**
+
+    You must provide a `customer_id`. The customer must be verified and of type `individual`.
+
+    **Customer information must be complete**
+
+    The following fields must be present on the customer's profile and KYC data before creating a GBP Virtual Bank Account:
+
+    - First Name
+    - Last Name
+    - Email
+    - Country
+    - ID Type
+    - ID Number
+    - Date of Birth
+    - ID Expiry Date
+    - Zip Code
+    - City
+    - Street
+
+    If any of these are missing, the request will fail and the response will tell you which fields are missing.
+
+    **Name format**
+
+    The customer's first name and last name must contain only letters, hyphens, periods, apostrophes, and spaces. Names with numbers or special characters will be rejected.
+
+    **Street address format**
+
+    The customer's street address must contain only alphanumeric characters and the following: `- / # ( ) ' , .`
+
+    **ID must not be expiring soon**
+
+    The customer's identity document must have an expiry date at least one month from today.
+
+    **Valid postal code**
+
+    The customer's zip code must be a valid postal code for their country.
+  </Tab>
+  <Tab title="EUR">
+    **Customer is required**
+
+    You must provide a `customer_id`. The customer must be verified and of type `individual`.
+
+    **Customer information must be complete**
+
+    The following fields must be present on the customer's profile and KYC data before creating an EUR Virtual Bank Account:
+
+    - First Name
+    - Last Name
+    - Email
+    - Country
+    - ID Type
+    - ID Number
+    - Date of Birth
+    - ID Expiry Date
+    - Zip Code
+    - City
+    - Street
+
+    If any of these are missing, the request will fail and the response will tell you which fields are missing.
+
+    **Name format**
+
+    The customer's first name and last name must contain only letters, hyphens, periods, apostrophes, and spaces. Names with numbers or special characters will be rejected.
+
+    **Street address format**
+
+    The customer's street address must contain only alphanumeric characters and the following: `- / # ( ) ' , .`
+
+    **ID must not be expiring soon**
+
+    The customer's identity document must have an expiry date at least one month from today.
+
+    **Valid postal code**
+
+    The customer's zip code must be a valid postal code for their country.
+  </Tab>
+  <Tab title="USD">
+    **Customer is required**
+
+    You must provide a `customer_id`. The customer must be verified and of type `individual`.
+
+    **Identity document must be uploaded**
+
+    The customer must have an identity document file uploaded before you can create a USD Virtual Bank Account.
+
+    **US customers: Driver's License or Passport only**
+
+    If the customer's country is the US, they must have a Driver's License or Passport as their identity document. National ID cards are not accepted for US-based customers.
+
+    **Customer information must be complete**
+
+    USD Virtual Bank Accounts require the most customer information. The following fields must all be present:
+
+    - First Name
+    - Last Name
+    - Email
+    - Phone
+    - Country
+    - ID Type
+    - ID Number
+    - TIN (Tax Identification Number)
+    - Date of Birth
+    - ID Expiry Date
+    - Street
+    - City
+    - State
+    - Zip Code
+
+    If any of these are missing, the request will fail and the response will tell you which fields are missing.
+
+    **ID must not be expiring soon**
+
+    The customer's identity document must have an expiry date at least one month from today.
+
+    **Valid postal code**
+
+    The customer's zip code must be a valid postal code for their country.
+  </Tab>
+</Tabs>
+
+## Managing Virtual Bank Accounts
+
+Once created, you can manage your Virtual Bank Accounts using the following endpoints:
+
+- [List Virtual Bank Accounts](/api-reference/virtual-bank-account/list) — retrieve all Virtual Bank Accounts for your business.
+- [Get Virtual Bank Account](/api-reference/virtual-bank-account/get) — retrieve details of a specific Virtual Bank Account by ID.
+- [Close Virtual Bank Account](/api-reference/virtual-bank-account/close) — close a Virtual Bank Account that is no longer needed.

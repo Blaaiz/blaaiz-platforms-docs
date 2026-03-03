@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Create Virtual Bank Account",
         "version": "1.0.0",
-        "description": "Create a new virtual bank account (VBA) for a wallet"
+        "description": "Create a new virtual bank account (VBA) for a wallet.\n\n**Note:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks."
     },
     "tags": [
         {
@@ -146,7 +146,7 @@
         "/api/external/virtual-bank-account": {
             "post": {
                 "summary": "Create virtual bank account",
-                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.",
+                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.\n\n**Important:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. The initial status will be PENDING until the account is fully provisioned.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
@@ -176,14 +176,14 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Virtual bank account created successfully.",
+                        "description": "Virtual bank account initiated successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/CreateVBAResponse"
                                 },
                                 "example": {
-                                    "message": "Virtual bank account created successfully.",
+                                    "message": "Virtual bank account initiated successfully.",
                                     "data": [
                                         {
                                             "id": "33580c65-d063-4138-a875-82ff09dfaeb5",
