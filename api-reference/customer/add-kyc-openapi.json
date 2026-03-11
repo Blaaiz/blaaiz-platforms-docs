@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Add Customer KYC",
         "version": "1.0.0",
-        "description": "Add KYC details for a customer. Verification remains PENDING until required documents are uploaded and reviewed."
+        "description": "Add KYC details for a customer. Verification remains PENDING until required documents are uploaded and reviewed. The customer's country must match the country on the identity document submitted for KYC."
     },
     "tags": [
         {
@@ -144,7 +144,7 @@
         "/api/external/customer/{id}/kyc-data": {
             "post": {
                 "summary": "Add KYC details",
-                "description": "Add KYC details for a customer. Verification stays PENDING until documents are uploaded and reviewed.",
+                "description": "Add KYC details for a customer. Verification stays PENDING until documents are uploaded and reviewed. The customer's country must match the country on the identity document submitted for KYC.",
                 "tags": [
                     "Customer"
                 ],

@@ -38,7 +38,7 @@
                     "collection_url": {
                         "type": "string",
                         "format": "uri",
-                        "description": "URL to receive collection event notifications"
+                        "description": "URL to receive collection, virtual account, and customer KYC event notifications. This includes customer.created, customer.verified, and customer.rejected."
                     }
                 },
                 "required": [
@@ -78,7 +78,7 @@
         "/api/external/webhook": {
             "post": {
                 "summary": "Register webhook URLs",
-                "description": "Register webhook URLs to receive event notifications. URLs must be HTTPS; Blaaiz signs requests via x-blaaiz-signature.",
+                "description": "Register webhook URLs to receive event notifications. URLs must be HTTPS; Blaaiz signs requests via x-blaaiz-signature. Your collection_url receives collection events, virtual account events, and customer KYC events such as customer.created, customer.verified, and customer.rejected.",
                 "tags": [
                     "Webhook"
                 ],

@@ -47,15 +47,6 @@ For USD, here's how it works:
 - They can send USD from any bank that supports international transfers.
 - We'll notify you via webhook when funds arrive.
 
-## How does EUR/GBP collection via Open Banking work?
-
-Open Banking is a **pull mechanism**:
-
-- You initiate the transaction via our collection API
-- We provide a URL for the customer to complete authentication with their bank
-- The customer completes the transaction
-- We notify you when the payment is successful
-
 ## How do you identify users when collecting CAD via Interac?
 
 Interac funding works via a **push mechanism**, meaning transactions are initiated from the sender's bank. We do not control or initiate the transaction from our end, so there's no pre-creation of transactions or reference passing on Interac itself.

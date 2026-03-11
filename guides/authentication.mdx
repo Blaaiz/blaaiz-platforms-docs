@@ -7,7 +7,17 @@ description: Learn how to authenticate your API requests to the Blaaiz API.
 
 The Blaaiz Platform API uses API keys to authenticate and authorize all requests. Every request to the API must include a valid API key in the request headers.
 
-You can generate and manage your API keys from the Blaaiz Dashboard (see Getting Started).
+You can generate and manage your API keys from the Blaaiz Dashboard after API Services have been enabled for your account.
+
+## Accessing your API key
+
+1. Sign in to the correct dashboard for your environment:
+   - Development: [business-dev.blaaiz.com](https://business-dev.blaaiz.com)
+   - Production: [business.blaaiz.com](https://business.blaaiz.com)
+2. Open **API Settings** from the dashboard navigation.
+3. Copy the displayed API key, or generate one from that page if none exists yet.
+
+If the **API Settings** page is missing, your account has not yet been provisioned for API Services. See [Getting Started](/guides/getting-started) for the access steps.
 
 ## Using Your API Key
 
@@ -23,6 +33,7 @@ curl -X GET https://api-prod.blaaiz.com/api/wallets \
 - The API key must be included with every request.
 - API keys are secret credentials. Do not expose them in client-side code or public repositories.
 - Requests without a valid API key will fail with an authentication error.
+- Development and production use different API keys. Keys are not shared across environments.
 
 ## Authentication errors
 

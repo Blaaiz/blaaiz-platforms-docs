@@ -16,3 +16,9 @@ Yes. What makes a virtual bank account unique is the **account number**, not the
 ## How do we create a virtual bank account?
 
 Use our **"Create a Virtual Bank Account"** API endpoint. You will need to provide parameters including the `account_name` and your `wallet_id`. We will return the virtual account details that you can share with your customer.
+
+If the customer flow requires a `tin`, get the correct label or field from the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint before collecting it.
+
+## Do virtual bank accounts settle in development?
+
+Only **NGN Virtual Bank Accounts** settle in the development environment.

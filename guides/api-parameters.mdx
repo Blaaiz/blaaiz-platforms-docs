@@ -19,6 +19,10 @@ The `method` parameter appears in the **Payout API** when initiating a payout. I
 
 Use either of these values depending on which provider you want to use for the payout process.
 
+For the **Collection API**, the currently documented value is:
+
+- `card` - Creates a card collection request for a business wallet.
+
 ### File category
 
 The `file_category` parameter appears in the **File API** when requesting a pre-signed URL for upload. It represents the type of file you want to upload.
@@ -43,3 +47,10 @@ The `type` parameter appears in the **Customer API** when creating a new custome
 
 - `individual` – Individual.
 - `business` – Business.
+
+### TIN
+
+The `tin` parameter appears in the **Customer API** for countries and customer types where a tax identification field is required.
+
+- Do not hardcode the label shown to your users.
+- Use the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint to retrieve the correct country-specific label or field before collecting the value.

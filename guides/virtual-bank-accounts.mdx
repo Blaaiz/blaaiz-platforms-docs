@@ -23,6 +23,16 @@ For **GBP**, **EUR**, and **USD**, the account is created asynchronously. The re
 For GBP, EUR, and USD, Virtual Bank Account creation requires a verified customer of type `individual`. Business-type customers are not supported for these currencies.
 </Note>
 
+<Note>
+In the development environment, only **NGN Virtual Bank Accounts** settle.
+</Note>
+
+## Quick answers
+
+- **Which Virtual Bank Accounts settle in development?** Only **NGN Virtual Bank Accounts** settle in the development environment.
+- **Should the customer's country match the identity document?** Yes. The customer's `country` must match the identity document submitted for KYC.
+- **How do I know the correct `tin` label or field?** Use the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint before collecting it.
+
 Before creating a Virtual Bank Account, ensure the following prerequisites are in place. Requirements vary depending on the currency.
 
 <Tabs>
@@ -34,6 +44,10 @@ Before creating a Virtual Bank Account, ensure the following prerequisites are i
     **No duplicate accounts**
 
     You cannot create a second Virtual Bank Account for the same customer and wallet combination. If one already exists, the request will be rejected.
+
+    **Customer country and identity document must match**
+
+    For any customer-backed Virtual Bank Account, the customer's `country` must match the country on the identity document submitted for KYC.
   </Tab>
   <Tab title="NGN">
     **Account name is required**
@@ -159,6 +173,10 @@ Before creating a Virtual Bank Account, ensure the following prerequisites are i
     - Zip Code
 
     If any of these are missing, the request will fail and the response will tell you which fields are missing.
+
+    **TIN label lookup**
+
+    If a `tin` value is required for the customer, get the expected label or field first from the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint before creating or updating the customer.
 
     **ID must not be expiring soon**
 

@@ -49,14 +49,28 @@ To start building with the Blaaiz Platform API, API Services must be enabled for
 
 Once your request is approved, API Services will be provisioned for your account and you'll be able to generate API keys.
 
+If you cannot see the **API Settings** page in your dashboard after approval, your account has not been provisioned for API Services yet. Contact your dedicated account manager or [support@blaaiz.com](mailto:support@blaaiz.com).
+
 ## Step 2: Generate Your API Key
 
 After API Services are enabled for your account:
 
-1. Log in to your Blaaiz business dashboard.
-2. Navigate to the **API Settings** section.
-3. Your API key will be automatically generated and displayed.
-4. In rare cases where automatic generation doesn't occur, you can manually generate a key with one click.
-5. In case of compromise, you can generate new API keys (up to 3), and disable the compromised key.
+1. Log in to the Blaaiz dashboard for the environment you want to use:
+   - Development: [business-dev.blaaiz.com](https://business-dev.blaaiz.com)
+   - Production: [business.blaaiz.com](https://business.blaaiz.com)
+2. Open the **API Settings** page from your dashboard navigation.
+3. Copy the API key shown on that page and store it securely.
+4. If no key has been generated yet, use the generate action on the **API Settings** page to create one.
+5. If a key is ever compromised, generate a replacement key and disable the affected one. You can have up to 3 keys at a time.
+
+<Note>
+Development and production issue different API keys. Always use the key from the same environment as the base URL you are calling.
+</Note>
+
+## Quick answers
+
+- **Where do I get my API key?** From the **API Settings** page in the Blaaiz dashboard after API Services have been enabled.
+- **Why can't I see API Settings?** Your account has not been provisioned for API Services yet.
+- **Are dev and prod API keys the same?** No. Development and production use different API keys.
 
 **Important:** Store your API key securely. It will be used to authenticate all requests to the Blaaiz Platform API.

@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Initiate Collection",
         "version": "1.0.0",
-        "description": "Create a collection request to receive payment from a customer using open_banking. Redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed."
+        "description": "Create a card collection request for a business wallet. Card collections require a verified customer and card details, and may not be enabled for every business."
     },
     "tags": [
         {
@@ -30,58 +30,50 @@
             "InitiateCollectionRequest": {
                 "type": "object",
                 "properties": {
-                    "customer_id": {
-                        "type": "string",
-                        "description": "Unique identifier of the customer making the payment."
-                    },
-                    "wallet_id": {
-                        "type": "string",
-                        "description": "Wallet ID where funds will be credited."
-                    },
-                    "amount": {
-                        "type": "number",
-                        "description": "Amount to collect (including all fees)."
-                    },
-                    "currency": {
-                        "type": "string",
-                        "description": "Currency code (e.g., NGN, USD, EUR, GBP)."
-                    },
                     "method": {
                         "type": "string",
                         "enum": [
-                            "open_banking"
+                            "card"
                         ],
-                        "description": "Collection method. Only open_banking is currently supported."
+                        "description": "Collection method. Use `card`."
                     },
-                    "phone_number": {
-                        "type": "string",
-                        "description": "Customer's phone number (required for certain methods)."
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount to collect. Minimum value is `0.1`."
                     },
-                    "email": {
+                    "wallet_id": {
                         "type": "string",
-                        "format": "email",
-                        "description": "Customer's email address."
+                        "description": "ID of the business wallet to credit."
                     },
-                    "reference": {
+                    "customer_id": {
                         "type": "string",
-                        "description": "Your unique reference for this transaction."
+                        "description": "Business customer ID. Required for `card` collections. The customer must belong to the business and be VERIFIED."
                     },
-                    "narration": {
+                    "phone": {
                         "type": "string",
-                        "description": "Description or note for the collection."
+                        "description": "Optional customer phone number."
                     },
-                    "redirect_url": {
+                    "card_holder_name": {
                         "type": "string",
-                        "format": "uri",
-                        "description": "URL to redirect the customer after payment completion."
+                        "description": "Full card holder name. Required for `card` collections."
+                    },
+                    "card_number": {
+                        "type": "string",
+                        "description": "16-digit card number. Required for `card` collections."
+                    },
+                    "expiry": {
+                        "type": "string",
+                        "description": "Card expiry in `MM/YY` format. Required for `card` collections."
+                    },
+                    "cvc": {
+                        "type": "string",
+                        "description": "3-digit card CVC. Required for `card` collections."
                     }
                 },
                 "required": [
-                    "customer_id",
-                    "wallet_id",
+                    "method",
                     "amount",
-                    "currency",
-                    "method"
+                    "wallet_id"
                 ]
             },
             "InitiateCollectionResponse": {
@@ -94,9 +86,12 @@
                         "type": "string"
                     },
                     "url": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "format": "uri",
-                        "description": "URL to redirect customer to complete payment"
+                        "description": "Checkout or redirect URL returned for the card collection flow."
                     }
                 },
                 "required": [
@@ -116,7 +111,6 @@
                     }
                 },
                 "required": [
-                    "status",
                     "message"
                 ]
             }
@@ -126,25 +120,13 @@
         "/api/external/collection": {
             "post": {
                 "summary": "Initiate a collection",
-                "description": "Create a collection request to receive payment from a customer using open_banking. Redirect the customer to the returned payment_url to complete the payment; you'll receive a webhook notification when the payment is completed.",
+                "description": "Create a card collection request for a business wallet. Card collections require a verified customer and card details, and may not be enabled for every business. Customer attachment after creation is not supported for API card collections.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
                         "apiKeyAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "Accept",
-                        "in": "header",
-                        "schema": {
-                            "type": "string",
-                            "default": "application/json"
-                        },
-                        "required": false,
-                        "description": "Content type header."
                     }
                 ],
                 "requestBody": {
@@ -155,44 +137,31 @@
                                 "$ref": "#/components/schemas/InitiateCollectionRequest"
                             },
                             "example": {
-                                "customer_id": "customer_123",
-                                "wallet_id": "wallet_123",
+                                "method": "card",
                                 "amount": 50000,
-                                "currency": "NGN",
-                                "method": "open_banking",
-                                "phone_number": "+2348012345678",
-                                "email": "john@example.com",
-                                "reference": "collection_ref_001",
-                                "narration": "Payment for services",
-                                "redirect_url": "https://yourapp.com/payment/success"
+                                "wallet_id": "wallet_123",
+                                "customer_id": "customer_123",
+                                "card_holder_name": "John Doe",
+                                "card_number": "4242424242424242",
+                                "expiry": "12/30",
+                                "cvc": "123",
+                                "phone": "+2348012345678"
                             }
                         }
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Collection initiated successfully. Redirect customer to payment_url for open_banking.",
+                    "200": {
+                        "description": "Collection initiated successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/InitiateCollectionResponse"
                                 },
                                 "example": {
-                                    "status": true,
-                                    "message": "Collection initiated successfully",
-                                    "data": {
-                                        "id": "collection_123456789",
-                                        "transaction_id": "txn_987654321",
-                                        "customer_id": "customer_123",
-                                        "wallet_id": "wallet_123",
-                                        "amount": 50000,
-                                        "currency": "NGN",
-                                        "method": "open_banking",
-                                        "status": "pending",
-                                        "payment_url": "https://checkout.blaaiz.com/pay/abc123xyz",
-                                        "reference": "collection_ref_001",
-                                        "created_at": "2024-01-15T10:30:00Z"
-                                    }
+                                    "message": "Collection initiated successfully.",
+                                    "transaction_id": "txn_987654322",
+                                    "url": "https://checkout.example.com/card-auth/xyz789"
                                 }
                             }
                         }
@@ -204,9 +173,37 @@
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
-                                "example": {
-                                    "status": false,
-                                    "message": "Invalid request parameters"
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "status": false,
+                                            "message": "Invalid request parameters"
+                                        }
+                                    },
+                                    "method_not_supported_for_wallet_currency": {
+                                        "value": {
+                                            "status": false,
+                                            "message": "Funding NGN using card is not supported yet."
+                                        }
+                                    },
+                                    "customer_not_verified_for_card": {
+                                        "value": {
+                                            "status": false,
+                                            "message": "Customer is not verified. Ensure you have uploaded identify docs for customer."
+                                        }
+                                    },
+                                    "card_not_enabled_for_business": {
+                                        "value": {
+                                            "status": false,
+                                            "message": "Card collection is not enabled for this business yet."
+                                        }
+                                    },
+                                    "attach_customer_not_supported": {
+                                        "value": {
+                                            "status": false,
+                                            "message": "Customer cannot be updated for API card collections."
+                                        }
+                                    }
                                 }
                             }
                         }

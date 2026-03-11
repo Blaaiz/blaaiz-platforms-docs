@@ -17,6 +17,10 @@ Before you can make any payouts, you need to associate them with a customer. Eve
 
 Make sure to save the `customer_id` returned from this endpoint as you'll need it in future steps.
 
+<Note>
+  The customer's `country` must match the identity document provided for KYC. Also note that only `NON-VERIFIED` customers can be fully updated. If a customer is already `VERIFIED`, only fields that are currently `null` can be updated.
+</Note>
+
 ### Step 2: Upload documents for the customer
 
 Once you have created the customer, the next step is to upload documents to verify their identity. The customer will remain in a `"pending"` state until their documents (especially `id_file`) are uploaded and verified.

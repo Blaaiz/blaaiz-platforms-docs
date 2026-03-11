@@ -10,9 +10,27 @@ Before integrating with the Blaaiz Platform API, review the following guidelines
 ### Authentication
 
 - All requests to the Blaaiz API must be authenticated using a valid API key.
-- You can generate and manage your API keys from the Blaaiz Dashboard.
+- You can generate and manage your API keys from the Blaaiz Dashboard after API Services have been enabled for your account.
 - Include your API key in every request.
 - Keep your API keys secure and never expose them in client-side code or public repositories.
+- Development and production use different API keys. Always use the key from the same environment as the base URL you are calling.
+- If you cannot see the **API Settings** page in the dashboard, your account has not been provisioned for API Services yet. See [Authentication](/guides/authentication) and [Getting Started](/guides/getting-started).
+
+### Customer update rules
+
+- Only `NON-VERIFIED` customer details can be fully updated.
+- If a customer is `VERIFIED`, only fields that are currently `null` can be updated.
+- The customer's `country` must match the identity document provided for KYC.
+
+### TIN and identification labels
+
+- If you need to collect a `tin`, do not hardcode the label shown to your users.
+- Get the correct label or field from the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint.
+
+### Collection method note
+
+- For the API collection endpoint, the currently documented method is `card`.
+- Open Banking should not be treated as a supported collection method in the public docs.
 
 ### Rate Limits & Usage
 

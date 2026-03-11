@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Attach Customer to Collection",
         "version": "1.0.0",
-        "description": "Associate a collection transaction with a customer.\n\n**Important:** Only collections can be updated this way."
+        "description": "Associate a collection transaction with a verified customer.\n\n**Important:** API card collections cannot be updated with this endpoint."
     },
     "tags": [
         {
@@ -32,7 +32,7 @@
                 "properties": {
                     "customer_id": {
                         "type": "string",
-                        "description": "Unique identifier of the customer."
+                        "description": "Unique identifier of the customer. The customer must belong to your business and be VERIFIED."
                     },
                     "transaction_id": {
                         "type": "string",
@@ -72,7 +72,7 @@
         "/api/external/collection/attach-customer": {
             "post": {
                 "summary": "Attach customer to collection",
-                "description": "Associate a collection transaction with a customer.\n\n**Important:** Only collections can be updated this way.",
+                "description": "Associate a collection transaction with a verified customer.\n\n**Important:** API card collections cannot be updated with this endpoint.",
                 "tags": [
                     "Collection"
                 ],
@@ -117,6 +117,28 @@
                                 },
                                 "example": {
                                     "message": "Transaction updated successfully."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "api_card_collection": {
+                                        "value": {
+                                            "message": "Customer cannot be updated for API card collections."
+                                        }
+                                    },
+                                    "customer_not_verified": {
+                                        "value": {
+                                            "message": "Customer is not verified. Ensure you have uploaded identify docs for customer."
+                                        }
+                                    }
                                 }
                             }
                         }

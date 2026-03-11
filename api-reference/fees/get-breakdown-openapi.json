@@ -59,7 +59,7 @@
                 "properties": {
                     "method": {
                         "type": "string",
-                        "description": "Method this fee applies to (e.g., open_banking, card, ach, bank_transfer, interac)"
+                        "description": "Method this fee applies to (e.g., card, ach, bank_transfer, interac)"
                     },
                     "amount": {
                         "type": "number",

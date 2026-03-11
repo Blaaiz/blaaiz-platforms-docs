@@ -5,6 +5,12 @@ description: Reference for Blaaiz webhook event types and common payload structu
 
 Use this page to quickly see which events Blaaiz emits and what every webhook payload contains.
 
+## Quick answers
+
+- `customer.created`, `customer.verified`, and `customer.rejected` are sent to your `collection_url`.
+- Virtual account events are also sent to your `collection_url`.
+- Payout events are sent to your `payout_url`.
+
 ## Event types
 
 ### Payout events
@@ -34,6 +40,8 @@ Use this page to quickly see which events Blaaiz emits and what every webhook pa
 - `virtual_account.rejected` — Virtual account verification rejected
 - `virtual_account.failed` — Virtual account creation failed
 - `virtual_account.credited` — Funds received in virtual account
+
+> `customer.created`, `customer.verified`, `customer.rejected`, and virtual account events are delivered to your configured `collection_url`. Payout events are delivered to your `payout_url`.
 
 ## Payload structure
 

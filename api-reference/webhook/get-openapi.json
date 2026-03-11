@@ -36,7 +36,8 @@
                     },
                     "collection_url": {
                         "type": "string",
-                        "format": "uri"
+                        "format": "uri",
+                        "description": "URL receiving collection, virtual account, and customer KYC events."
                     },
                     "created_at": {
                         "type": "string",
@@ -75,7 +76,7 @@
         "/api/external/webhook": {
             "get": {
                 "summary": "Get webhook URLs",
-                "description": "Retrieve your registered webhook URLs.",
+                "description": "Retrieve your registered webhook URLs. Your collection_url is used for collection events, virtual account events, and customer KYC events.",
                 "tags": [
                     "Webhook"
                 ],

@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Create Virtual Bank Account",
         "version": "1.0.0",
-        "description": "Create a new virtual bank account (VBA) for a wallet.\n\n**Note:** Virtual bank accounts are not issued immediately. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks."
+        "description": "Create a new virtual bank account (VBA) for a wallet.\n\n**Note:** Virtual bank accounts are not issued immediately. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. In the development environment, only NGN virtual bank accounts settle."
     },
     "tags": [
         {
@@ -118,10 +118,7 @@
                         "type": "string"
                     },
                     "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/VirtualBankAccount"
-                        }
+                        "$ref": "#/components/schemas/VirtualBankAccount"
                     }
                 },
                 "required": [
@@ -146,7 +143,7 @@
         "/api/external/virtual-bank-account": {
             "post": {
                 "summary": "Create virtual bank account",
-                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.\n\n**Important:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. The initial status will be PENDING until the account is fully provisioned.",
+                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.\n\n**Important:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. The initial status will be PENDING until the account is fully provisioned. In the development environment, only NGN virtual bank accounts settle.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
@@ -184,23 +181,21 @@
                                 },
                                 "example": {
                                     "message": "Virtual bank account initiated successfully.",
-                                    "data": [
-                                        {
-                                            "id": "33580c65-d063-4138-a875-82ff09dfaeb5",
-                                            "business_wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
-                                            "currency_id": 1,
-                                            "currency": "NGN",
-                                            "account_number": "7880000024",
-                                            "account_name": "John Doe",
-                                            "bank_name": "78 Finance Company Limited",
-                                            "bank_code": "123456",
-                                            "provider": "BANK78",
-                                            "account_reference": "2327323232",
-                                            "reservation_reference": null,
-                                            "rejection_reason": null,
-                                            "status": "PENDING"
-                                        }
-                                    ]
+                                    "data": {
+                                        "id": "33580c65-d063-4138-a875-82ff09dfaeb5",
+                                        "business_wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
+                                        "currency_id": 1,
+                                        "currency": "NGN",
+                                        "account_number": "7880000024",
+                                        "account_name": "John Doe",
+                                        "bank_name": "78 Finance Company Limited",
+                                        "bank_code": "123456",
+                                        "provider": "BANK78",
+                                        "account_reference": "2327323232",
+                                        "reservation_reference": null,
+                                        "rejection_reason": null,
+                                        "status": "PENDING"
+                                    }
                                 }
                             }
                         }

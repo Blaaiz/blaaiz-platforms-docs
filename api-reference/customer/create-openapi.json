@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Create Customer",
         "version": "1.0.0",
-        "description": "Create a new customer. Verification remains PENDING until files are uploaded and KYC is completed."
+        "description": "Create a new customer. Verification remains PENDING until files are uploaded and KYC is completed. The customer's country must match the country on the identity document submitted for KYC."
     },
     "tags": [
         {
@@ -44,7 +44,7 @@
                     },
                     "country": {
                         "type": "string",
-                        "description": "Country code (e.g., NG, CA, US)."
+                        "description": "Country code (e.g., NG, CA, US). This must match the country on the identity document submitted for KYC."
                     },
                     "id_type": {
                         "type": "string",
@@ -77,7 +77,7 @@
                     },
                     "tin": {
                         "type": "string",
-                        "description": "Tax identification number (varies by country)."
+                        "description": "Tax identification number (varies by country). Where applicable, use the Get Identification Type endpoint to determine the correct label or field to collect for the customer's country and type."
                     },
                     "dob": {
                         "type": "string",
@@ -199,7 +199,7 @@
         "/api/external/customer": {
             "post": {
                 "summary": "Create a customer",
-                "description": "Create a new customer. Verification remains PENDING until KYC files are uploaded and reviewed.",
+                "description": "Create a new customer. Verification remains PENDING until KYC files are uploaded and reviewed. The customer's country must match the country on the identity document submitted for KYC.",
                 "tags": [
                     "Customer"
                 ],

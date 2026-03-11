@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Get Identification Type",
         "version": "1.0.0",
-        "description": "Retrieve the identification type label based on country and customer type for virtual bank account creation"
+        "description": "Retrieve the identification type label based on country and customer type for virtual bank account creation. Use this to determine the correct country-specific label or field to collect, including TIN-related labels where applicable."
     },
     "tags": [
         {
@@ -76,7 +76,7 @@
         "/api/external/virtual-bank-account/identification-type": {
             "get": {
                 "summary": "Get identification type",
-                "description": "Retrieve the expected identification type label based on country and customer type.",
+                "description": "Retrieve the expected identification type label based on country and customer type. Use this before collecting country-specific identification fields such as TIN labels where applicable.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],

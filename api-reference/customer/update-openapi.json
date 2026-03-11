@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Update Customer",
         "version": "1.0.0",
-        "description": "Update customer details and attach documents. Use file IDs from the File API for attachments."
+        "description": "Update customer profile details. Non-verified customers can update all fields. Verified customers can only update fields that are currently null. The customer's country must match the country on the identity document submitted for KYC."
     },
     "tags": [
         {
@@ -68,7 +68,7 @@
                     },
                     "country": {
                         "type": "string",
-                        "description": "Country code (e.g., NG, CA, US)."
+                        "description": "Country code (e.g., NG, CA, US). This must match the country on the identity document submitted for KYC."
                     },
                     "id_type": {
                         "type": "string",
@@ -86,7 +86,7 @@
                     },
                     "tin": {
                         "type": "string",
-                        "description": "Tax identification number (varies by country)."
+                        "description": "Tax identification number (varies by country). Where applicable, use the Get Identification Type endpoint to determine the correct label or field to collect for the customer's country and type."
                     },
                     "dob": {
                         "type": "string",
@@ -202,7 +202,7 @@
         "/api/external/customer/{id}": {
             "put": {
                 "summary": "Update a customer",
-                "description": "Update customer details and attach documents. Use file IDs from the File API; once all required documents are attached, status moves from pending to verified.",
+                "description": "Update customer profile details. Non-verified customers can update all fields. Verified customers can only update fields that are currently null. The customer's country must match the country on the identity document submitted for KYC.",
                 "tags": [
                     "Customer"
                 ],
@@ -287,9 +287,19 @@
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
-                                "example": {
-                                    "status": false,
-                                    "message": "Invalid request parameters"
+                                "examples": {
+                                    "invalid_request": {
+                                        "value": {
+                                            "status": false,
+                                            "message": "Invalid request parameters"
+                                        }
+                                    },
+                                    "verified_customer_locked_fields": {
+                                        "value": {
+                                            "status": false,
+                                            "message": "Verified customers can only update fields that are currently null"
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -33,7 +33,7 @@
                     "collection_url": {
                         "type": "string",
                         "format": "uri",
-                        "description": "Collection webhook URL"
+                        "description": "Collection webhook URL. This receives collection events, virtual account events, and customer KYC events."
                     },
                     "payout_url": {
                         "type": "string",
@@ -70,7 +70,7 @@
         "/api/external/webhook/{businessWebhook}": {
             "put": {
                 "summary": "Update webhook URL",
-                "description": "Update your registered webhook URLs.",
+                "description": "Update your registered webhook URLs. Your collection_url receives collection events, virtual account events, and customer KYC events.",
                 "tags": [
                     "Webhook"
                 ],
