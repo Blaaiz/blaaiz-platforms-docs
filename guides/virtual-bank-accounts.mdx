@@ -27,11 +27,36 @@ For GBP, EUR, and USD, Virtual Bank Account creation requires a verified custome
 In the development environment, only **NGN Virtual Bank Accounts** settle.
 </Note>
 
+## Understanding identification types (TIN)
+
+When creating a Virtual Bank Account (particularly for USD), your customer needs a `tin` (Tax Identification Number) value on their profile. However, "TIN" is a generic term — what it actually represents depends on the customer's country and whether they are an individual or a business.
+
+For example:
+
+| Country | Customer type | What to collect | Example label |
+|---------|--------------|-----------------|---------------|
+| US | Individual | Social Security Number | SSN |
+| US | Business | Employer Identification Number | EIN |
+| NG | Individual | Bank Verification Number | BVN |
+| GB | Individual | National Insurance Number | NINO |
+| CA | Individual | Social Insurance Number | SIN |
+
+**How to use this in your integration:**
+
+1. Call [Get identification type](/api-reference/virtual-bank-account/get-identification-type) with the customer's `country` and `type` (or their `customer_id` if you already have one).
+2. Use the returned `label` to display the correct field name in your UI (e.g. "Enter your Social Security Number" instead of "Enter your TIN").
+3. Save the value your customer provides as the `tin` field when [creating](/api-reference/customer/create) or [updating](/api-reference/customer/update) the customer.
+4. Proceed to [create the Virtual Bank Account](/api-reference/virtual-bank-account/create).
+
+<Note>
+Individual and business customers in the same country often require different identification types. Always pass the correct `type` parameter when looking up the identification type.
+</Note>
+
 ## Quick answers
 
 - **Which Virtual Bank Accounts settle in development?** Only **NGN Virtual Bank Accounts** settle in the development environment.
 - **Should the customer's country match the identity document?** Yes. The customer's `country` must match the identity document submitted for KYC.
-- **How do I know the correct `tin` label or field?** Use the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint before collecting it.
+- **How do I know the correct `tin` label or field?** See [Understanding identification types](#understanding-identification-types-tin) above, or call the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint.
 
 Before creating a Virtual Bank Account, ensure the following prerequisites are in place. Requirements vary depending on the currency.
 
@@ -176,7 +201,7 @@ Before creating a Virtual Bank Account, ensure the following prerequisites are i
 
     **TIN label lookup**
 
-    If a `tin` value is required for the customer, get the expected label or field first from the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint before creating or updating the customer.
+    The `tin` field is required for USD customers, but the actual identification type varies by country (e.g. SSN for US individuals, BVN for Nigerian individuals). See [Understanding identification types](#understanding-identification-types-tin) for the full workflow, or call the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint to look up the correct label before creating or updating the customer.
 
     **ID must not be expiring soon**
 

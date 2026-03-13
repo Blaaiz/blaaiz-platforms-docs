@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Get Identification Type",
         "version": "1.0.0",
-        "description": "Retrieve the identification type label based on country and customer type for virtual bank account creation. Use this to determine the correct country-specific label or field to collect, including TIN-related labels where applicable."
+        "description": "Every country has its own national or tax identification system — SSN in the US, BVN in Nigeria, NINO in the UK, and so on. When creating a customer for a Virtual Bank Account (especially USD), you need to collect a `tin` value. This endpoint tells you what that identification is called for a given country and customer type, so you can label the field correctly in your UI and collect the right value from your customer. The returned `label` is the display name (e.g. \"Social Security Number\") and the value your customer provides should be saved as the `tin` field on the customer."
     },
     "tags": [
         {
@@ -32,16 +32,21 @@
                 "properties": {
                     "label": {
                         "type": "string",
-                        "description": "Human-readable label for the identification type (e.g., Bank Verification Number)"
+                        "description": "Human-readable label to display in your UI (e.g. \"Bank Verification Number\" for Nigeria, \"Social Security Number\" for US). Use this as the field label when collecting the value from your customer."
                     },
-                    "type": {
+                    "country": {
                         "type": "string",
-                        "description": "Identification type code (e.g., bvn)"
+                        "description": "The resolved country code used for the lookup."
+                    },
+                    "customer_type": {
+                        "type": "string",
+                        "description": "The customer type used for the lookup (individual or business). Different types may return different identification requirements for the same country."
                     }
                 },
                 "required": [
                     "label",
-                    "type"
+                    "country",
+                    "customer_type"
                 ]
             },
             "IdentificationTypeResponse": {
@@ -76,7 +81,7 @@
         "/api/external/virtual-bank-account/identification-type": {
             "get": {
                 "summary": "Get identification type",
-                "description": "Retrieve the expected identification type label based on country and customer type. Use this before collecting country-specific identification fields such as TIN labels where applicable.",
+                "description": "Look up the country-specific identification type that a customer must provide as their `tin` value. Each country uses a different identification system (e.g. SSN in the US, BVN in Nigeria, NINO in the UK), and individual vs business customers within the same country may require different types. Call this endpoint before creating or updating a customer to know what field label to show in your UI and what value to collect. Save the collected value as the customer's `tin` field.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
@@ -128,11 +133,61 @@
                                 "schema": {
                                     "$ref": "#/components/schemas/IdentificationTypeResponse"
                                 },
-                                "example": {
-                                    "message": "Identification type retrieved successfully.",
-                                    "data": {
-                                        "label": "Bank Verification Number",
-                                        "type": "bvn"
+                                "examples": {
+                                    "nigeria_individual": {
+                                        "summary": "Nigeria — Individual",
+                                        "value": {
+                                            "message": "Identification type retrieved successfully.",
+                                            "data": {
+                                                "label": "Bank Verification Number",
+                                                "country": "NG",
+                                                "customer_type": "individual"
+                                            }
+                                        }
+                                    },
+                                    "us_individual": {
+                                        "summary": "United States — Individual",
+                                        "value": {
+                                            "message": "Identification type retrieved successfully.",
+                                            "data": {
+                                                "label": "Social Security Number",
+                                                "country": "US",
+                                                "customer_type": "individual"
+                                            }
+                                        }
+                                    },
+                                    "us_business": {
+                                        "summary": "United States — Business",
+                                        "value": {
+                                            "message": "Identification type retrieved successfully.",
+                                            "data": {
+                                                "label": "Employer Identification Number",
+                                                "country": "USA",
+                                                "customer_type": "business"
+                                            }
+                                        }
+                                    },
+                                    "uk_individual": {
+                                        "summary": "United Kingdom — Individual",
+                                        "value": {
+                                            "message": "Identification type retrieved successfully.",
+                                            "data": {
+                                                "label": "National Insurance Number",
+                                                "country": "GB",
+                                                "customer_type": "individual"
+                                            }
+                                        }
+                                    },
+                                    "canada_individual": {
+                                        "summary": "Canada — Individual",
+                                        "value": {
+                                            "message": "Identification type retrieved successfully.",
+                                            "data": {
+                                                "label": "Social Insurance Number",
+                                                "country": "CA",
+                                                "customer_type": "individual"
+                                            }
+                                        }
                                     }
                                 }
                             }
