@@ -107,7 +107,14 @@ The flow is the same as card collection, but the customer authorizes via their b
 
 A payout sends funds from your wallet to an external recipient (bank account, mobile money, etc.).
 
-### How payout fees work
+When creating a payout, you choose one of two amount modes by passing **either** `from_amount` or `to_amount` (never both):
+
+| Parameter | Meaning |
+|-----------|---------|
+| `from_amount` | The total amount debited from your wallet. Fees are deducted from this, so the recipient gets less. |
+| `to_amount` | The exact amount the recipient receives. Fees are added on top, so your wallet is debited more. |
+
+### Using `from_amount`
 
 ```mermaid
 sequenceDiagram
@@ -117,50 +124,67 @@ sequenceDiagram
     participant Recipient
     participant Webhook as Your Server
 
-    You->>Blaaiz: POST /payout (amount, recipient)
+    You->>Blaaiz: POST /payout (from_amount, recipient)
     Blaaiz->>Blaaiz: Calculate payout fee
-    Blaaiz->>Wallet: Debit full amount
-    Blaaiz->>Recipient: Send (amount - fee)
+    Blaaiz->>Wallet: Debit from_amount
+    Blaaiz->>Recipient: Send (from_amount - fee)
     Blaaiz->>Webhook: payout.completed webhook
 ```
 
-Payout fees are **inclusive** — they are deducted from the amount withdrawn from your wallet:
+When you pass `from_amount`, fees are **inclusive** — deducted from the amount you specify:
 
-1. You specify the payout `amount` (this is the "you send" amount).
-2. Blaaiz calculates the applicable **payout fee** (which may include a fixed fee, percentage fee, or both).
-3. The **total amount (including fees)** is deducted from your wallet.
-4. The **recipient receives** the amount minus fees.
+1. You specify `from_amount` — this is the total debited from your wallet.
+2. Blaaiz calculates the applicable **payout fee** (fixed, percentage, or both).
+3. `from_amount` is deducted from your wallet.
+4. The **recipient receives** `from_amount` minus fees.
 5. A `payout.completed` webhook is sent to your `payout_url`.
 
-**Example**: You send 1,000 USD to a recipient with a 5 USD payout fee.
+**Example**: `from_amount: 1000`, payout fee is 5 USD.
 
 | Step | Amount |
 |------|--------|
-| You send | 1,000 USD |
+| `from_amount` | 1,000 USD |
 | Payout fee | 5 USD |
 | **Deducted from your wallet** | **1,000 USD** |
 | **Recipient receives** | **995 USD** |
 
-<Note>
-If your wallet balance is insufficient to cover the payout amount (which includes fees), the payout will fail.
-</Note>
+### Using `to_amount`
 
-### Recipient gets mode
+```mermaid
+sequenceDiagram
+    participant You as Your Server
+    participant Blaaiz
+    participant Wallet as Your Wallet
+    participant Recipient
+    participant Webhook as Your Server
 
-When you specify the amount as "recipient gets" instead of "you send", the calculation reverses:
+    You->>Blaaiz: POST /payout (to_amount, recipient)
+    Blaaiz->>Blaaiz: Calculate payout fee
+    Blaaiz->>Wallet: Debit (to_amount + fee)
+    Blaaiz->>Recipient: Send to_amount
+    Blaaiz->>Webhook: payout.completed webhook
+```
 
-1. You specify how much the recipient should receive.
-2. Blaaiz calculates the fees and adds them on top.
-3. The total (recipient amount + fees) is deducted from your wallet.
+When you pass `to_amount`, the recipient is **guaranteed** to receive the exact amount you specify. Fees are added on top:
 
-**Example**: You want the recipient to get exactly 1,000 USD, with a 5 USD payout fee.
+1. You specify `to_amount` — this is exactly what the recipient will receive.
+2. Blaaiz calculates the fees and adds them to determine the wallet debit.
+3. Your wallet is debited `to_amount` + fees.
+4. The **recipient receives** exactly `to_amount`.
+5. A `payout.completed` webhook is sent to your `payout_url`.
+
+**Example**: `to_amount: 1000`, payout fee is 5 USD.
 
 | Step | Amount |
 |------|--------|
-| Recipient gets | 1,000 USD |
+| `to_amount` | 1,000 USD |
 | Payout fee | 5 USD |
 | **Deducted from your wallet** | **1,005 USD** |
 | **Recipient receives** | **1,000 USD** |
+
+<Note>
+If your wallet balance is insufficient to cover the total debit (amount + fees in `to_amount` mode, or the full `from_amount`), the payout will fail.
+</Note>
 
 ## Cross-currency payouts
 
@@ -174,11 +198,11 @@ Use the [Fee breakdown](/api-reference/fees/get-breakdown) endpoint to preview t
 
 ## Summary
 
-| Flow | Fee handling | What your wallet sees |
-|------|-------------|----------------------|
-| **Collection** (VIBAN, card, open banking) | Fees deducted from incoming amount | Credited: amount minus fees |
-| **Payout** (you send) | Fees deducted from payout amount | Debited: full amount you specified |
-| **Payout** (recipient gets) | Fees added on top of recipient amount | Debited: recipient amount + fees |
+| Flow | Parameter | Fee handling | What your wallet sees |
+|------|-----------|-------------|----------------------|
+| **Collection** (VIBAN, card, open banking) | `amount` | Fees deducted from incoming amount | Credited: amount minus fees |
+| **Payout** (`from_amount`) | `from_amount` | Fees deducted from `from_amount` | Debited: `from_amount` |
+| **Payout** (`to_amount`) | `to_amount` | Fees added on top of `to_amount` | Debited: `to_amount` + fees |
 
 ## Related
 
