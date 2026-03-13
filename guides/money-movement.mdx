@@ -1,0 +1,188 @@
+---
+title: Money movement
+description: How funds flow through Blaaiz for collections, payouts, and wallets
+---
+
+This guide explains exactly what happens to money at each step when you use Blaaiz API services for collections and payouts.
+
+## Core concept: Wallets are the center
+
+Every money movement in Blaaiz goes through your **business wallets**. Each wallet holds a balance in a single currency (NGN, USD, GBP, EUR, CAD). Collections add funds to a wallet, and payouts deduct funds from a wallet.
+
+```mermaid
+flowchart LR
+    A[Customer] -->|Pays| B[Collection]
+    B -->|Amount - Fees| C[Your Wallet]
+    C -->|Amount - Fees| D[Payout]
+    D -->|Sends| E[Recipient]
+```
+
+## Collections (inbound)
+
+A collection is any inflow of funds into your business wallet. This can happen via a Virtual Bank Account transfer, card payment, or open banking.
+
+### Virtual Bank Account collection
+
+```mermaid
+sequenceDiagram
+    participant Sender
+    participant VIBAN as Virtual Bank Account
+    participant Blaaiz
+    participant Wallet as Your Wallet
+    participant Webhook as Your Server
+
+    Sender->>VIBAN: Sends funds
+    VIBAN->>Blaaiz: Funds received
+    Blaaiz->>Blaaiz: Calculate collection fee
+    Blaaiz->>Wallet: Credit (amount - fee)
+    Blaaiz->>Webhook: collection.completed webhook
+```
+
+When someone sends money to your Virtual Bank Account:
+
+1. Funds arrive at the Virtual Bank Account.
+2. Blaaiz calculates the applicable **collection fee**.
+3. The fee is **deducted from the incoming amount** before crediting your wallet.
+4. Your wallet is credited with the **amount minus fees**.
+5. A `collection.completed` webhook is sent to your `collection_url`.
+
+**Example**: A customer sends 10,000 NGN to your Virtual Bank Account.
+
+| Step | Amount |
+|------|--------|
+| Incoming amount | 10,000 NGN |
+| Collection fee | 100 NGN |
+| **Credited to your wallet** | **9,900 NGN** |
+
+The webhook payload includes both the total amount and the fee, so you can reconcile.
+
+### Card collection (API)
+
+```mermaid
+sequenceDiagram
+    participant You as Your Server
+    participant Blaaiz
+    participant Card as Customer Card
+    participant 3DS as 3DS Auth
+    participant Wallet as Your Wallet
+    participant Webhook as Your Server
+
+    You->>Blaaiz: POST /collection (amount, card details)
+    Blaaiz->>Card: Charge card
+    alt 3DS required
+        Card->>3DS: Redirect for authentication
+        3DS->>Blaaiz: Authorization complete
+    end
+    Blaaiz->>Blaaiz: Calculate collection fee
+    Blaaiz->>Wallet: Credit (amount - fee)
+    Blaaiz->>Webhook: collection.completed webhook
+```
+
+When you initiate a card collection via the API:
+
+1. You specify the `amount` to collect from the customer.
+2. The customer's card is charged for the full amount.
+3. Blaaiz calculates the **collection fee**.
+4. The fee is **deducted from the collected amount** before crediting your wallet.
+5. Your wallet is credited with the **amount minus fees**.
+6. A `collection.completed` webhook is sent to your `collection_url`.
+
+**Example**: You collect 50,000 NGN via card.
+
+| Step | Amount |
+|------|--------|
+| Charged to card | 50,000 NGN |
+| Collection fee | 750 NGN |
+| **Credited to your wallet** | **49,250 NGN** |
+
+<Note>
+If the card requires 3DS authorization, the customer is redirected to complete authentication. If you provided a `redirect_url`, the customer returns to your site after authorization. See [Initiate collection](/api-reference/collection/create).
+</Note>
+
+### Open banking collection
+
+The flow is the same as card collection, but the customer authorizes via their bank's open banking interface instead of entering card details.
+
+## Payouts (outbound)
+
+A payout sends funds from your wallet to an external recipient (bank account, mobile money, etc.).
+
+### How payout fees work
+
+```mermaid
+sequenceDiagram
+    participant You as Your Server
+    participant Blaaiz
+    participant Wallet as Your Wallet
+    participant Recipient
+    participant Webhook as Your Server
+
+    You->>Blaaiz: POST /payout (amount, recipient)
+    Blaaiz->>Blaaiz: Calculate payout fee
+    Blaaiz->>Wallet: Debit full amount
+    Blaaiz->>Recipient: Send (amount - fee)
+    Blaaiz->>Webhook: payout.completed webhook
+```
+
+Payout fees are **inclusive** — they are deducted from the amount withdrawn from your wallet:
+
+1. You specify the payout `amount` (this is the "you send" amount).
+2. Blaaiz calculates the applicable **payout fee** (which may include a fixed fee, percentage fee, or both).
+3. The **total amount (including fees)** is deducted from your wallet.
+4. The **recipient receives** the amount minus fees.
+5. A `payout.completed` webhook is sent to your `payout_url`.
+
+**Example**: You send 1,000 USD to a recipient with a 5 USD payout fee.
+
+| Step | Amount |
+|------|--------|
+| You send | 1,000 USD |
+| Payout fee | 5 USD |
+| **Deducted from your wallet** | **1,000 USD** |
+| **Recipient receives** | **995 USD** |
+
+<Note>
+If your wallet balance is insufficient to cover the payout amount (which includes fees), the payout will fail.
+</Note>
+
+### Recipient gets mode
+
+When you specify the amount as "recipient gets" instead of "you send", the calculation reverses:
+
+1. You specify how much the recipient should receive.
+2. Blaaiz calculates the fees and adds them on top.
+3. The total (recipient amount + fees) is deducted from your wallet.
+
+**Example**: You want the recipient to get exactly 1,000 USD, with a 5 USD payout fee.
+
+| Step | Amount |
+|------|--------|
+| Recipient gets | 1,000 USD |
+| Payout fee | 5 USD |
+| **Deducted from your wallet** | **1,005 USD** |
+| **Recipient receives** | **1,000 USD** |
+
+## Cross-currency payouts
+
+When your wallet currency differs from the recipient's currency, an exchange rate is applied:
+
+1. The exchange rate is determined at transaction time.
+2. Fees are calculated in the **source currency** (your wallet currency).
+3. The converted amount (minus fees) is sent to the recipient in the destination currency.
+
+Use the [Fee breakdown](/api-reference/fees/get-breakdown) endpoint to preview the exact fees and exchange rate before initiating a payout.
+
+## Summary
+
+| Flow | Fee handling | What your wallet sees |
+|------|-------------|----------------------|
+| **Collection** (VIBAN, card, open banking) | Fees deducted from incoming amount | Credited: amount minus fees |
+| **Payout** (you send) | Fees deducted from payout amount | Debited: full amount you specified |
+| **Payout** (recipient gets) | Fees added on top of recipient amount | Debited: recipient amount + fees |
+
+## Related
+
+- [Fee breakdown](/api-reference/fees/get-breakdown) — preview fees before a transaction.
+- [Initiate collection](/api-reference/collection/create) — collect funds via card or open banking.
+- [Create payout](/api-reference/payout/create) — send funds to a recipient.
+- [Webhook events](/guides/webhooks/events) — track transaction status changes.
