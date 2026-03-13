@@ -5,43 +5,32 @@ description: Reference for Blaaiz webhook event types and common payload structu
 
 Use this page to quickly see which events Blaaiz emits and what every webhook payload contains.
 
-## Quick answers
-
-- `customer.created`, `customer.verified`, and `customer.rejected` are sent to your `collection_url`.
-- Virtual account events are also sent to your `collection_url`.
-- Payout events are sent to your `payout_url`.
-
 ## Event types
 
-### Payout events
+Your business has two webhook URLs: `collection_url` and `payout_url`. The table below shows every event and which URL it is delivered to.
 
-- `payout.initiated` — Payout has been created
-- `payout.processing` — Payout is being processed
-- `payout.completed` — Payout completed successfully
-- `payout.failed` — Payout failed
+| Event | Description | Delivered to | Guide |
+|-------|-------------|-------------|-------|
+| `collection.initiated` | Collection request created | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
+| `collection.pending` | Awaiting customer payment | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
+| `collection.completed` | Payment received successfully | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
+| `collection.failed` | Payment failed | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
+| `payout.initiated` | Payout has been created | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
+| `payout.processing` | Payout is being processed | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
+| `payout.completed` | Payout completed successfully | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
+| `payout.failed` | Payout failed | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
+| `customer.created` | New customer created | `collection_url` | [Customer](/guides/webhooks/customer) |
+| `customer.verified` | Customer KYC verified | `collection_url` | [Customer](/guides/webhooks/customer) |
+| `customer.rejected` | Customer KYC rejected | `collection_url` | [Customer](/guides/webhooks/customer) |
+| `virtual_account.created` | Virtual account created | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
+| `virtual_account.ready` | Virtual account ready to receive funds | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
+| `virtual_account.rejected` | Virtual account verification rejected | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
+| `virtual_account.failed` | Virtual account creation failed | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
+| `virtual_account.credited` | Funds received in virtual account | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 
-### Collection events
-
-- `collection.initiated` — Collection request created
-- `collection.pending` — Awaiting customer payment
-- `collection.completed` — Payment received successfully
-- `collection.failed` — Payment failed
-
-### Customer events
-
-- `customer.created` — New customer created
-- `customer.verified` — Customer KYC verified
-- `customer.rejected` — Customer KYC rejected
-
-### Virtual account events
-
-- `virtual_account.created` — Virtual account created
-- `virtual_account.ready` — Virtual account ready to receive funds
-- `virtual_account.rejected` — Virtual account verification rejected
-- `virtual_account.failed` — Virtual account creation failed
-- `virtual_account.credited` — Funds received in virtual account
-
-> `customer.created`, `customer.verified`, `customer.rejected`, and virtual account events are delivered to your configured `collection_url`. Payout events are delivered to your `payout_url`.
+<Note>
+All events except payout events are delivered to your `collection_url`. Register both URLs via the [Webhook API](/api-reference/webhook/register).
+</Note>
 
 ## Payload structure
 

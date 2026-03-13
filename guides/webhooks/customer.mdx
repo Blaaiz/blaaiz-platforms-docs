@@ -1,0 +1,77 @@
+---
+title: Customer
+description: Webhook payloads for customer verification events
+---
+
+All customer webhooks are sent to your `collection_url`.
+
+## Parameter overview
+
+| Parameter        | Description                                                          |
+| :--------------- | :------------------------------------------------------------------- |
+| `message`        | Human-readable description of the event.                             |
+| `event_type`     | Event type identifier (e.g. `customer.status_changed`).              |
+| `customer_id`    | Unique ID of the customer.                                           |
+| `customer_email` | The customer's email address.                                        |
+| `old_status`     | The customer's previous verification status.                         |
+| `new_status`     | The customer's new verification status.                              |
+| `comment`        | Optional comment explaining the status change (e.g. rejection reason). |
+| `updated_at`     | ISO 8601 timestamp of when the status changed.                       |
+| `event_id`       | Unique identifier for this webhook event.                            |
+| `type`           | Always `customer` for customer events.                               |
+
+## Event types
+
+### customer.created
+
+Sent when a new customer is created for your business.
+
+### customer.verified
+
+Sent when a customer's KYC verification is approved. The customer can now be used for Virtual Bank Account creation and other operations that require a verified customer.
+
+### customer.rejected
+
+Sent when a customer's KYC verification is rejected. Check the `comment` field for the rejection reason.
+
+## Example payload
+
+```json
+{
+  "message": "Customer verification status updated",
+  "event_type": "customer.status_changed",
+  "customer_id": "cust_abc123",
+  "customer_email": "john@example.com",
+  "old_status": "PENDING",
+  "new_status": "VERIFIED",
+  "comment": null,
+  "updated_at": "2026-03-13T14:30:00.000Z",
+  "event_id": "evt_def456",
+  "type": "customer"
+}
+```
+
+### Rejected example
+
+```json
+{
+  "message": "Customer verification status updated",
+  "event_type": "customer.status_changed",
+  "customer_id": "cust_abc123",
+  "customer_email": "john@example.com",
+  "old_status": "PENDING",
+  "new_status": "REJECTED",
+  "comment": "Identity document is expired.",
+  "updated_at": "2026-03-13T14:30:00.000Z",
+  "event_id": "evt_ghi789",
+  "type": "customer"
+}
+```
+
+## Possible statuses
+
+| Status     | Description                                    |
+| :--------- | :--------------------------------------------- |
+| `PENDING`  | Customer is awaiting verification.             |
+| `VERIFIED` | Customer KYC has been approved.                |
+| `REJECTED` | Customer KYC has been rejected.                |

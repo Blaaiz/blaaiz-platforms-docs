@@ -67,6 +67,7 @@
                       "guides/webhooks/signature-verification/javascript"
                     ]
                   },
+                  "guides/webhooks/customer",
                   "guides/webhooks/virtual-account"
                 ]
               },
