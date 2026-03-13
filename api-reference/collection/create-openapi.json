@@ -68,6 +68,12 @@
                     "cvc": {
                         "type": "string",
                         "description": "3-digit card CVC. Required for `card` collections."
+                    },
+                    "redirect_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Optional HTTPS URL to redirect the customer to after payment authorization (e.g. 3DS). Blaaiz appends `transaction_id` and `status` query parameters to this URL before redirecting. Maximum 2048 characters.",
+                        "maxLength": 2048
                     }
                 },
                 "required": [
@@ -145,7 +151,8 @@
                                 "card_number": "4242424242424242",
                                 "expiry": "12/30",
                                 "cvc": "123",
-                                "phone": "+2348012345678"
+                                "phone": "+2348012345678",
+                                "redirect_url": "https://merchant.example.com/payment/callback"
                             }
                         }
                     }
@@ -202,6 +209,14 @@
                                         "value": {
                                             "status": false,
                                             "message": "Customer cannot be updated for API card collections."
+                                        }
+                                    },
+                                    "invalid_redirect_url": {
+                                        "value": {
+                                            "message": "The redirect url field must be a valid URL.",
+                                            "errors": {
+                                                "redirect_url": ["The redirect url field must be a valid URL."]
+                                            }
                                         }
                                     }
                                 }

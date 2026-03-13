@@ -8,6 +8,34 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
     <div className="changelog-item">
       <div className="changelog-date">13/03/2026</div>
       <div className="changelog-card">
+        <h3>Merchant Redirect URL for Collections</h3>
+        <p>
+          The{" "}
+          <a href="/api-reference/collection/create">Initiate Collection</a>{" "}
+          endpoint now accepts an optional <code>redirect_url</code> parameter.
+          After payment authorization (e.g. 3DS for card collections or open
+          banking), the customer is automatically redirected to your specified
+          URL with <code>transaction_id</code> and <code>status</code> query
+          parameters appended.
+        </p>
+        <ul>
+          <li>
+            Only HTTPS URLs are accepted (max 2048 characters).
+          </li>
+          <li>
+            If no <code>redirect_url</code> is provided, the existing default
+            redirect behavior is used.
+          </li>
+          <li>
+            Query parameters are appended with the correct separator whether
+            your URL already contains a query string or not.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">13/03/2026</div>
+      <div className="changelog-card">
         <h3>Swap API Reference and Transaction Response Updates</h3>
         <p>
           We added documentation for the new{" "}
