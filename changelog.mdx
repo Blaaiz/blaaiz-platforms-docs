@@ -6,6 +6,40 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">13/03/2026</div>
+      <div className="changelog-card">
+        <h3>Swap API Reference and Transaction Response Updates</h3>
+        <p>
+          We added documentation for the new{" "}
+          <code>POST /api/external/swap</code> endpoint so businesses can swap
+          funds between their own wallets.
+        </p>
+        <p>
+          We also updated the transaction reference to document the latest
+          response shape returned by the API.
+        </p>
+        <p>Other updates:</p>
+        <ul>
+          <li>
+            Added the new <code>Swap</code> API reference section and navigation
+            entry.
+          </li>
+          <li>
+            Documented <code>type: SWAP</code> as a supported filter on the
+            transaction list endpoint.
+          </li>
+          <li>
+            Added <code>swap_details</code> to both the list and show transaction
+            response examples and schemas.
+          </li>
+          <li>
+            Added swap-specific error examples, including validation and access
+            restriction responses.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">03/03/2026</div>
       <div className="changelog-card">
         <h3>Virtual Bank Accounts Guide & Payout Documentation Improvements</h3>

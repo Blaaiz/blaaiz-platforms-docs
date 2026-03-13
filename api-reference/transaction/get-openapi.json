@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Get Transaction",
         "version": "1.0.0",
-        "description": "Retrieve details of a specific transaction"
+        "description": "Retrieve details of a completed API transaction. Transaction responses now include `swap_details` for swap transactions."
     },
     "tags": [
         {
@@ -35,7 +35,7 @@
                             "string",
                             "null"
                         ],
-                        "description": "Collection email used"
+                        "description": "Collection email used for Interac collections, when applicable."
                     }
                 }
             },
@@ -43,123 +43,192 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string",
-                        "description": "Recipient ID"
+                        "type": "string"
                     },
                     "account_number": {
-                        "type": "string",
-                        "description": "Account number"
+                        "type": "string"
                     },
                     "account_name": {
-                        "type": "string",
-                        "description": "Account name"
+                        "type": "string"
                     },
                     "amount": {
-                        "type": "number",
-                        "description": "Amount received"
+                        "type": "number"
                     },
                     "currency": {
-                        "type": "string",
-                        "description": "Currency code"
+                        "type": "string"
                     },
                     "bank_name": {
-                        "type": "string",
-                        "description": "Bank name"
+                        "type": "string"
                     },
                     "bank_code": {
-                        "type": "string",
-                        "description": "Bank code"
+                        "type": "string"
                     },
                     "status": {
                         "type": [
                             "string",
                             "null"
-                        ],
-                        "description": "Recipient status"
+                        ]
                     },
                     "routing_number": {
                         "type": [
                             "string",
                             "null"
-                        ],
-                        "description": "Routing number if applicable"
+                        ]
                     },
                     "email": {
                         "type": [
                             "string",
                             "null"
-                        ],
-                        "description": "Recipient email"
+                        ]
                     }
                 }
+            },
+            "SwapDetails": {
+                "type": "object",
+                "properties": {
+                    "from_business_wallet_id": {
+                        "type": "string"
+                    },
+                    "to_business_wallet_id": {
+                        "type": "string"
+                    },
+                    "from_currency": {
+                        "type": "string"
+                    },
+                    "from_amount": {
+                        "type": "number"
+                    },
+                    "from_amount_without_fee": {
+                        "type": "number"
+                    },
+                    "to_currency": {
+                        "type": "string"
+                    },
+                    "to_amount": {
+                        "type": "number"
+                    },
+                    "amount_type": {
+                        "type": "string",
+                        "enum": [
+                            "from",
+                            "to"
+                        ]
+                    },
+                    "exchange_rate": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "from_business_wallet_id",
+                    "to_business_wallet_id",
+                    "from_currency",
+                    "from_amount",
+                    "from_amount_without_fee",
+                    "to_currency",
+                    "to_amount",
+                    "amount_type",
+                    "exchange_rate"
+                ]
             },
             "Transaction": {
                 "type": "object",
                 "properties": {
                     "id": {
                         "type": "string",
-                        "description": "Transaction ID"
+                        "description": "Transaction ID."
                     },
                     "business_id": {
                         "type": "string",
-                        "description": "Business ID"
+                        "description": "Business ID."
                     },
                     "business_customer_id": {
-                        "type": "string",
-                        "description": "Customer ID"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Business customer ID when the transaction is tied to a customer."
                     },
                     "business_wallet_id": {
-                        "type": "string",
-                        "description": "Wallet ID"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Primary business wallet ID recorded on the transaction."
                     },
                     "status": {
                         "type": "string",
-                        "description": "Transaction status"
+                        "description": "Transaction status."
                     },
                     "type": {
                         "type": "string",
-                        "description": "Transaction type (collection, payout)"
+                        "description": "Normalized transaction type returned by the API. Possible values are `collection`, `payout`, and `swap`."
                     },
                     "reference": {
                         "type": "string",
-                        "description": "Transaction reference"
+                        "description": "Transaction reference."
                     },
                     "currency": {
-                        "type": "string",
-                        "description": "Currency code"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Source currency for the transaction."
                     },
                     "amount": {
-                        "type": "number",
-                        "description": "Total amount"
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Gross transaction amount."
                     },
                     "amount_without_fee": {
-                        "type": "number",
-                        "description": "Amount without fee"
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Net transaction amount after fees."
                     },
                     "fee": {
-                        "type": "number",
-                        "description": "Transaction fee"
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Transaction fee."
                     },
                     "rate": {
                         "type": [
                             "number",
                             "null"
                         ],
-                        "description": "Exchange rate"
+                        "description": "Recipient exchange rate for payout transactions."
                     },
                     "date": {
                         "type": "string",
-                        "description": "Transaction date"
+                        "format": "date-time",
+                        "description": "Transaction creation timestamp."
                     },
                     "payee_collection_email": {
                         "type": [
                             "string",
                             "null"
                         ],
-                        "description": "Payee collection email"
+                        "description": "Payee collection email for Interac transactions, when applicable."
                     },
                     "source_information": {
                         "$ref": "#/components/schemas/SourceInformation"
+                    },
+                    "swap_details": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SwapDetails"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "recipient": {
                         "oneOf": [
@@ -184,8 +253,12 @@
                     "amount",
                     "amount_without_fee",
                     "fee",
+                    "rate",
                     "date",
-                    "source_information"
+                    "payee_collection_email",
+                    "source_information",
+                    "swap_details",
+                    "recipient"
                 ]
             },
             "TransactionResponse": {
@@ -220,7 +293,7 @@
         "/api/external/transaction/{id}": {
             "get": {
                 "summary": "Get transaction",
-                "description": "Retrieve information about a specific transaction.",
+                "description": "Retrieve a completed API transaction by its transaction ID or reference.",
                 "tags": [
                     "Transaction"
                 ],
@@ -234,7 +307,7 @@
                         "name": "id",
                         "in": "path",
                         "required": true,
-                        "description": "Unique identifier of the transaction",
+                        "description": "Unique transaction ID or transaction reference.",
                         "schema": {
                             "type": "string"
                         }
@@ -242,7 +315,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Transaction retrieved successfully",
+                        "description": "Transaction retrieved successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -253,11 +326,11 @@
                                         "value": {
                                             "message": "Transaction retrieved successfully",
                                             "data": {
-                                                "id": "txn_123456789",
+                                                "id": "txn_payout_001",
                                                 "business_id": "business_123",
                                                 "business_customer_id": "customer_123",
-                                                "business_wallet_id": "wallet_123",
-                                                "status": "completed",
+                                                "business_wallet_id": "wallet_ngn_001",
+                                                "status": "SUCCESSFUL",
                                                 "type": "payout",
                                                 "reference": "payout_ref_001",
                                                 "currency": "NGN",
@@ -265,11 +338,12 @@
                                                 "amount_without_fee": 49500,
                                                 "fee": 500,
                                                 "rate": null,
-                                                "date": "2024-01-15T10:30:00Z",
+                                                "date": "2026-03-13T10:30:00.000000Z",
                                                 "payee_collection_email": null,
                                                 "source_information": {
                                                     "collection_email": null
                                                 },
+                                                "swap_details": null,
                                                 "recipient": {
                                                     "id": "recipient_123",
                                                     "account_number": "0123456789",
@@ -278,7 +352,7 @@
                                                     "currency": "NGN",
                                                     "bank_name": "Access Bank",
                                                     "bank_code": "044",
-                                                    "status": "completed",
+                                                    "status": "SUCCESSFUL",
                                                     "routing_number": null,
                                                     "email": null
                                                 }
@@ -289,11 +363,11 @@
                                         "value": {
                                             "message": "Transaction retrieved successfully",
                                             "data": {
-                                                "id": "txn_987654321",
+                                                "id": "txn_collection_001",
                                                 "business_id": "business_123",
                                                 "business_customer_id": "customer_123",
-                                                "business_wallet_id": "wallet_123",
-                                                "status": "completed",
+                                                "business_wallet_id": "wallet_ngn_001",
+                                                "status": "SUCCESSFUL",
                                                 "type": "collection",
                                                 "reference": "collection_ref_001",
                                                 "currency": "NGN",
@@ -301,10 +375,47 @@
                                                 "amount_without_fee": 50000,
                                                 "fee": 0,
                                                 "rate": null,
-                                                "date": "2024-01-15T09:10:00Z",
+                                                "date": "2026-03-13T09:10:00.000000Z",
                                                 "payee_collection_email": "customer@company.com",
                                                 "source_information": {
                                                     "collection_email": "collections@blaaiz.com"
+                                                },
+                                                "swap_details": null,
+                                                "recipient": null
+                                            }
+                                        }
+                                    },
+                                    "Swap": {
+                                        "value": {
+                                            "message": "Transaction retrieved successfully",
+                                            "data": {
+                                                "id": "txn_swap_001",
+                                                "business_id": "business_123",
+                                                "business_customer_id": null,
+                                                "business_wallet_id": "wallet_usd_001",
+                                                "status": "SUCCESSFUL",
+                                                "type": "swap",
+                                                "reference": "swap_ref_001",
+                                                "currency": "USD",
+                                                "amount": 100,
+                                                "amount_without_fee": 99,
+                                                "fee": 1,
+                                                "rate": null,
+                                                "date": "2026-03-13T11:45:00.000000Z",
+                                                "payee_collection_email": null,
+                                                "source_information": {
+                                                    "collection_email": null
+                                                },
+                                                "swap_details": {
+                                                    "from_business_wallet_id": "wallet_usd_001",
+                                                    "to_business_wallet_id": "wallet_ngn_001",
+                                                    "from_currency": "USD",
+                                                    "from_amount": 100,
+                                                    "from_amount_without_fee": 99,
+                                                    "to_currency": "NGN",
+                                                    "to_amount": 160000,
+                                                    "amount_type": "from",
+                                                    "exchange_rate": 1600
                                                 },
                                                 "recipient": null
                                             }
@@ -328,14 +439,14 @@
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Transaction not found.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Transaction not found"
+                                    "message": "Transaction not found."
                                 }
                             }
                         }

@@ -157,6 +157,12 @@
             ]
           },
           {
+            "group": "Swap",
+            "pages": [
+              "/api-reference/swap/create-openapi.json POST /api/external/swap"
+            ]
+          },
+          {
             "group": "File",
             "pages": [
               "/api-reference/file/create-openapi.json POST /api/external/file/get-presigned-url"

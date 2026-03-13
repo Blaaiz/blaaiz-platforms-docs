@@ -1,0 +1,388 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Swap Money",
+        "version": "1.0.0",
+        "description": "Swap funds between two business wallets owned by the same business. The source and destination wallets must be different wallets with different currencies."
+    },
+    "tags": [
+        {
+            "name": "Swap"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "SwapRequest": {
+                "type": "object",
+                "properties": {
+                    "from_business_wallet_id": {
+                        "type": "string",
+                        "description": "ID of the source business wallet to debit."
+                    },
+                    "to_business_wallet_id": {
+                        "type": "string",
+                        "description": "ID of the destination business wallet to credit."
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount to swap. Minimum value is `0.1` and up to 2 decimal places are accepted."
+                    },
+                    "amount_type": {
+                        "type": "string",
+                        "enum": [
+                            "from",
+                            "to"
+                        ],
+                        "description": "How to interpret the `amount`. Use `from` to specify the source-wallet amount, or `to` to specify the destination-wallet amount. Defaults to `from`."
+                    }
+                },
+                "required": [
+                    "from_business_wallet_id",
+                    "to_business_wallet_id",
+                    "amount"
+                ]
+            },
+            "BusinessSwapTransaction": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Swap transaction ID."
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Business ID."
+                    },
+                    "business_user_id": {
+                        "type": "string",
+                        "description": "Business user that performed the swap."
+                    },
+                    "business_transaction_id": {
+                        "type": "string",
+                        "description": "Linked business transaction ID."
+                    },
+                    "from_business_wallet_id": {
+                        "type": "string",
+                        "description": "Source wallet ID."
+                    },
+                    "from_currency": {
+                        "type": "string",
+                        "description": "Source wallet currency."
+                    },
+                    "from_currency_id": {
+                        "type": "integer",
+                        "description": "Source currency ID."
+                    },
+                    "from_amount": {
+                        "type": "number",
+                        "description": "Amount swapped from the source wallet."
+                    },
+                    "from_amount_minus_fees": {
+                        "type": "number",
+                        "description": "Source amount after subtracting fees."
+                    },
+                    "to_currency": {
+                        "type": "string",
+                        "description": "Destination wallet currency."
+                    },
+                    "to_currency_id": {
+                        "type": "integer",
+                        "description": "Destination currency ID."
+                    },
+                    "to_amount": {
+                        "type": "number",
+                        "description": "Amount credited to the destination wallet."
+                    },
+                    "from_exchange_rate": {
+                        "type": "number",
+                        "description": "Applied exchange rate from the source currency to the destination currency."
+                    },
+                    "custom_exchange_rate": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "Custom exchange rate if one was applied."
+                    },
+                    "to_business_wallet_id": {
+                        "type": "string",
+                        "description": "Destination wallet ID."
+                    },
+                    "reference": {
+                        "type": "string",
+                        "description": "Swap reference."
+                    },
+                    "comments": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Optional internal comments."
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Swap status."
+                    },
+                    "amount_type": {
+                        "type": "string",
+                        "enum": [
+                            "from",
+                            "to"
+                        ],
+                        "description": "How the request amount was interpreted."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "business_user_id",
+                    "business_transaction_id",
+                    "from_business_wallet_id",
+                    "from_currency",
+                    "from_currency_id",
+                    "from_amount",
+                    "from_amount_minus_fees",
+                    "to_currency",
+                    "to_currency_id",
+                    "to_amount",
+                    "from_exchange_rate",
+                    "to_business_wallet_id",
+                    "reference",
+                    "status",
+                    "amount_type"
+                ]
+            },
+            "SwapResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "business_swap_transaction": {
+                        "$ref": "#/components/schemas/BusinessSwapTransaction"
+                    }
+                },
+                "required": [
+                    "message",
+                    "business_swap_transaction"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "ValidationError": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "errors"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/swap": {
+            "post": {
+                "summary": "Swap money between business wallets",
+                "description": "Swap money between two wallets owned by your business. The wallets must exist, belong to the same business, and use different currencies. This endpoint is available only when your business is allowed to perform API-services swaps.",
+                "tags": [
+                    "Swap"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SwapRequest"
+                            },
+                            "examples": {
+                                "source_amount": {
+                                    "value": {
+                                        "from_business_wallet_id": "1bc6b6f9-f795-4b78-b8cb-5f4de267c301",
+                                        "to_business_wallet_id": "8fbf7dc8-2082-4486-8ef0-44d5bb758a8c",
+                                        "amount": 100,
+                                        "amount_type": "from"
+                                    }
+                                },
+                                "destination_amount": {
+                                    "value": {
+                                        "from_business_wallet_id": "1bc6b6f9-f795-4b78-b8cb-5f4de267c301",
+                                        "to_business_wallet_id": "8fbf7dc8-2082-4486-8ef0-44d5bb758a8c",
+                                        "amount": 150000,
+                                        "amount_type": "to"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Swap completed successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SwapResponse"
+                                },
+                                "example": {
+                                    "message": "Money swap successful!",
+                                    "business_swap_transaction": {
+                                        "id": "d275cd12-e679-43ee-90ce-c8df363624f8",
+                                        "business_id": "business_123",
+                                        "business_user_id": "business_user_123",
+                                        "business_transaction_id": "txn_123456789",
+                                        "from_business_wallet_id": "1bc6b6f9-f795-4b78-b8cb-5f4de267c301",
+                                        "from_currency": "USD",
+                                        "from_currency_id": 2,
+                                        "from_amount": 100,
+                                        "from_amount_minus_fees": 99,
+                                        "to_currency": "NGN",
+                                        "to_currency_id": 1,
+                                        "to_amount": 160000,
+                                        "from_exchange_rate": 1600,
+                                        "custom_exchange_rate": null,
+                                        "to_business_wallet_id": "8fbf7dc8-2082-4486-8ef0-44d5bb758a8c",
+                                        "reference": "swap_ref_001",
+                                        "comments": null,
+                                        "status": "SUCCESSFUL",
+                                        "amount_type": "from",
+                                        "created_at": "2026-03-13T09:15:00.000000Z",
+                                        "updated_at": "2026-03-13T09:15:00.000000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The swap request passed validation but failed a business rule.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "same_currency_wallets": {
+                                        "value": {
+                                            "message": "Oops! You cannot swap money between wallets of same currency"
+                                        }
+                                    },
+                                    "invalid_business_wallets": {
+                                        "value": {
+                                            "message": "Oops! You supplied one or more invalid wallets"
+                                        }
+                                    },
+                                    "unsupported_currency_pair": {
+                                        "value": {
+                                            "message": "Oops! You cannot swap money between USD and BTC."
+                                        }
+                                    },
+                                    "amount_too_small": {
+                                        "value": {
+                                            "message": "Amount is too small to swap after conversion. Please increase the amount."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The business is not allowed to use the swap endpoint.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Your business is not allowed to complete this operation. Please contact support."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                },
+                                "example": {
+                                    "message": "The given data was invalid.",
+                                    "errors": {
+                                        "from_business_wallet_id": [
+                                            "The selected from business wallet id is invalid."
+                                        ],
+                                        "to_business_wallet_id": [
+                                            "The selected to business wallet id is invalid."
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
