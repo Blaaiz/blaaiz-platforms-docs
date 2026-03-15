@@ -24,56 +24,67 @@
         "iconType": "duotone",
         "groups": [
           {
-            "group": "Introduction",
+            "group": "Getting Started",
             "pages": [
               "guides/getting-started",
-              "guides/general-guidelines",
               "guides/authentication",
               "guides/ip-whitelisting",
-              "guides/rate-limits",
-              "guides/api-parameters",
+              "guides/sdks",
+              "guides/general-guidelines"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
               "guides/money-movement",
+              "guides/api-parameters",
+              "guides/rate-limits"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
               "guides/creating-first-payout",
-              "guides/virtual-bank-accounts",
               "guides/collections-overview",
+              "guides/virtual-bank-accounts",
+              "guides/interac-auto-deposits",
+              "guides/common-use-cases"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "guides/webhooks/events",
               {
-                "group": "Webhooks",
+                "group": "Collection",
                 "pages": [
-                  "guides/webhooks/events",
-                  {
-                    "group": "Collection",
-                    "pages": [
-                      "guides/webhooks/collection/ngn",
-                      "guides/webhooks/collection/cad",
-                      "guides/webhooks/collection/usd",
-                      "guides/webhooks/collection/gbp",
-                      "guides/webhooks/collection/eur"
-                    ]
-                  },
-                  {
-                    "group": "Payout",
-                    "pages": [
-                      "guides/webhooks/payout/ngn",
-                      "guides/webhooks/payout/cad",
-                      "guides/webhooks/payout/usd",
-                      "guides/webhooks/payout/eur",
-                      "guides/webhooks/payout/gbp"
-                    ]
-                  },
-                  {
-                    "group": "Signature verification",
-                    "pages": [
-                      "guides/webhooks/signature-verification/overview",
-                      "guides/webhooks/signature-verification/php",
-                      "guides/webhooks/signature-verification/javascript"
-                    ]
-                  },
-                  "guides/webhooks/customer",
-                  "guides/webhooks/virtual-account"
+                  "guides/webhooks/collection/ngn",
+                  "guides/webhooks/collection/cad",
+                  "guides/webhooks/collection/usd",
+                  "guides/webhooks/collection/gbp",
+                  "guides/webhooks/collection/eur"
                 ]
               },
-              "guides/sdks",
-              "guides/interac-auto-deposits"
+              {
+                "group": "Payout",
+                "pages": [
+                  "guides/webhooks/payout/ngn",
+                  "guides/webhooks/payout/cad",
+                  "guides/webhooks/payout/usd",
+                  "guides/webhooks/payout/eur",
+                  "guides/webhooks/payout/gbp"
+                ]
+              },
+              {
+                "group": "Signature verification",
+                "pages": [
+                  "guides/webhooks/signature-verification/overview",
+                  "guides/webhooks/signature-verification/php",
+                  "guides/webhooks/signature-verification/javascript"
+                ]
+              },
+              "guides/webhooks/customer",
+              "guides/webhooks/virtual-account"
             ]
           },
           {
