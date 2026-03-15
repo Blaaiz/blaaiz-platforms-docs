@@ -48,7 +48,19 @@
               "guides/collections-overview",
               "guides/virtual-bank-accounts",
               "guides/interac-auto-deposits",
-              "guides/common-use-cases"
+              {
+                "group": "Common use cases",
+                "pages": [
+                  "guides/common-use-cases",
+                  "guides/use-cases/cross-border-remittances",
+                  "guides/use-cases/marketplace-payouts",
+                  "guides/use-cases/payroll",
+                  "guides/use-cases/virtual-accounts-deposit-collection",
+                  "guides/use-cases/crypto-on-off-ramps",
+                  "guides/use-cases/b2b-vendor-payments",
+                  "guides/use-cases/liquidity-management"
+                ]
+              }
             ]
           },
           {
