@@ -1,0 +1,193 @@
+---
+title: 🇨🇦 Interac CAD collections
+description: Collect CAD from customers via Interac Auto Deposit and identify senders using webhook emails
+---
+
+Collect Canadian Dollars from your customers using Interac Auto Deposit. Blaaiz configures a dedicated email address for your business — when anyone sends an Interac e-Transfer to that email, the funds land in your CAD wallet automatically and you receive a webhook with the sender's email so you can attribute the payment.
+
+This is one of the most common flows our merchants build, and the one that causes the most confusion. This guide walks through the full setup, the payment flow, and how to reliably match incoming payments to your customers.
+
+## How it works
+
+```mermaid
+sequenceDiagram
+    participant Customer
+    participant Customer Bank as Customer's Bank
+    participant Interac
+    participant Blaaiz
+    participant You as Your Platform
+
+    Customer->>You: Shares their Interac email (e.g. alice@gmail.com)
+    You->>You: Store email → user mapping
+    Note over You: You show your Auto Deposit email to the customer
+    Customer->>Customer Bank: Send Interac e-Transfer to payments@yourbusiness.com
+    Customer Bank->>Interac: Process e-Transfer
+    Interac->>Blaaiz: Auto Deposit (no security question)
+    Blaaiz->>Blaaiz: Credit your CAD wallet
+    Blaaiz->>You: collection webhook (includes source_information.collection_email)
+    You->>You: Match collection_email → customer, allocate funds
+```
+
+## The key concept: Two emails
+
+This is where merchants get confused. There are **two different emails** in this flow, and they serve very different purposes:
+
+| Email | Who owns it | Purpose |
+|-------|-------------|---------|
+| **Auto Deposit email** (e.g. `payments@yourbusiness.com`) | Your business | Configured on Blaaiz. This is the email your customers send money **to**. |
+| **Sender's Interac email** (e.g. `alice@gmail.com`) | Your customer | The email attached to your customer's bank account. This is how you identify **who** sent the payment. |
+
+Your customer must give you their Interac email **before** they send money. When the payment arrives, Blaaiz includes the sender's email in the webhook as `source_information.collection_email`. You match that email against your stored records to know which customer the funds belong to.
+
+## Step-by-step setup
+
+### 1. Configure your Auto Deposit email
+
+Before you can receive any Interac payments, a **Super Admin** must configure an Auto Deposit email in the Blaaiz dashboard:
+
+1. Log in to [business.blaaiz.com](https://business.blaaiz.com)
+2. Navigate to your **CAD wallet**
+3. Click **Interac Auto Deposit**
+4. Add your preferred email address (e.g. `payments@yourbusiness.com`)
+
+The setup goes through three statuses:
+
+| Status | Meaning |
+|--------|---------|
+| `PENDING` | Request submitted, awaiting review |
+| `PROCESSING` | Blaaiz is configuring the Auto Deposit |
+| `ACTIVE` | Ready to receive funds |
+
+Once **ACTIVE**, you'll receive a confirmation email. See the [Interac Auto Deposits guide](/guides/interac-auto-deposits) for full setup details.
+
+<Warning>
+Without an active Auto Deposit email, Interac funds will **not** reflect in your CAD wallet even if someone sends money to your business.
+</Warning>
+
+### 2. Collect your customer's Interac email
+
+Before your customer sends money, you need to know which email they'll send from. Add a step in your app's funding flow to collect this:
+
+- Ask the customer: *"What email is registered with your bank for Interac e-Transfer?"*
+- Store this email in your database, mapped to the customer's account
+
+<Note>
+A customer's Interac email is the email their Canadian bank has on file for e-Transfers. It may be different from their login email on your platform.
+</Note>
+
+### 3. Display your Auto Deposit email
+
+Show the customer your business Auto Deposit email and instruct them to send an Interac e-Transfer to that address from their banking app. Since Auto Deposit is enabled, they won't need to answer a security question — the funds deposit automatically.
+
+### 4. Handle the collection webhook
+
+When the payment arrives, Blaaiz credits your CAD wallet and sends a `collection` webhook to your configured `collection_url`. The payload looks like this:
+
+```json
+{
+  "message": "Transaction Completed",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "CA1MR6ahQBCJ",
+  "transaction_status": "SUCCESSFUL",
+  "transaction_fee": 0.0,
+  "transaction_amount_without_fee": 20.0,
+  "transaction_amount": 20.0,
+  "transaction_currency": "CAD",
+  "payee_collection_email": "payments@yourbusiness.com",
+  "source_information": {
+    "collection_email": "alice@gmail.com"
+  },
+  "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
+  "type": "collection"
+}
+```
+
+The critical fields:
+
+| Field | What it tells you |
+|-------|-------------------|
+| `payee_collection_email` | Your business Auto Deposit email (the destination) |
+| `source_information.collection_email` | The **sender's** Interac email — use this to identify which customer sent the payment |
+| `transaction_amount` | How much CAD was received |
+| `transaction_status` | Must be `SUCCESSFUL` before you allocate funds |
+
+### 5. Match the sender and allocate funds
+
+In your webhook handler:
+
+1. Extract `source_information.collection_email` from the payload
+2. Look up which customer owns that email in your database
+3. Credit that customer's balance in your system
+
+```text
+Webhook received
+  └── source_information.collection_email = "alice@gmail.com"
+      └── Lookup: alice@gmail.com → User #1234 (Alice)
+          └── Credit Alice's CAD balance: +20.00 CAD
+```
+
+## Recommended database design
+
+To reliably match Interac payments, maintain a mapping between your users and their Interac emails:
+
+```text
+users
+├── id
+├── name
+├── email (platform login email)
+└── ...
+
+user_interac_emails
+├── id
+├── user_id (FK → users.id)
+├── email (unique) ← the Interac email from their bank
+└── created_at
+```
+
+A separate table allows one user to have multiple Interac emails (e.g. if they have accounts at different banks) and avoids conflating their platform login email with their banking email.
+
+## Testing in development
+
+Use the [Simulate Interac webhook](/api-reference/mock/simulate-webhook-interac) endpoint to test your integration without sending real money:
+
+```bash
+curl -X POST https://api-dev.blaaiz.com/api/external/mock/simulate-webhook/interac \
+  -H "x-blaaiz-api-key: YOUR_DEV_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "interac_email": "alice@gmail.com",
+    "amount": 50.00
+  }'
+```
+
+This sends a mock collection webhook to your configured `collection_url` with the `interac_email` as the `source_information.collection_email`. Use it to verify your email matching logic works before going live.
+
+<Note>
+The simulate endpoint is only available in the development environment. It returns a 400 error in production.
+</Note>
+
+## Common pitfalls
+
+**Customer sends from the wrong email**
+If a customer sends money from an Interac email that isn't in your system, you'll receive the webhook but won't be able to match it to a user. Build a fallback flow — flag the payment for manual review and reach out to the customer.
+
+**Confusing the two emails**
+The Auto Deposit email (`payments@yourbusiness.com`) is **yours**. The `source_information.collection_email` is **theirs**. Don't mix them up when matching.
+
+**Not collecting the email upfront**
+If you don't ask the customer for their Interac email before they send money, you have no way to attribute the payment when it arrives. Always collect it first.
+
+**Customer sends from a fintech app instead of their bank**
+This is a common gotcha. If your customer sends the Interac e-Transfer from a fintech app (e.g. Wealthsimple, KOHO, etc.) instead of directly from their bank, the fintech may route the payment through its own banking infrastructure. When this happens, the `source_information.collection_email` in the webhook will show the **fintech's email** (e.g. `interac@externalfintech.com`) rather than your customer's personal email. You'll receive the funds, but you won't be able to automatically match the payment to a customer.
+
+To handle this:
+- Warn your customers in your UI to send from their **personal bank account**, not a fintech app.
+- Build a manual review queue for unmatched payments — when `collection_email` doesn't match any known customer, flag the transaction for your ops team.
+- Consider asking customers to include a reference or their account ID in the Interac e-Transfer message field as a secondary identifier (though not all banks display this reliably).
+
+## APIs used
+
+- [Interac Auto Deposits setup](/guides/interac-auto-deposits)
+- [CAD collection webhook payload](/guides/webhooks/collection/cad)
+- [Simulate Interac webhook](/api-reference/mock/simulate-webhook-interac) (development only)
+- [Webhook signature verification](/guides/webhooks/signature-verification/overview)

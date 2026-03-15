@@ -53,12 +53,13 @@
                 "pages": [
                   "guides/common-use-cases",
                   "guides/use-cases/cross-border-remittances",
-                  "guides/use-cases/marketplace-payouts",
-                  "guides/use-cases/payroll",
+                  "guides/use-cases/liquidity-management",
                   "guides/use-cases/virtual-accounts-deposit-collection",
+                  "guides/use-cases/interac-collections",
+                  "guides/use-cases/marketplace-payouts",
                   "guides/use-cases/crypto-on-off-ramps",
                   "guides/use-cases/b2b-vendor-payments",
-                  "guides/use-cases/liquidity-management"
+                  "guides/use-cases/payroll"
                 ]
               }
             ]
