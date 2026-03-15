@@ -9,12 +9,15 @@ Before integrating with the Blaaiz Platform API, review the following guidelines
 
 ### Authentication
 
-- All requests to the Blaaiz API must be authenticated using a valid API key.
-- You can generate and manage your API keys from the Blaaiz Dashboard after API Services have been enabled for your account.
-- Include your API key in every request.
-- Keep your API keys secure and never expose them in client-side code or public repositories.
-- Development and production use different API keys. Always use the key from the same environment as the base URL you are calling.
-- If you cannot see the **API Settings** page in the dashboard, your account has not been provisioned for API Services yet. See [Authentication](/guides/authentication) and [Getting Started](/guides/getting-started).
+- All external API requests must be authenticated using a valid Bearer access token.
+- Generate OAuth credentials from the Blaaiz Dashboard after API Services have been enabled for your account.
+- Exchange those credentials at `/oauth/token` using `grant_type=client_credentials`.
+- Request the token with the `business-api-services` scope.
+- Include `Authorization: Bearer <access_token>` in every external API request.
+- Keep your OAuth `client_secret` secure and never expose it in client-side code or public repositories.
+- Development and production use different OAuth credentials. Always use the credentials from the same environment as the base URL you are calling.
+- If you cannot see the **API & Webhooks** page in the dashboard, your account has not been provisioned for API Services yet. See [Authentication](/guides/authentication) and [Getting Started](/guides/getting-started).
+- Legacy API key creation is disabled. If you still use a legacy API key integration with `x-blaaiz-api-key`, migrate to OAuth immediately.
 
 ### Customer update rules
 
@@ -48,7 +51,7 @@ Before integrating with the Blaaiz Platform API, review the following guidelines
 
 ```json
 {
-  "message": "Invalid API key"
+  "message": "Invalid or missing access token"
 }
 ```
 

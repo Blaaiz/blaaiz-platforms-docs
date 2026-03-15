@@ -11,6 +11,8 @@ We'll also notify you when a transaction (payout) is initiated. This is very use
 
 Customer KYC events (`customer.created`, `customer.verified`, and `customer.rejected`) are also sent to your `collection_url`.
 
+Always verify the `x-blaaiz-signature` header using your webhook `signing_secret` before processing a webhook.
+
 ## What information is included in the webhook?
 
 The webhook payload includes transaction details such as:
@@ -19,3 +21,5 @@ The webhook payload includes transaction details such as:
 - Amount
 - Transaction reference
 - Status
+
+See [Webhook events](/guides/webhooks/events) and [Signature verification](/guides/webhooks/signature-verification/overview) for the full payload and verification guidance.

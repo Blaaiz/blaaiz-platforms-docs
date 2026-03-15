@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "business-api-services": "Access Blaaiz external business API endpoints."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -132,7 +139,9 @@
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "business-api-services"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -215,7 +224,9 @@
                                         "value": {
                                             "message": "The redirect url field must be a valid URL.",
                                             "errors": {
-                                                "redirect_url": ["The redirect url field must be a valid URL."]
+                                                "redirect_url": [
+                                                    "The redirect url field must be a valid URL."
+                                                ]
                                             }
                                         }
                                     }
@@ -232,7 +243,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

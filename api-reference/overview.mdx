@@ -21,13 +21,19 @@ https://api-dev.blaaiz.com
 
 ## Authentication
 
-All API requests require authentication using your API key. Include your API key in the request headers:
+All external API requests require a Bearer access token.
 
-```
-x-blaaiz-api-key: YOUR_API_KEY_HERE
+1. Generate your OAuth credentials from **API & Webhooks** in the Blaaiz dashboard.
+2. Exchange them at `POST /oauth/token` using `grant_type=client_credentials` and the `business-api-services` scope.
+3. Include the returned token in your request headers:
+
+```http
+Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
-API keys are generated from the **API Settings** page in the Blaaiz dashboard after API Services have been enabled for your account. Development and production use different API keys.
+OAuth credentials are generated from the **API & Webhooks** page in the Blaaiz dashboard after API Services have been enabled for your account. Development and production use different credentials.
+
+Legacy API key creation is disabled, and legacy API key support will end soon. New integrations should use OAuth only.
 
 See [Getting Started](/guides/getting-started) and [Authentication](/guides/authentication) for the full access steps.
 

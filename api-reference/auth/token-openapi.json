@@ -1,0 +1,165 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - OAuth Token",
+        "version": "1.0.0",
+        "description": "Exchange your OAuth client credentials for a short-lived access token used to call Blaaiz external business API endpoints. Client credentials tokens do not return refresh tokens."
+    },
+    "tags": [
+        {
+            "name": "Authentication"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "schemas": {
+            "OAuthTokenRequest": {
+                "type": "object",
+                "properties": {
+                    "grant_type": {
+                        "type": "string",
+                        "enum": [
+                            "client_credentials"
+                        ],
+                        "description": "OAuth grant type for machine-to-machine access."
+                    },
+                    "client_id": {
+                        "type": "string",
+                        "description": "OAuth client identifier from your Blaaiz dashboard."
+                    },
+                    "client_secret": {
+                        "type": "string",
+                        "description": "OAuth client secret from your Blaaiz dashboard."
+                    },
+                    "scope": {
+                        "type": "string",
+                        "example": "business-api-services",
+                        "description": "Required scope for Blaaiz external business API access."
+                    }
+                },
+                "required": [
+                    "grant_type",
+                    "client_id",
+                    "client_secret",
+                    "scope"
+                ]
+            },
+            "OAuthTokenResponse": {
+                "type": "object",
+                "properties": {
+                    "token_type": {
+                        "type": "string",
+                        "example": "Bearer"
+                    },
+                    "expires_in": {
+                        "type": "integer",
+                        "example": 900,
+                        "description": "Number of seconds before the access token expires."
+                    },
+                    "access_token": {
+                        "type": "string",
+                        "description": "Short-lived Bearer token for calling external API endpoints."
+                    }
+                },
+                "required": [
+                    "token_type",
+                    "expires_in",
+                    "access_token"
+                ]
+            },
+            "OAuthError": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    },
+                    "error_description": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/oauth/token": {
+            "post": {
+                "summary": "Get OAuth access token",
+                "description": "Exchange your OAuth client credentials for a short-lived access token. Submit this request as application/x-www-form-urlencoded. Use the returned Bearer token on subsequent calls to /api/external/* endpoints. Client credentials tokens do not return refresh tokens.",
+                "tags": [
+                    "Authentication"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OAuthTokenRequest"
+                            },
+                            "example": {
+                                "grant_type": "client_credentials",
+                                "client_id": "YOUR_CLIENT_ID",
+                                "client_secret": "YOUR_CLIENT_SECRET",
+                                "scope": "business-api-services"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Access token issued successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthTokenResponse"
+                                },
+                                "example": {
+                                    "token_type": "Bearer",
+                                    "expires_in": 900,
+                                    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9..."
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthError"
+                                },
+                                "example": {
+                                    "error": "invalid_request",
+                                    "error_description": "The request is missing a required parameter."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid client credentials",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthError"
+                                },
+                                "example": {
+                                    "error": "invalid_client",
+                                    "error_description": "Client authentication failed."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

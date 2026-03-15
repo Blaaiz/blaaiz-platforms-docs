@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Register Webhook URLs",
         "version": "1.0.0",
-        "description": "Configure webhook URLs to receive event notifications. Webhook URLs must be HTTPS. Blaaiz sends POST requests with event payloads and an x-blaaiz-signature header for verification."
+        "description": "Configure webhook URLs to receive event notifications. Webhook URLs must be HTTPS. Blaaiz sends POST requests with event payloads and an x-blaaiz-signature header. Verify webhook deliveries using your webhook signing_secret."
     },
     "tags": [
         {
@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "business-api-services": "Access Blaaiz external business API endpoints."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -78,13 +85,15 @@
         "/api/external/webhook": {
             "post": {
                 "summary": "Register webhook URLs",
-                "description": "Register webhook URLs to receive event notifications. URLs must be HTTPS; Blaaiz signs requests via x-blaaiz-signature. Your collection_url receives collection events, virtual account events, and customer KYC events such as customer.created, customer.verified, and customer.rejected.",
+                "description": "Register webhook URLs to receive event notifications. URLs must be HTTPS; Blaaiz signs requests via x-blaaiz-signature. Verify deliveries with your webhook signing_secret. Your collection_url receives collection events, virtual account events, and customer KYC events such as customer.created, customer.verified, and customer.rejected.",
                 "tags": [
                     "Webhook"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "business-api-services"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -138,7 +147,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

@@ -8,6 +8,33 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
     <div className="changelog-item">
       <div className="changelog-date">15/03/2026</div>
       <div className="changelog-card">
+        <h3>OAuth Authentication and Webhook Signing Secret</h3>
+        <p>
+          Blaaiz Platform API authentication is now documented around OAuth
+          client credentials for integrations.
+        </p>
+        <ul>
+          <li>
+            Added OAuth token acquisition guidance for API access.
+          </li>
+          <li>
+            Updated guides and API reference examples to use Bearer tokens
+            instead of legacy API key headers.
+          </li>
+          <li>
+            Clarified that webhook signature verification uses a dedicated
+            webhook <code>signing_secret</code>, not an API credential secret.
+          </li>
+          <li>
+            Marked legacy API key usage as temporary and advised all integrators
+            to switch fully to OAuth immediately.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">15/03/2026</div>
+      <div className="changelog-card">
         <h3>Common Use Cases Guide</h3>
         <p>
           We added a new{" "}

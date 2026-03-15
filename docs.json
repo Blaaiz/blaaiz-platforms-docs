@@ -126,6 +126,12 @@
             ]
           },
           {
+            "group": "Authentication",
+            "pages": [
+              "/api-reference/auth/token-openapi.json POST /oauth/token"
+            ]
+          },
+          {
             "group": "Virtual Bank Account",
             "pages": [
               "/api-reference/virtual-bank-account/list-openapi.json GET /api/external/virtual-bank-account",

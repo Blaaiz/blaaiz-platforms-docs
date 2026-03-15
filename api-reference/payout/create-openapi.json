@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "business-api-services": "Access Blaaiz external business API endpoints."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -192,7 +199,7 @@
                 ],
                 "oneOf": [
                     {
-                        "title": "NGN — Bank Transfer",
+                        "title": "NGN \u2014 Bank Transfer",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -207,7 +214,7 @@
                         ]
                     },
                     {
-                        "title": "GBP — Bank Transfer",
+                        "title": "GBP \u2014 Bank Transfer",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -227,7 +234,7 @@
                         ]
                     },
                     {
-                        "title": "USD — ACH",
+                        "title": "USD \u2014 ACH",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -251,7 +258,7 @@
                         ]
                     },
                     {
-                        "title": "USD — Wire",
+                        "title": "USD \u2014 Wire",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -276,7 +283,7 @@
                         ]
                     },
                     {
-                        "title": "EUR — Bank Transfer",
+                        "title": "EUR \u2014 Bank Transfer",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -296,7 +303,7 @@
                         ]
                     },
                     {
-                        "title": "CAD — Interac",
+                        "title": "CAD \u2014 Interac",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -312,7 +319,7 @@
                         ]
                     },
                     {
-                        "title": "Crypto — USDT on Ethereum",
+                        "title": "Crypto \u2014 USDT on Ethereum",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -472,7 +479,9 @@
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "business-api-services"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -484,7 +493,7 @@
                             },
                             "examples": {
                                 "ngn_bank_transfer": {
-                                    "summary": "NGN — Bank Transfer",
+                                    "summary": "NGN \u2014 Bank Transfer",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -497,7 +506,7 @@
                                     }
                                 },
                                 "gbp_bank_transfer": {
-                                    "summary": "GBP — Bank Transfer",
+                                    "summary": "GBP \u2014 Bank Transfer",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -515,7 +524,7 @@
                                     }
                                 },
                                 "usd_ach": {
-                                    "summary": "USD — ACH",
+                                    "summary": "USD \u2014 ACH",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -537,7 +546,7 @@
                                     }
                                 },
                                 "usd_wire": {
-                                    "summary": "USD — Wire",
+                                    "summary": "USD \u2014 Wire",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -560,7 +569,7 @@
                                     }
                                 },
                                 "eur_bank_transfer": {
-                                    "summary": "EUR — Bank Transfer",
+                                    "summary": "EUR \u2014 Bank Transfer",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -578,7 +587,7 @@
                                     }
                                 },
                                 "cad_interac": {
-                                    "summary": "CAD — Interac",
+                                    "summary": "CAD \u2014 Interac",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -592,7 +601,7 @@
                                     }
                                 },
                                 "crypto": {
-                                    "summary": "Crypto — USDT on Ethereum",
+                                    "summary": "Crypto \u2014 USDT on Ethereum",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -696,7 +705,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

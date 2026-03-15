@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Get Identification Type",
         "version": "1.0.0",
-        "description": "Every country has its own national or tax identification system — SSN in the US, BVN in Nigeria, NINO in the UK, and so on. When creating a customer for a Virtual Bank Account (especially USD), you need to collect a `tin` value. This endpoint tells you what that identification is called for a given country and customer type, so you can label the field correctly in your UI and collect the right value from your customer. The returned `label` is the display name (e.g. \"Social Security Number\") and the value your customer provides should be saved as the `tin` field on the customer."
+        "description": "Every country has its own national or tax identification system \u2014 SSN in the US, BVN in Nigeria, NINO in the UK, and so on. When creating a customer for a Virtual Bank Account (especially USD), you need to collect a `tin` value. This endpoint tells you what that identification is called for a given country and customer type, so you can label the field correctly in your UI and collect the right value from your customer. The returned `label` is the display name (e.g. \"Social Security Number\") and the value your customer provides should be saved as the `tin` field on the customer."
     },
     "tags": [
         {
@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "business-api-services": "Access Blaaiz external business API endpoints."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -87,7 +94,9 @@
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "business-api-services"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -135,7 +144,7 @@
                                 },
                                 "examples": {
                                     "nigeria_individual": {
-                                        "summary": "Nigeria — Individual",
+                                        "summary": "Nigeria \u2014 Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -146,7 +155,7 @@
                                         }
                                     },
                                     "us_individual": {
-                                        "summary": "United States — Individual",
+                                        "summary": "United States \u2014 Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -157,7 +166,7 @@
                                         }
                                     },
                                     "us_business": {
-                                        "summary": "United States — Business",
+                                        "summary": "United States \u2014 Business",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -168,7 +177,7 @@
                                         }
                                     },
                                     "uk_individual": {
-                                        "summary": "United Kingdom — Individual",
+                                        "summary": "United Kingdom \u2014 Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -179,7 +188,7 @@
                                         }
                                     },
                                     "canada_individual": {
-                                        "summary": "Canada — Individual",
+                                        "summary": "Canada \u2014 Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -202,7 +211,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }
