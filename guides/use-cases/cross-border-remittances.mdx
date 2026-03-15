@@ -29,7 +29,7 @@ sequenceDiagram
 ## Step-by-step
 
 1. **Onboard the sender** — [Create a customer](/api-reference/customer/create) with identity documents for KYC verification.
-2. **Create a Virtual Bank Account** — Call [POST /virtual-bank-account](/api-reference/virtual-bank-account/create) with the customer's `wallet_id` and `customer_id`. For NGN, the account activates instantly. For USD, GBP, and EUR, wait for the [`virtual_account.ready`](/guides/webhooks/virtual-account) webhook before sharing the account details. See the [Virtual Bank Accounts guide](/guides/virtual-bank-accounts) for currency-specific prerequisites.
+2. **Create a Virtual Bank Account** — Call [POST /virtual-bank-account](/api-reference/virtual-bank-account/create) with your business `wallet_id` and the `customer_id`. For NGN, the account activates instantly. For USD, GBP, and EUR, wait for the [`virtual_account.ready`](/guides/webhooks/virtual-account) webhook before sharing the account details. See the [Virtual Bank Accounts guide](/guides/virtual-bank-accounts) for currency-specific prerequisites.
 3. **Collect funds** — The sender deposits money into the Virtual Bank Account. The collection method depends on the source currency:
    - **CAD**: Sender pays via [Interac](/guides/interac-auto-deposits) — no API call needed, you receive a `collection.completed` webhook when funds arrive.
    - **NGN, USD, GBP, EUR**: Sender transfers to your [Virtual Bank Account](/guides/virtual-bank-accounts) — you receive a `collection.completed` webhook when funds settle.

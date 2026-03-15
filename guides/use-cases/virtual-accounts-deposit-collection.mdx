@@ -25,7 +25,7 @@ sequenceDiagram
 ## Step-by-step
 
 1. **Verify the customer** — [Create a customer](/api-reference/customer/create) with full KYC (required for GBP, EUR, and USD accounts).
-2. **Create the Virtual Bank Account** — Call [Create Virtual Bank Account](/api-reference/virtual-bank-account/create) with the customer's `wallet_id` and `customer_id`. For NGN, the account activates instantly. For GBP, EUR, and USD, listen for the [`virtual_account.ready`](/guides/webhooks/virtual-account) webhook.
+2. **Create the Virtual Bank Account** — Call [Create Virtual Bank Account](/api-reference/virtual-bank-account/create) with your business `wallet_id` and the `customer_id`. For NGN, the account activates instantly. For GBP, EUR, and USD, listen for the [`virtual_account.ready`](/guides/webhooks/virtual-account) webhook.
 3. **Share details with your customer** — Display the account number, routing number (USD), sort code (GBP), or IBAN (EUR) in your UI.
 4. **Handle deposits** — When funds arrive, Blaaiz sends a `collection.completed` webhook with the amount, sender information, and Virtual Bank Account ID.
 5. **Credit your customer** — Use the webhook data to update the customer's balance in your system.
