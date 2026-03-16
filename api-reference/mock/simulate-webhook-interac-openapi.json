@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "mock:webhook:trigger": "Trigger mock webhook simulations."
                         }
                     }
                 }
@@ -76,14 +76,14 @@
         "/api/external/mock/simulate-webhook/interac": {
             "post": {
                 "summary": "Simulate Interac webhook (non-production)",
-                "description": "Sends a mock Interac collection webhook to your configured collection_url. Only available outside production; returns 400 in production.",
+                "description": "Sends a mock Interac collection webhook to your configured collection_url. Only available outside production; returns 400 in production. Required scope: `mock:webhook:trigger`.",
                 "tags": [
                     "Webhook"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "mock:webhook:trigger"
                         ]
                     }
                 ],

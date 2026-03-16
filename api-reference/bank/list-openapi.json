@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "bank:read": "Read bank and bank account data."
                         }
                     }
                 }
@@ -110,14 +110,14 @@
         "/api/external/bank": {
             "get": {
                 "summary": "List all banks",
-                "description": "Retrieve all supported banks. Filter by currency or country if desired.",
+                "description": "Retrieve all supported banks. Filter by currency or country if desired. Required scope: `bank:read`.",
                 "tags": [
                     "Bank"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "bank:read"
                         ]
                     }
                 ],

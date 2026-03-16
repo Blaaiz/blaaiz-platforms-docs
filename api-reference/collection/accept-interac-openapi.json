@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "collection:interac:accept": "Accept Interac money requests."
                         }
                     }
                 }
@@ -105,14 +105,14 @@
         "/api/external/collection/accept-interac-money-request": {
             "post": {
                 "summary": "Accept Interac money request",
-                "description": "Accept an Interac transfer into your business wallet.",
+                "description": "Accept an Interac transfer into your business wallet. Required scope: `collection:interac:accept`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "collection:interac:accept"
                         ]
                     }
                 ],

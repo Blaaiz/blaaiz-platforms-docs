@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "collection:create": "Initiate collections."
                         }
                     }
                 }
@@ -133,14 +133,14 @@
         "/api/external/collection": {
             "post": {
                 "summary": "Initiate a collection",
-                "description": "Create a card collection request for a business wallet. Card collections require a verified customer and card details, and may not be enabled for every business. Customer attachment after creation is not supported for API card collections.",
+                "description": "Create a card collection request for a business wallet. Card collections require a verified customer and card details, and may not be enabled for every business. Customer attachment after creation is not supported for API card collections. Required scope: `collection:create`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "collection:create"
                         ]
                     }
                 ],

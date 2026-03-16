@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "collection:crypto:create": "Initiate crypto collections."
                         }
                     }
                 }
@@ -141,14 +141,14 @@
         "/api/external/collection/crypto/networks": {
             "get": {
                 "summary": "Get crypto networks",
-                "description": "Retrieve all available blockchain networks and their supported tokens.",
+                "description": "Retrieve all available blockchain networks and their supported tokens. Required scope: `collection:crypto:create`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "collection:crypto:create"
                         ]
                     }
                 ],

@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "file:upload": "Upload files."
                         }
                     }
                 }
@@ -104,14 +104,14 @@
         "/api/external/file/get-presigned-url": {
             "post": {
                 "summary": "Request file upload URL",
-                "description": "Request a pre-signed URL to upload a file for a customer.\n\nUpload process:\n1. Make a PUT request to the upload_url.\n2. Include the headers from the response.\n3. Send the file as binary data in the request body.\n4. Once uploaded, use the file_id to attach the file to the customer record.",
+                "description": "Request a pre-signed URL to upload a file for a customer.\n\nUpload process:\n1. Make a PUT request to the upload_url.\n2. Include the headers from the response.\n3. Send the file as binary data in the request body.\n4. Once uploaded, use the file_id to attach the file to the customer record. Required scope: `file:upload`.",
                 "tags": [
                     "File"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "file:upload"
                         ]
                     }
                 ],

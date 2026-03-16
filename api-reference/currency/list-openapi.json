@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "currency:read": "Read supported currencies."
                         }
                     }
                 }
@@ -78,14 +78,14 @@
         "/api/external/currency": {
             "get": {
                 "summary": "List all currencies",
-                "description": "Retrieve all supported currencies.",
+                "description": "Retrieve all supported currencies. Required scope: `currency:read`.",
                 "tags": [
                     "Currency"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "currency:read"
                         ]
                     }
                 ],

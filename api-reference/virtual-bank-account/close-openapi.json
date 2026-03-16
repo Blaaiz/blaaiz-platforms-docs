@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "virtual-account:close": "Close virtual accounts."
                         }
                     }
                 }
@@ -79,14 +79,14 @@
         "/api/external/virtual-bank-account/{id}/close": {
             "post": {
                 "summary": "Close a virtual bank account",
-                "description": "Initiate closure of a virtual bank account. Supported currencies: GBP, EUR, NGN, USD. Returns 400 if already closed or provider/currency not supported; 404 if not found.",
+                "description": "Initiate closure of a virtual bank account. Supported currencies: GBP, EUR, NGN, USD. Returns 400 if already closed or provider/currency not supported; 404 if not found. Required scope: `virtual-account:close`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "virtual-account:close"
                         ]
                     }
                 ],

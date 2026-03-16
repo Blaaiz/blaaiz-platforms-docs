@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "transaction:read": "Read transactions."
                         }
                     }
                 }
@@ -442,14 +442,14 @@
         "/api/external/transaction": {
             "post": {
                 "summary": "List transactions",
-                "description": "Retrieve a paginated list of completed API transactions for your business. You can filter by date range, status, customer, wallet, and transaction type. Use `type: SWAP` to return only swap transactions.",
+                "description": "Retrieve a paginated list of completed API transactions for your business. You can filter by date range, status, customer, wallet, and transaction type. Use `type: SWAP` to return only swap transactions. Required scope: `transaction:read`.",
                 "tags": [
                     "Transaction"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "transaction:read"
                         ]
                     }
                 ],

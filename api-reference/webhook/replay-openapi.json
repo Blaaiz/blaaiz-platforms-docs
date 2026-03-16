@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "webhook:replay": "Replay webhook deliveries."
                         }
                     }
                 }
@@ -74,14 +74,14 @@
         "/api/external/webhook-replay": {
             "post": {
                 "summary": "Replay webhook",
-                "description": "Trigger a webhook on demand for a successful transaction.",
+                "description": "Trigger a webhook on demand for a successful transaction. Required scope: `webhook:replay`.",
                 "tags": [
                     "Webhook"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "webhook:replay"
                         ]
                     }
                 ],

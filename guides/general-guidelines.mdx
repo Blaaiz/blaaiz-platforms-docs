@@ -12,7 +12,7 @@ Before integrating with the Blaaiz Platform API, review the following guidelines
 - All external API requests must be authenticated using a valid Bearer access token.
 - Generate OAuth credentials from the Blaaiz Dashboard after API Services have been enabled for your account.
 - Exchange those credentials at `/oauth/token` using `grant_type=client_credentials`.
-- Request the token with the `business-api-services` scope.
+- Request the token with the scopes assigned to your credentials (e.g. `wallet:read payout:create`). See [Authentication — Scopes](/guides/authentication#scopes).
 - Include `Authorization: Bearer <access_token>` in every external API request.
 - Keep your OAuth `client_secret` secure and never expose it in client-side code or public repositories.
 - Development and production use different OAuth credentials. Always use the credentials from the same environment as the base URL you are calling.

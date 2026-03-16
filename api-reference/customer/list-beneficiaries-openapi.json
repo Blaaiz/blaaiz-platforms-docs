@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "beneficiary:read": "Read customer beneficiaries."
                         }
                     }
                 }
@@ -120,14 +120,14 @@
         "/api/external/customer/{customer_id}/beneficiary": {
             "get": {
                 "summary": "List beneficiaries",
-                "description": "Retrieve all beneficiaries for a customer.",
+                "description": "Retrieve all beneficiaries for a customer. Required scope: `beneficiary:read`.",
                 "tags": [
                     "Customer"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "beneficiary:read"
                         ]
                     }
                 ],

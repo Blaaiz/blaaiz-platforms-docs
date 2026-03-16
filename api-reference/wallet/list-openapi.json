@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "wallet:read": "Read business wallets."
                         }
                     }
                 }
@@ -88,14 +88,14 @@
         "/api/external/wallet": {
             "get": {
                 "summary": "List all wallets",
-                "description": "Retrieve all business wallets.",
+                "description": "Retrieve all business wallets. Required scope: `wallet:read`.",
                 "tags": [
                     "Wallet"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "wallet:read"
                         ]
                     }
                 ],

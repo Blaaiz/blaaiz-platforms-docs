@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "bank:read": "Read bank and bank account data."
                         }
                     }
                 }
@@ -81,14 +81,14 @@
         "/api/external/bank/account-lookup": {
             "post": {
                 "summary": "Resolve bank account",
-                "description": "Verify the validity of a bank account by providing account number and bank_id.",
+                "description": "Verify the validity of a bank account by providing account number and bank_id. Required scope: `bank:read`.",
                 "tags": [
                     "Bank"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "bank:read"
                         ]
                     }
                 ],

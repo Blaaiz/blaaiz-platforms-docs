@@ -3,7 +3,7 @@ title: Rate and usage limits
 description: Understand API rate limits and usage restrictions
 ---
 
-All endpoints are rate limited to **100 requests per minute**. If you exceed this limit, the API will return an HTTP `429 Too Many Requests` status code.
+External API endpoints are rate limited to **120 requests per minute** and **1,500 requests per hour**. If you exceed either limit, the API will return an HTTP `429 Too Many Requests` status code.
 
 To help you monitor your usage, each API response includes the following headers:
 

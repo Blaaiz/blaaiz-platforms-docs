@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "webhook:write": "Create and update webhooks."
                         }
                     }
                 }
@@ -77,14 +77,14 @@
         "/api/external/webhook/{businessWebhook}": {
             "put": {
                 "summary": "Update webhook URL",
-                "description": "Update your registered webhook URLs. Your collection_url receives collection events, virtual account events, and customer KYC events.",
+                "description": "Update your registered webhook URLs. Your collection_url receives collection events, virtual account events, and customer KYC events. Required scope: `webhook:write`.",
                 "tags": [
                     "Webhook"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "webhook:write"
                         ]
                     }
                 ],

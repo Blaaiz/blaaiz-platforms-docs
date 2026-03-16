@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "virtual-account:create": "Create virtual accounts."
                         }
                     }
                 }
@@ -150,14 +150,14 @@
         "/api/external/virtual-bank-account": {
             "post": {
                 "summary": "Create virtual bank account",
-                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.\n\n**Important:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. The initial status will be PENDING until the account is fully provisioned. In the development environment, only NGN virtual bank accounts settle.",
+                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.\n\n**Important:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. The initial status will be PENDING until the account is fully provisioned. In the development environment, only NGN virtual bank accounts settle. Required scope: `virtual-account:create`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "virtual-account:create"
                         ]
                     }
                 ],

@@ -36,7 +36,7 @@ If the **API & Webhooks** page is missing, your account has not yet been provisi
 
 ## Getting an access token
 
-Exchange your OAuth credentials for a short-lived access token:
+Exchange your OAuth credentials for a short-lived access token. Use the scopes that were assigned when you created your credentials:
 
 ```bash
 curl -X POST https://api-prod.blaaiz.com/oauth/token \
@@ -44,14 +44,78 @@ curl -X POST https://api-prod.blaaiz.com/oauth/token \
   --data-urlencode "grant_type=client_credentials" \
   --data-urlencode "client_id=YOUR_CLIENT_ID" \
   --data-urlencode "client_secret=YOUR_CLIENT_SECRET" \
-  --data-urlencode "scope=business-api-services"
+  --data-urlencode "scope=wallet:read payout:create transaction:read"
 ```
+
+The `scope` parameter must be a space-separated list of scopes that were assigned to your credentials. You can request all of them or a subset. The credential creation response includes the full list of available scopes in the `scopes` field.
 
 The access token returned from `/oauth/token` is short-lived. Request a new one when it expires.
 
 Client credentials tokens do not use refresh tokens. When the current token expires, request a new access token from `/oauth/token`.
 
-The required scope for Blaaiz external business API access is `business-api-services`.
+## Scopes
+
+When creating OAuth credentials, you can choose which API capabilities to grant. Scopes control what your access token is allowed to do.
+
+### Scope bundles
+
+For convenience, Blaaiz provides pre-built bundles that group related scopes:
+
+| Bundle | Description |
+| --- | --- |
+| `full-access` | All available scopes (default if none specified) |
+| `read-only` | Read access to wallets, currencies, customers, transactions, fees, and webhooks |
+| `collections` | Create collections, manage customers, and read transactions |
+| `payouts` | Create payouts, read wallets, banks, beneficiaries, and fees |
+| `virtual-accounts` | Create and manage virtual accounts and customers |
+| `customers` | Manage customers, beneficiaries, and file uploads |
+
+### Individual scopes
+
+You can also select scopes individually for fine-grained control:
+
+| Scope | Description |
+| --- | --- |
+| `wallet:read` | Read business wallets |
+| `currency:read` | Read supported currencies |
+| `bank:read` | Read bank and bank account lookup data |
+| `customer:read` | Read customers |
+| `customer:write` | Create, update, and upload customer KYC data |
+| `beneficiary:read` | Read customer beneficiaries |
+| `virtual-account:read` | Read virtual accounts and identification types |
+| `virtual-account:create` | Create virtual accounts |
+| `virtual-account:close` | Close virtual accounts |
+| `collection:create` | Initiate fiat collections and attach customers |
+| `collection:crypto:create` | Read crypto networks and initiate crypto collections |
+| `collection:interac:accept` | Accept Interac money requests |
+| `payout:create` | Initiate payouts |
+| `swap:create` | Initiate swaps |
+| `transaction:read` | Read business transactions |
+| `fees:read` | Read fee breakdowns |
+| `file:upload` | Generate presigned file upload URLs |
+| `webhook:read` | Read webhook configuration |
+| `webhook:write` | Create and update webhook configuration |
+| `webhook:replay` | Replay webhook deliveries |
+| `mock:webhook:trigger` | Trigger mock webhook simulations |
+
+If you do not specify any scopes or bundle when creating credentials, `full-access` is assigned by default.
+
+<Note>
+  Scopes are set when credentials are created or rotated. To change scopes,
+  rotate your credentials and specify the new scope set.
+</Note>
+
+## Rotating credentials
+
+If your `client_secret` is compromised, or you need to change scopes, rotate your credentials from the dashboard:
+
+1. Go to **API & Webhooks** in your Blaaiz Dashboard.
+2. Click **Rotate** on your existing OAuth credentials.
+3. Optionally select a new scope bundle or individual scopes.
+4. Copy the new `client_secret` immediately — it is only shown once.
+5. Update your integration to use the new credentials.
+
+Rotation immediately revokes the previous `client_secret` and all access tokens issued from it. Your integration will need to request a new token using the new credentials.
 
 ## Using the access token
 
@@ -64,11 +128,12 @@ curl -X GET https://api-prod.blaaiz.com/api/external/wallet \
 
 ## Legacy API keys
 
-Creation of new legacy API keys is disabled.
+<Warning>
+  Creation of new legacy API keys is disabled. Legacy API key authentication
+  will be fully removed soon. Migrate to OAuth as soon as possible.
+</Warning>
 
-Legacy API key support will end soon, and we strongly advise migrating fully to OAuth immediately.
-
-If you still have an older API-key-based integration, treat it as temporary and plan the switch to client credentials as urgent work.
+If you still have an older API-key-based integration, plan the switch to client credentials as urgent work.
 
 Legacy requests use the API key header instead of a Bearer token:
 

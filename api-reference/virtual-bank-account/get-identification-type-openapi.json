@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Get Identification Type",
         "version": "1.0.0",
-        "description": "Every country has its own national or tax identification system \u2014 SSN in the US, BVN in Nigeria, NINO in the UK, and so on. When creating a customer for a Virtual Bank Account (especially USD), you need to collect a `tin` value. This endpoint tells you what that identification is called for a given country and customer type, so you can label the field correctly in your UI and collect the right value from your customer. The returned `label` is the display name (e.g. \"Social Security Number\") and the value your customer provides should be saved as the `tin` field on the customer."
+        "description": "Every country has its own national or tax identification system — SSN in the US, BVN in Nigeria, NINO in the UK, and so on. When creating a customer for a Virtual Bank Account (especially USD), you need to collect a `tin` value. This endpoint tells you what that identification is called for a given country and customer type, so you can label the field correctly in your UI and collect the right value from your customer. The returned `label` is the display name (e.g. \"Social Security Number\") and the value your customer provides should be saved as the `tin` field on the customer."
     },
     "tags": [
         {
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "virtual-account:read": "Read virtual accounts."
                         }
                     }
                 }
@@ -88,14 +88,14 @@
         "/api/external/virtual-bank-account/identification-type": {
             "get": {
                 "summary": "Get identification type",
-                "description": "Look up the country-specific identification type that a customer must provide as their `tin` value. Each country uses a different identification system (e.g. SSN in the US, BVN in Nigeria, NINO in the UK), and individual vs business customers within the same country may require different types. Call this endpoint before creating or updating a customer to know what field label to show in your UI and what value to collect. Save the collected value as the customer's `tin` field.",
+                "description": "Look up the country-specific identification type that a customer must provide as their `tin` value. Each country uses a different identification system (e.g. SSN in the US, BVN in Nigeria, NINO in the UK), and individual vs business customers within the same country may require different types. Call this endpoint before creating or updating a customer to know what field label to show in your UI and what value to collect. Save the collected value as the customer's `tin` field. Required scope: `virtual-account:read`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "virtual-account:read"
                         ]
                     }
                 ],
@@ -144,7 +144,7 @@
                                 },
                                 "examples": {
                                     "nigeria_individual": {
-                                        "summary": "Nigeria \u2014 Individual",
+                                        "summary": "Nigeria — Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -155,7 +155,7 @@
                                         }
                                     },
                                     "us_individual": {
-                                        "summary": "United States \u2014 Individual",
+                                        "summary": "United States — Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -166,7 +166,7 @@
                                         }
                                     },
                                     "us_business": {
-                                        "summary": "United States \u2014 Business",
+                                        "summary": "United States — Business",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -177,7 +177,7 @@
                                         }
                                     },
                                     "uk_individual": {
-                                        "summary": "United Kingdom \u2014 Individual",
+                                        "summary": "United Kingdom — Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {
@@ -188,7 +188,7 @@
                                         }
                                     },
                                     "canada_individual": {
-                                        "summary": "Canada \u2014 Individual",
+                                        "summary": "Canada — Individual",
                                         "value": {
                                             "message": "Identification type retrieved successfully.",
                                             "data": {

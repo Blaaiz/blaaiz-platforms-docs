@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "webhook:read": "Read webhook configuration."
                         }
                     }
                 }
@@ -83,14 +83,14 @@
         "/api/external/webhook": {
             "get": {
                 "summary": "Get webhook URLs",
-                "description": "Retrieve your registered webhook URLs. Your collection_url is used for collection events, virtual account events, and customer KYC events.",
+                "description": "Retrieve your registered webhook URLs. Your collection_url is used for collection events, virtual account events, and customer KYC events. Required scope: `webhook:read`.",
                 "tags": [
                     "Webhook"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "webhook:read"
                         ]
                     }
                 ],

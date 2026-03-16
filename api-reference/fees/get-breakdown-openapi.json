@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "fees:read": "Read fee breakdowns."
                         }
                     }
                 }
@@ -149,14 +149,14 @@
         "/api/external/fees/breakdown": {
             "post": {
                 "summary": "Get fees breakdown",
-                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both).",
+                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both). Required scope: `fees:read`.",
                 "tags": [
                     "Fees"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "fees:read"
                         ]
                     }
                 ],

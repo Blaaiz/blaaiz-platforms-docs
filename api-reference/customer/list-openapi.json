@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "customer:read": "Read customers."
                         }
                     }
                 }
@@ -116,14 +116,14 @@
         "/api/external/customer": {
             "get": {
                 "summary": "List all customers",
-                "description": "Retrieve all customers with optional filters and pagination.",
+                "description": "Retrieve all customers with optional filters and pagination. Required scope: `customer:read`.",
                 "tags": [
                     "Customer"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "customer:read"
                         ]
                     }
                 ],

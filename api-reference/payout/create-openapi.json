@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "payout:create": "Initiate payouts."
                         }
                     }
                 }
@@ -199,7 +199,7 @@
                 ],
                 "oneOf": [
                     {
-                        "title": "NGN \u2014 Bank Transfer",
+                        "title": "NGN — Bank Transfer",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -214,7 +214,7 @@
                         ]
                     },
                     {
-                        "title": "GBP \u2014 Bank Transfer",
+                        "title": "GBP — Bank Transfer",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -234,7 +234,7 @@
                         ]
                     },
                     {
-                        "title": "USD \u2014 ACH",
+                        "title": "USD — ACH",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -258,7 +258,7 @@
                         ]
                     },
                     {
-                        "title": "USD \u2014 Wire",
+                        "title": "USD — Wire",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -283,7 +283,7 @@
                         ]
                     },
                     {
-                        "title": "EUR \u2014 Bank Transfer",
+                        "title": "EUR — Bank Transfer",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -303,7 +303,7 @@
                         ]
                     },
                     {
-                        "title": "CAD \u2014 Interac",
+                        "title": "CAD — Interac",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -319,7 +319,7 @@
                         ]
                     },
                     {
-                        "title": "Crypto \u2014 USDT on Ethereum",
+                        "title": "Crypto — USDT on Ethereum",
                         "examples": [
                             {
                                 "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
@@ -473,14 +473,14 @@
         "/api/external/payout": {
             "post": {
                 "summary": "Create a payout",
-                "description": "This endpoint is used to initiate a payout from a business wallet to a recipient using the specified payout method. \n \n We advise to call the `fees breakdown` endpoint to get up-to-date fees before proceeding with transaction. \n \n For payouts in all currencies, we deliver a webhook when the payment is completed. However, for some currencies (i.e., CAD), we deliver a webhook when the payment is initiated, and also when it is completed.",
+                "description": "This endpoint is used to initiate a payout from a business wallet to a recipient using the specified payout method. \n \n We advise to call the `fees breakdown` endpoint to get up-to-date fees before proceeding with transaction. \n \n For payouts in all currencies, we deliver a webhook when the payment is completed. However, for some currencies (i.e., CAD), we deliver a webhook when the payment is initiated, and also when it is completed. Required scope: `payout:create`.",
                 "tags": [
                     "Payout"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "payout:create"
                         ]
                     }
                 ],
@@ -493,7 +493,7 @@
                             },
                             "examples": {
                                 "ngn_bank_transfer": {
-                                    "summary": "NGN \u2014 Bank Transfer",
+                                    "summary": "NGN — Bank Transfer",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -506,7 +506,7 @@
                                     }
                                 },
                                 "gbp_bank_transfer": {
-                                    "summary": "GBP \u2014 Bank Transfer",
+                                    "summary": "GBP — Bank Transfer",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -524,7 +524,7 @@
                                     }
                                 },
                                 "usd_ach": {
-                                    "summary": "USD \u2014 ACH",
+                                    "summary": "USD — ACH",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -546,7 +546,7 @@
                                     }
                                 },
                                 "usd_wire": {
-                                    "summary": "USD \u2014 Wire",
+                                    "summary": "USD — Wire",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -569,7 +569,7 @@
                                     }
                                 },
                                 "eur_bank_transfer": {
-                                    "summary": "EUR \u2014 Bank Transfer",
+                                    "summary": "EUR — Bank Transfer",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -587,7 +587,7 @@
                                     }
                                 },
                                 "cad_interac": {
-                                    "summary": "CAD \u2014 Interac",
+                                    "summary": "CAD — Interac",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
@@ -601,7 +601,7 @@
                                     }
                                 },
                                 "crypto": {
-                                    "summary": "Crypto \u2014 USDT on Ethereum",
+                                    "summary": "Crypto — USDT on Ethereum",
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",

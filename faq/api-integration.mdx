@@ -42,9 +42,11 @@ Do not use your OAuth `client_secret` to verify webhooks.
 
 Both secrets should be treated as one-time-visible values. Store them securely when they are shown. If either secret is lost later, rotate it from **API & Webhooks** and update your integration.
 
-## Which scope should I request?
+## Which scopes should I request?
 
-Use `business-api-services` when requesting your access token from `/oauth/token`.
+When requesting an access token from `/oauth/token`, pass the scopes that were assigned to your OAuth credentials. For example: `scope=wallet:read payout:create transaction:read`.
+
+Each endpoint requires a specific scope (e.g. `payout:create` for payouts, `wallet:read` for wallets). If your token lacks the required scope, you will receive a `403 Forbidden` response. See [Authentication — Scopes](/guides/authentication#scopes) for the full list of scopes and bundles.
 
 ## What are the required parameters for the collection API?
 

@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "swap:create": "Initiate swaps."
                         }
                     }
                 }
@@ -235,14 +235,14 @@
         "/api/external/swap": {
             "post": {
                 "summary": "Swap money between business wallets",
-                "description": "Swap money between two wallets owned by your business. The wallets must exist, belong to the same business, and use different currencies. This endpoint is available only when your business is allowed to perform API-services swaps.",
+                "description": "Swap money between two wallets owned by your business. The wallets must exist, belong to the same business, and use different currencies. This endpoint is available only when your business is allowed to perform API-services swaps. Required scope: `swap:create`.",
                 "tags": [
                     "Swap"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "swap:create"
                         ]
                     }
                 ],

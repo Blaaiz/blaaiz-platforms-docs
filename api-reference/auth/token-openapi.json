@@ -40,8 +40,8 @@
                     },
                     "scope": {
                         "type": "string",
-                        "example": "business-api-services",
-                        "description": "Required scope for Blaaiz external business API access."
+                        "example": "wallet:read payout:create transaction:read",
+                        "description": "Space-separated list of scopes assigned to your OAuth credentials. Request all or a subset of the scopes from your credential."
                     }
                 },
                 "required": [
@@ -109,7 +109,7 @@
                                 "grant_type": "client_credentials",
                                 "client_id": "YOUR_CLIENT_ID",
                                 "client_secret": "YOUR_CLIENT_SECRET",
-                                "scope": "business-api-services"
+                                "scope": "wallet:read payout:create transaction:read"
                             }
                         }
                     }

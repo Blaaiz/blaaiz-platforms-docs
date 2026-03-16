@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "customer:write": "Create and update customers and KYC data."
                         }
                     }
                 }
@@ -209,14 +209,14 @@
         "/api/external/customer/{id}": {
             "put": {
                 "summary": "Update a customer",
-                "description": "Update customer profile details. Non-verified customers can update all fields. Verified customers can only update fields that are currently null. The customer's country must match the country on the identity document submitted for KYC.",
+                "description": "Update customer profile details. Non-verified customers can update all fields. Verified customers can only update fields that are currently null. The customer's country must match the country on the identity document submitted for KYC. Required scope: `customer:write`.",
                 "tags": [
                     "Customer"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "customer:write"
                         ]
                     }
                 ],

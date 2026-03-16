@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "customer:write": "Create and update customers and KYC data."
                         }
                     }
                 }
@@ -206,14 +206,14 @@
         "/api/external/customer": {
             "post": {
                 "summary": "Create a customer",
-                "description": "Create a new customer. Verification remains PENDING until KYC files are uploaded and reviewed. The customer's country must match the country on the identity document submitted for KYC.",
+                "description": "Create a new customer. Verification remains PENDING until KYC files are uploaded and reviewed. The customer's country must match the country on the identity document submitted for KYC. Required scope: `customer:write`.",
                 "tags": [
                     "Customer"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "customer:write"
                         ]
                     }
                 ],

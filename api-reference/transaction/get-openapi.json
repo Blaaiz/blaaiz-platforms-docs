@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "transaction:read": "Read transactions."
                         }
                     }
                 }
@@ -300,14 +300,14 @@
         "/api/external/transaction/{id}": {
             "get": {
                 "summary": "Get transaction",
-                "description": "Retrieve a completed API transaction by its transaction ID or reference.",
+                "description": "Retrieve a completed API transaction by its transaction ID or reference. Required scope: `transaction:read`.",
                 "tags": [
                     "Transaction"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "transaction:read"
                         ]
                     }
                 ],

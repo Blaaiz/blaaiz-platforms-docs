@@ -83,10 +83,10 @@ curl -X POST https://api-prod.blaaiz.com/oauth/token \
   --data-urlencode "grant_type=client_credentials" \
   --data-urlencode "client_id=YOUR_CLIENT_ID" \
   --data-urlencode "client_secret=YOUR_CLIENT_SECRET" \
-  --data-urlencode "scope=business-api-services"
+  --data-urlencode "scope=wallet:read payout:create transaction:read"
 ```
 
-Use the returned access token as a Bearer token on every external API request. The required scope for external business API access is `business-api-services`.
+Use the returned access token as a Bearer token on every external API request. The `scope` parameter should be a space-separated list of the scopes assigned to your credentials. See [Authentication — Scopes](/guides/authentication#scopes) for the full list.
 
 <Note>
   If you already have an older API-key-based integration, it may still work

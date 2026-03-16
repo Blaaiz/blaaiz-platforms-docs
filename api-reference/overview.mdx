@@ -24,7 +24,7 @@ https://api-dev.blaaiz.com
 All external API requests require a Bearer access token.
 
 1. Generate your OAuth credentials from **API & Webhooks** in the Blaaiz dashboard.
-2. Exchange them at `POST /oauth/token` using `grant_type=client_credentials` and the `business-api-services` scope.
+2. Exchange them at `POST /oauth/token` using `grant_type=client_credentials` and the scopes assigned to your credentials.
 3. Include the returned token in your request headers:
 
 ```http
@@ -60,4 +60,4 @@ All API responses are returned in JSON format. Successful responses will include
 
 ## Rate limits
 
-All endpoints are rate limited to **100 requests per minute**. See [Rate and usage limits](/guides/rate-limits) for more details.
+External API endpoints are rate limited to **120 requests per minute** and **1,500 requests per hour**. See [Rate and usage limits](/guides/rate-limits) for more details.

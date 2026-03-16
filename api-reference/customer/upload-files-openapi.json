@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "customer:write": "Create and update customers and KYC data."
                         }
                     }
                 }
@@ -83,14 +83,14 @@
         "/api/external/customer/{id}/files": {
             "post": {
                 "summary": "Upload files for a customer",
-                "description": "Upload verification files for a customer. Use file_id values from the File API presigned upload. Newly uploaded files override previous records. The id_file must be uploaded for verification.",
+                "description": "Upload verification files for a customer. Use file_id values from the File API presigned upload. Newly uploaded files override previous records. The id_file must be uploaded for verification. Required scope: `customer:write`.",
                 "tags": [
                     "Customer"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "customer:write"
                         ]
                     }
                 ],

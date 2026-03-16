@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "collection:create": "Initiate collections."
                         }
                     }
                 }
@@ -79,14 +79,14 @@
         "/api/external/collection/attach-customer": {
             "post": {
                 "summary": "Attach customer to collection",
-                "description": "Associate a collection transaction with a verified customer.\n\n**Important:** API card collections cannot be updated with this endpoint.",
+                "description": "Associate a collection transaction with a verified customer.\n\n**Important:** API card collections cannot be updated with this endpoint. Required scope: `collection:create`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "collection:create"
                         ]
                     }
                 ],

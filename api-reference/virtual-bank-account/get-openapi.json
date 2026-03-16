@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "business-api-services": "Access Blaaiz external business API endpoints."
+                            "virtual-account:read": "Read virtual accounts."
                         }
                     }
                 }
@@ -161,14 +161,14 @@
         "/api/external/virtual-bank-account/{id}": {
             "get": {
                 "summary": "Retrieve a single virtual bank account",
-                "description": "Retrieves details of a specific virtual bank account by its ID.",
+                "description": "Retrieves details of a specific virtual bank account by its ID. Required scope: `virtual-account:read`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
                         "oauth2ClientCredentials": [
-                            "business-api-services"
+                            "virtual-account:read"
                         ]
                     }
                 ],
