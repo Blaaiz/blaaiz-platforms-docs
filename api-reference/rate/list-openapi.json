@@ -1,0 +1,224 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - List Rates",
+        "version": "1.0.0",
+        "description": "Retrieve exchange rates applicable to the authenticated business"
+    },
+    "tags": [
+        {
+            "name": "Rate"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key"
+            }
+        },
+        "schemas": {
+            "Rate": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "Unique identifier for the rate"
+                    },
+                    "pair": {
+                        "type": "string",
+                        "description": "Currency pair (e.g., USD/NGN, GBP/NGN)"
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "Exchange rate value"
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Rate category indicating scope. Business-specific rates take priority over general rates.",
+                        "enum": ["SINGLE_BUSINESS", "ALL_BUSINESSES", "GENERAL"]
+                    },
+                    "feesInPercents": {
+                        "type": "string",
+                        "description": "Fee percentage applied to transactions using this rate"
+                    },
+                    "feesInAmount": {
+                        "type": "string",
+                        "description": "Fixed fee amount applied to transactions using this rate"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Rate type"
+                    },
+                    "swap_enabled": {
+                        "type": "boolean",
+                        "description": "Whether swap is enabled for this currency pair"
+                    },
+                    "send_enabled": {
+                        "type": "boolean",
+                        "description": "Whether send/payout is enabled for this currency pair"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "description": "Whether this rate is currently active"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the rate was created"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the rate was last updated"
+                    }
+                },
+                "required": [
+                    "id",
+                    "pair",
+                    "value",
+                    "category",
+                    "feesInPercents",
+                    "feesInAmount",
+                    "type",
+                    "swap_enabled",
+                    "send_enabled",
+                    "is_active",
+                    "created_at",
+                    "updated_at"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/rate": {
+            "get": {
+                "summary": "List rates",
+                "description": "Retrieve exchange rates applicable to the authenticated business.\n\nRates are returned with business-specific overrides applied automatically. The priority order is: `SINGLE_BUSINESS` > `ALL_BUSINESSES` > `GENERAL`. When multiple rates exist for the same currency pair, only the highest-priority rate is returned.\n\nUse the optional `search_term` query parameter to filter rates by currency pair (e.g., `USD`, `USD/NGN`).",
+                "tags": [
+                    "Rate"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "search_term",
+                        "in": "query",
+                        "required": false,
+                        "description": "Filter rates by currency pair. Matches partially against the pair field (e.g., `USD` matches `USD/NGN`, `GBP/USD`, etc.).",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "USD/NGN"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rates fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Rate"
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "message": "Rates fetched successfully.",
+                                    "data": [
+                                        {
+                                            "id": 1,
+                                            "pair": "USD/NGN",
+                                            "value": "1550.00",
+                                            "category": "SINGLE_BUSINESS",
+                                            "feesInPercents": "0.50",
+                                            "feesInAmount": "0.00",
+                                            "type": "FLAT",
+                                            "swap_enabled": true,
+                                            "send_enabled": true,
+                                            "is_active": true,
+                                            "created_at": "2025-01-15T10:30:00.000000Z",
+                                            "updated_at": "2025-01-15T10:30:00.000000Z"
+                                        },
+                                        {
+                                            "id": 2,
+                                            "pair": "GBP/NGN",
+                                            "value": "1950.00",
+                                            "category": "GENERAL",
+                                            "feesInPercents": "1.00",
+                                            "feesInAmount": "0.00",
+                                            "type": "FLAT",
+                                            "swap_enabled": true,
+                                            "send_enabled": true,
+                                            "is_active": true,
+                                            "created_at": "2025-01-10T08:00:00.000000Z",
+                                            "updated_at": "2025-01-12T14:20:00.000000Z"
+                                        },
+                                        {
+                                            "id": 3,
+                                            "pair": "CAD/NGN",
+                                            "value": "1100.00",
+                                            "category": "ALL_BUSINESSES",
+                                            "feesInPercents": "0.75",
+                                            "feesInAmount": "0.00",
+                                            "type": "FLAT",
+                                            "swap_enabled": true,
+                                            "send_enabled": false,
+                                            "is_active": true,
+                                            "created_at": "2025-01-08T12:00:00.000000Z",
+                                            "updated_at": "2025-01-08T12:00:00.000000Z"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing API key"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -155,6 +155,12 @@
             ]
           },
           {
+            "group": "Rate",
+            "pages": [
+              "/api-reference/rate/list-openapi.json GET /api/external/rate"
+            ]
+          },
+          {
             "group": "Currency",
             "pages": [
               "/api-reference/currency/list-openapi.json GET /api/external/currency"
