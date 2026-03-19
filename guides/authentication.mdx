@@ -5,35 +5,151 @@ description: Learn how to authenticate your API requests to the Blaaiz API.
 
 ## Overview
 
-The Blaaiz Platform API uses API keys to authenticate and authorize all requests. Every request to the API must include a valid API key in the request headers.
+The Blaaiz Platform API uses OAuth 2.0 client credentials for external API access.
 
-You can generate and manage your API keys from the Blaaiz Dashboard after API Services have been enabled for your account.
+After API Services are enabled for your account, generate your OAuth credentials from the Blaaiz Dashboard, exchange them for a short-lived access token, and send that token as a Bearer token on every API request.
 
-## Accessing your API key
+For older integrations, Blaaiz may still accept the legacy `x-blaaiz-api-key` header temporarily. That path is deprecated. New integrations should use OAuth only, and existing integrations should switch as soon as possible.
+
+## Accessing your OAuth credentials
 
 1. Sign in to the correct dashboard for your environment:
    - Development: [business-dev.blaaiz.com](https://business-dev.blaaiz.com)
    - Production: [business.blaaiz.com](https://business.blaaiz.com)
-2. Open **API Settings** from the dashboard navigation.
-3. Copy the displayed API key, or generate one from that page if none exists yet.
+2. Open **API & Webhooks** from the dashboard menu.
+3. Create your OAuth credentials from that page if none exist yet.
+4. Copy the displayed `client_id` and `client_secret` and store them securely.
 
-If the **API Settings** page is missing, your account has not yet been provisioned for API Services. See [Getting Started](/guides/getting-started) for the access steps.
+If the **API & Webhooks** page is missing, your account has not yet been provisioned for API Services. See [Getting Started](/guides/getting-started) for the access steps.
 
-## Using Your API Key
+<Warning>
+  The `client_secret` is a confidential credential. Do not expose it in
+  client-side code or public repositories. If it is lost or compromised, rotate
+  it from the dashboard and update your integration immediately.
+</Warning>
 
-Include your API key in the request headers. Example (curl):
+<Note>
+  Your `client_secret` should be treated as a one-time-visible secret. Store it
+  securely when it is shown. If you lose it later, rotate the OAuth
+  credentials from **API & Webhooks** and update your integration.
+</Note>
+
+## Getting an access token
+
+Exchange your OAuth credentials for a short-lived access token. Use the scopes that were assigned when you created your credentials:
 
 ```bash
-curl -X GET https://api-prod.blaaiz.com/api/wallets \
-  -H "x-blaaiz-api-key: YOUR_API_KEY_HERE"
+curl -X POST https://api-prod.blaaiz.com/oauth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=client_credentials" \
+  --data-urlencode "client_id=YOUR_CLIENT_ID" \
+  --data-urlencode "client_secret=YOUR_CLIENT_SECRET" \
+  --data-urlencode "scope=wallet:read payout:create transaction:read"
 ```
 
-## Important Notes
+The `scope` parameter must be a space-separated list of scopes that were assigned to your credentials. You can request all of them or a subset. The credential creation response includes the full list of available scopes in the `scopes` field.
 
-- The API key must be included with every request.
-- API keys are secret credentials. Do not expose them in client-side code or public repositories.
-- Requests without a valid API key will fail with an authentication error.
-- Development and production use different API keys. Keys are not shared across environments.
+The access token returned from `/oauth/token` is short-lived. Request a new one when it expires.
+
+Client credentials tokens do not use refresh tokens. When the current token expires, request a new access token from `/oauth/token`.
+
+## Scopes
+
+When creating OAuth credentials, you can choose which API capabilities to grant. Scopes control what your access token is allowed to do.
+
+### Scope bundles
+
+For convenience, Blaaiz provides pre-built bundles that group related scopes:
+
+| Bundle | Description |
+| --- | --- |
+| `full-access` | All available scopes (default if none specified) |
+| `read-only` | Read access to wallets, currencies, customers, transactions, fees, and webhooks |
+| `collections` | Create collections, manage customers, and read transactions |
+| `payouts` | Create payouts, read wallets, banks, beneficiaries, and fees |
+| `virtual-accounts` | Create and manage virtual accounts and customers |
+| `customers` | Manage customers, beneficiaries, and file uploads |
+
+### Individual scopes
+
+You can also select scopes individually for fine-grained control:
+
+| Scope | Description |
+| --- | --- |
+| `wallet:read` | Read business wallets |
+| `currency:read` | Read supported currencies |
+| `bank:read` | Read bank and bank account lookup data |
+| `customer:read` | Read customers |
+| `customer:write` | Create, update, and upload customer KYC data |
+| `beneficiary:read` | Read customer beneficiaries |
+| `virtual-account:read` | Read virtual accounts and identification types |
+| `virtual-account:create` | Create virtual accounts |
+| `virtual-account:close` | Close virtual accounts |
+| `collection:create` | Initiate fiat collections and attach customers |
+| `collection:crypto:create` | Read crypto networks and initiate crypto collections |
+| `collection:interac:accept` | Accept Interac money requests |
+| `payout:create` | Initiate payouts |
+| `swap:create` | Initiate swaps |
+| `transaction:read` | Read business transactions |
+| `fees:read` | Read fee breakdowns |
+| `file:upload` | Generate presigned file upload URLs |
+| `webhook:read` | Read webhook configuration |
+| `webhook:write` | Create and update webhook configuration |
+| `webhook:replay` | Replay webhook deliveries |
+| `mock:webhook:trigger` | Trigger mock webhook simulations |
+
+If you do not specify any scopes or bundle when creating credentials, `full-access` is assigned by default.
+
+<Note>
+  Scopes are set when credentials are created or rotated. To change scopes,
+  rotate your credentials and specify the new scope set.
+</Note>
+
+## Rotating credentials
+
+If your `client_secret` is compromised, or you need to change scopes, rotate your credentials from the dashboard:
+
+1. Go to **API & Webhooks** in your Blaaiz Dashboard.
+2. Click **Rotate** on your existing OAuth credentials.
+3. Optionally select a new scope bundle or individual scopes.
+4. Copy the new `client_secret` immediately — it is only shown once.
+5. Update your integration to use the new credentials.
+
+Rotation immediately revokes the previous `client_secret` and all access tokens issued from it. Your integration will need to request a new token using the new credentials.
+
+## Using the access token
+
+Include the access token in the `Authorization` header of every external API request:
+
+```bash
+curl -X GET https://api-prod.blaaiz.com/api/external/wallet \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+## Legacy API keys
+
+<Warning>
+  Creation of new legacy API keys is disabled. Legacy API key authentication
+  will be fully removed soon. Migrate to OAuth as soon as possible.
+</Warning>
+
+If you still have an older API-key-based integration, plan the switch to client credentials as urgent work.
+
+Legacy requests use the API key header instead of a Bearer token:
+
+```bash
+curl -X GET https://api-prod.blaaiz.com/api/external/wallet \
+  -H "x-blaaiz-api-key: YOUR_LEGACY_API_KEY"
+```
+
+Use this only to maintain an older integration while you complete the move to OAuth.
+
+## Important notes
+
+- Every external API request must use a valid Bearer access token.
+- Development and production use different dashboard accounts and different OAuth credentials.
+- Use the same environment for your dashboard, token request, and API base URL.
+- Keep your `client_secret` server-side only.
 
 ## Authentication errors
 
@@ -41,21 +157,23 @@ Blaaiz Platform API provides specific error messages for authentication issues:
 
 ### 401 Unauthorized
 
-- The API key is missing.
-- The API key is malformed or improperly formatted.
+- The Bearer token is missing.
+- The Bearer token is expired, malformed, or invalid.
 
 <Note>
-  Ensure that the API key is correctly included in your request headers.
+  Ensure that you first exchanged your credentials at `/oauth/token`, then send
+  the access token as `Authorization: Bearer <token>`.
 </Note>
 
 ### 403 Access Denied
 
 This error occurs in the following cases:
 
-- The API key is valid but its status is inactive.
-- Your access to the API services has been disabled by Blaaiz.
+- Your business no longer has access to API Services.
+- Your request scope is insufficient for the endpoint being called.
+- Your request is blocked by another policy such as IP whitelisting in production.
 
 <Warning>
-  Make sure that your API key is active and your account is properly set up for
-  API service access to avoid these errors.
+  Make sure your account is provisioned for API Services, your production IPs
+  are whitelisted, and your integration has switched fully to OAuth.
 </Warning>

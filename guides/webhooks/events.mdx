@@ -41,7 +41,7 @@ All webhook payloads include:
 - `timestamp` — When the event occurred
 - `signature` — HMAC signature for verification (header: `x-blaaiz-signature`)
 
-> Always verify the `x-blaaiz-signature` to ensure the webhook originates from Blaaiz.
+> Always verify the `x-blaaiz-signature` using your webhook `signing_secret` to ensure the webhook originates from Blaaiz.
 
 ## Webhook retries
 

@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "virtual-account:read": "Read virtual accounts."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -81,13 +88,15 @@
         "/api/external/virtual-bank-account/identification-type": {
             "get": {
                 "summary": "Get identification type",
-                "description": "Look up the country-specific identification type that a customer must provide as their `tin` value. Each country uses a different identification system (e.g. SSN in the US, BVN in Nigeria, NINO in the UK), and individual vs business customers within the same country may require different types. Call this endpoint before creating or updating a customer to know what field label to show in your UI and what value to collect. Save the collected value as the customer's `tin` field.",
+                "description": "Look up the country-specific identification type that a customer must provide as their `tin` value. Each country uses a different identification system (e.g. SSN in the US, BVN in Nigeria, NINO in the UK), and individual vs business customers within the same country may require different types. Call this endpoint before creating or updating a customer to know what field label to show in your UI and what value to collect. Save the collected value as the customer's `tin` field. Required scope: `virtual-account:read`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "virtual-account:read"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -202,7 +211,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

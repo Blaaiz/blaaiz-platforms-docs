@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "swap:create": "Initiate swaps."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -228,13 +235,15 @@
         "/api/external/swap": {
             "post": {
                 "summary": "Swap money between business wallets",
-                "description": "Swap money between two wallets owned by your business. The wallets must exist, belong to the same business, and use different currencies. This endpoint is available only when your business is allowed to perform API-services swaps.",
+                "description": "Swap money between two wallets owned by your business. The wallets must exist, belong to the same business, and use different currencies. This endpoint is available only when your business is allowed to perform API-services swaps. Required scope: `swap:create`.",
                 "tags": [
                     "Swap"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "swap:create"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -342,7 +351,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

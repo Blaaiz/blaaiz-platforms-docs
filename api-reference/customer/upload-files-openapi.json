@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "customer:write": "Create and update customers and KYC data."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -76,13 +83,15 @@
         "/api/external/customer/{id}/files": {
             "post": {
                 "summary": "Upload files for a customer",
-                "description": "Upload verification files for a customer. Use file_id values from the File API presigned upload. Newly uploaded files override previous records. The id_file must be uploaded for verification.",
+                "description": "Upload verification files for a customer. Use file_id values from the File API presigned upload. Newly uploaded files override previous records. The id_file must be uploaded for verification. Required scope: `customer:write`.",
                 "tags": [
                     "Customer"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "customer:write"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -148,7 +157,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

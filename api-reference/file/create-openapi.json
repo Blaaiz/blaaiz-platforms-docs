@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "file:upload": "Upload files."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -97,13 +104,15 @@
         "/api/external/file/get-presigned-url": {
             "post": {
                 "summary": "Request file upload URL",
-                "description": "Request a pre-signed URL to upload a file for a customer.\n\nUpload process:\n1. Make a PUT request to the upload_url.\n2. Include the headers from the response.\n3. Send the file as binary data in the request body.\n4. Once uploaded, use the file_id to attach the file to the customer record.",
+                "description": "Request a pre-signed URL to upload a file for a customer.\n\nUpload process:\n1. Make a PUT request to the upload_url.\n2. Include the headers from the response.\n3. Send the file as binary data in the request body.\n4. Once uploaded, use the file_id to attach the file to the customer record. Required scope: `file:upload`.",
                 "tags": [
                     "File"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "file:upload"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -160,7 +169,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

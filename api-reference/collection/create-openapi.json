@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "collection:create": "Initiate collections."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -126,13 +133,15 @@
         "/api/external/collection": {
             "post": {
                 "summary": "Initiate a collection",
-                "description": "Create a card collection request for a business wallet. Card collections require a verified customer and card details, and may not be enabled for every business. Customer attachment after creation is not supported for API card collections.",
+                "description": "Create a card collection request for a business wallet. Card collections require a verified customer and card details, and may not be enabled for every business. Customer attachment after creation is not supported for API card collections. Required scope: `collection:create`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "collection:create"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -215,7 +224,9 @@
                                         "value": {
                                             "message": "The redirect url field must be a valid URL.",
                                             "errors": {
-                                                "redirect_url": ["The redirect url field must be a valid URL."]
+                                                "redirect_url": [
+                                                    "The redirect url field must be a valid URL."
+                                                ]
                                             }
                                         }
                                     }
@@ -232,7 +243,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

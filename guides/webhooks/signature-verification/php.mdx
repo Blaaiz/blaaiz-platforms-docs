@@ -7,7 +7,7 @@ description: Verify webhook signatures using PHP
 $payload = json_decode(file_get_contents('php://input'), true); // Get the JSON payload from the request body
 $receivedSignature = $_SERVER['x-blaaiz-signature'] ?? null; // Retrieve the signature from the headers
 $timestamp = $_SERVER['x-blaaiz-timestamp'] ?? null; // Get the timestamp from the headers
-$secret = 'your_api_secret_key_here'; // Your secret key associated with the API key
+$secret = 'your_webhook_signing_secret_here'; // Your dedicated webhook signing secret
 
 if (is_null($secret) || is_null($receivedSignature) || is_null($timestamp)) {
     throw new Exception('Missing required parameters for signature verification.');

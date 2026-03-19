@@ -3,7 +3,7 @@ title: API integration
 description: Common questions about integrating with the Blaaiz API
 ---
 
-## Where do I find my API keys and webhook settings?
+## Where do I find my OAuth credentials and webhook settings?
 
 Navigate to the **top-right avatar** dropdown and select **"API & Webhooks"**.
 
@@ -11,15 +11,42 @@ Navigate to the **top-right avatar** dropdown and select **"API & Webhooks"**.
   <img src="/images/api-webhooks-menu.png" alt="Dashboard dropdown menu showing the API & Webhooks option" style={{ borderRadius: '0.5rem' }} />
 </Frame>
 
-From there, you can manage your API keys (up to 3), configure webhook URLs, and view webhook logs.
+From there, you can manage your OAuth credentials, configure webhook URLs, rotate your webhook signing secret, and view webhook logs.
 
 <Frame>
-  <img src="/images/api-webhooks-page.png" alt="API & Webhooks page showing API key management" style={{ borderRadius: '0.5rem' }} />
+  <img src="/images/api-webhooks-page.png" alt="API & Webhooks page showing credential and webhook management" style={{ borderRadius: '0.5rem' }} />
 </Frame>
 
 <Warning>
-  API keys are environment-specific. For the dev environment, create a separate account at [business-dev.blaaiz.com](https://business-dev.blaaiz.com) — keys generated there will not work in production and vice versa.
+  OAuth credentials are environment-specific. For the dev environment, create a separate account at [business-dev.blaaiz.com](https://business-dev.blaaiz.com) — credentials generated there will not work in production and vice versa.
 </Warning>
+
+<Note>
+  Creation of new legacy API keys is disabled. If you still have an older API-key-based integration, switch fully to OAuth as soon as possible.
+</Note>
+
+Older integrations may still send:
+
+```http
+x-blaaiz-api-key: YOUR_LEGACY_API_KEY
+```
+
+Treat that as legacy only. New integrations should request an OAuth access token and call the API with `Authorization: Bearer <token>`.
+
+## Which secret should I use for what?
+
+- Use the OAuth `client_secret` only when requesting an access token from `/oauth/token`.
+- Use the webhook `signing_secret` only when verifying the `x-blaaiz-signature` header on webhook deliveries.
+
+Do not use your OAuth `client_secret` to verify webhooks.
+
+Both secrets should be treated as one-time-visible values. Store them securely when they are shown. If either secret is lost later, rotate it from **API & Webhooks** and update your integration.
+
+## Which scopes should I request?
+
+When requesting an access token from `/oauth/token`, pass the scopes that were assigned to your OAuth credentials. For example: `scope=wallet:read payout:create transaction:read`.
+
+Each endpoint requires a specific scope (e.g. `payout:create` for payouts, `wallet:read` for wallets). If your token lacks the required scope, you will receive a `403 Forbidden` response. See [Authentication — Scopes](/guides/authentication#scopes) for the full list of scopes and bundles.
 
 ## What are the required parameters for the collection API?
 

@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "webhook:read": "Read webhook configuration."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -76,13 +83,15 @@
         "/api/external/webhook": {
             "get": {
                 "summary": "Get webhook URLs",
-                "description": "Retrieve your registered webhook URLs. Your collection_url is used for collection events, virtual account events, and customer KYC events.",
+                "description": "Retrieve your registered webhook URLs. Your collection_url is used for collection events, virtual account events, and customer KYC events. Required scope: `webhook:read`.",
                 "tags": [
                     "Webhook"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "webhook:read"
+                        ]
                     }
                 ],
                 "responses": {
@@ -125,7 +134,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

@@ -5,7 +5,7 @@ description: Learn how to get started with the Blaaiz Platform API Services
 
 ## Environments
 
-Blaaiz operates two **completely isolated** environments. Each environment requires its own account and has separate API keys.
+Blaaiz operates two **completely isolated** environments. Each environment requires its own account and has separate OAuth credentials.
 
 | Environment     | Dashboard                                                  | API Base URL                  | IP Whitelisting |
 | --------------- | ---------------------------------------------------------- | ----------------------------- | --------------- |
@@ -14,7 +14,7 @@ Blaaiz operates two **completely isolated** environments. Each environment requi
 
 <Warning>
   Production and development are **not linked**. You must create a separate
-  account on each dashboard. Data, customers, wallets, and API keys do not
+  account on each dashboard. Data, customers, wallets, and OAuth credentials do not
   transfer between environments.
 </Warning>
 
@@ -47,32 +47,71 @@ To start building with the Blaaiz Platform API, API Services must be enabled for
 - Navigate to your business dashboard and request API access. <span className="coming-soon">coming soon</span>, **or**
 - Contact our team at [support@blaaiz.com](mailto:support@blaaiz.com).
 
-Once your request is approved, API Services will be provisioned for your account and you'll be able to generate API keys.
+Once your request is approved, API Services will be provisioned for your account and you'll be able to generate OAuth credentials.
 
-If you cannot see the **API Settings** page in your dashboard after approval, your account has not been provisioned for API Services yet. Contact your dedicated account manager or [support@blaaiz.com](mailto:support@blaaiz.com).
+If you cannot see the **API & Webhooks** page in your dashboard after approval, your account has not been provisioned for API Services yet. Contact your dedicated account manager or [support@blaaiz.com](mailto:support@blaaiz.com).
 
-## Step 2: Generate Your API Key
+## Step 2: Create your OAuth credentials
 
 After API Services are enabled for your account:
 
 1. Log in to the Blaaiz dashboard for the environment you want to use:
    - Development: [business-dev.blaaiz.com](https://business-dev.blaaiz.com)
    - Production: [business.blaaiz.com](https://business.blaaiz.com)
-2. Open the **API Settings** page from your dashboard navigation.
-3. Copy the API key shown on that page and store it securely.
-4. If no key has been generated yet, use the generate action on the **API Settings** page to create one.
-5. If a key is ever compromised, generate a replacement key and disable the affected one. You can have up to 3 keys at a time.
+2. Open the **API & Webhooks** page from the dashboard menu.
+3. Create your OAuth credentials if none exist yet.
+4. Copy the `client_id` and `client_secret` shown on that page and store them securely.
+5. If the `client_secret` is ever compromised, rotate the credentials and update your integration immediately.
 
 <Note>
-Development and production issue different API keys. Always use the key from the same environment as the base URL you are calling.
+Development and production issue different OAuth credentials. Always use the credentials from the same environment as the base URL you are calling.
 </Note>
 
-For more details on finding your API keys, configuring webhook URLs, and other common integration questions, see the [API integration FAQ](/faq/api-integration).
+<Note>
+  Your `client_secret` should be treated as a one-time-visible secret. Store it
+  securely when it is shown. If you lose it later, rotate the OAuth
+  credentials from **API & Webhooks**.
+</Note>
+
+## Step 3: Exchange credentials for an access token
+
+Before calling any external API endpoint, exchange your credentials for a short-lived access token:
+
+```bash
+curl -X POST https://api-prod.blaaiz.com/oauth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=client_credentials" \
+  --data-urlencode "client_id=YOUR_CLIENT_ID" \
+  --data-urlencode "client_secret=YOUR_CLIENT_SECRET" \
+  --data-urlencode "scope=wallet:read payout:create transaction:read"
+```
+
+Use the returned access token as a Bearer token on every external API request. The `scope` parameter should be a space-separated list of the scopes assigned to your credentials. See [Authentication — Scopes](/guides/authentication#scopes) for the full list.
+
+<Note>
+  If you already have an older API-key-based integration, it may still work
+  temporarily with `x-blaaiz-api-key`, but that path is legacy. New
+  integrations should use OAuth, and existing ones should migrate
+  immediately.
+</Note>
+
+## Step 4: Configure your webhooks and signing secret
+
+From **API & Webhooks**, configure your webhook URLs and securely store your webhook `signing_secret`.
+
+- Use the OAuth `client_secret` only for getting access tokens.
+- Use the webhook `signing_secret` only for verifying `x-blaaiz-signature` on webhook deliveries.
+
+If the webhook signing secret is ever compromised or lost, rotate it from the dashboard and update your webhook handler.
+
+Your webhook `signing_secret` should also be treated as a one-time-visible secret. Store it securely when it is shown. If you lose it later, rotate it from **API & Webhooks**.
+
+For more details on finding your credentials, configuring webhook URLs, and other common integration questions, see the [API integration FAQ](/faq/api-integration).
 
 ## Quick answers
 
-- **Where do I get my API key?** From the **API Settings** page in the Blaaiz dashboard after API Services have been enabled.
-- **Why can't I see API Settings?** Your account has not been provisioned for API Services yet.
-- **Are dev and prod API keys the same?** No. Development and production use different API keys.
+- **Where do I get my OAuth credentials?** From the **API & Webhooks** page in the Blaaiz dashboard after API Services have been enabled.
+- **Why can't I see API & Webhooks?** Your account has not been provisioned for API Services yet.
+- **Are dev and prod credentials the same?** No. Development and production use different OAuth credentials.
 
-**Important:** Store your API key securely. It will be used to authenticate all requests to the Blaaiz Platform API.
+**Important:** Store your OAuth credentials and webhook signing secret securely. Use OAuth credentials for token generation and the signing secret for webhook verification.

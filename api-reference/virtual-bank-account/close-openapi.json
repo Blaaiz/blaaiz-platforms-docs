@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "virtual-account:close": "Close virtual accounts."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -72,13 +79,15 @@
         "/api/external/virtual-bank-account/{id}/close": {
             "post": {
                 "summary": "Close a virtual bank account",
-                "description": "Initiate closure of a virtual bank account. Supported currencies: GBP, EUR, NGN, USD. Returns 400 if already closed or provider/currency not supported; 404 if not found.",
+                "description": "Initiate closure of a virtual bank account. Supported currencies: GBP, EUR, NGN, USD. Returns 400 if already closed or provider/currency not supported; 404 if not found. Required scope: `virtual-account:close`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "virtual-account:close"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -141,7 +150,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

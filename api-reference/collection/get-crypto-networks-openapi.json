@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "collection:crypto:create": "Initiate crypto collections."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -134,13 +141,15 @@
         "/api/external/collection/crypto/networks": {
             "get": {
                 "summary": "Get crypto networks",
-                "description": "Retrieve all available blockchain networks and their supported tokens.",
+                "description": "Retrieve all available blockchain networks and their supported tokens. Required scope: `collection:crypto:create`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "collection:crypto:create"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -216,7 +225,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

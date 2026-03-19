@@ -6,7 +6,7 @@ description: Verify webhook signatures using JavaScript
 ```javascript
 const crypto = require('crypto');
 
-const secret = 'your_api_secret_key_here'; // Replace with your actual secret key
+const secret = 'your_webhook_signing_secret_here'; // Replace with your webhook signing secret
 
 // Get the raw body of the request
 const payload = req.body; // Assuming body-parser middleware is being used

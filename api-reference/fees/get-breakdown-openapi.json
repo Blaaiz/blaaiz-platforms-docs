@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "fees:read": "Read fee breakdowns."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -142,13 +149,15 @@
         "/api/external/fees/breakdown": {
             "post": {
                 "summary": "Get fees breakdown",
-                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both).",
+                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both). Required scope: `fees:read`.",
                 "tags": [
                     "Fees"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "fees:read"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -175,7 +184,7 @@
                                     "$ref": "#/components/schemas/FeeBreakdownResponse"
                                 },
                                 "example": {
-                                    "our_fee": 1.50,
+                                    "our_fee": 1.5,
                                     "collection_fees": [
                                         {
                                             "method": "CARD",
@@ -259,7 +268,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

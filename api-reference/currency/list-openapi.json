@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "currency:read": "Read supported currencies."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -71,13 +78,15 @@
         "/api/external/currency": {
             "get": {
                 "summary": "List all currencies",
-                "description": "Retrieve all supported currencies.",
+                "description": "Retrieve all supported currencies. Required scope: `currency:read`.",
                 "tags": [
                     "Currency"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "currency:read"
+                        ]
                     }
                 ],
                 "responses": {
@@ -134,7 +143,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

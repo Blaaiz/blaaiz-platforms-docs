@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "collection:interac:accept": "Accept Interac money requests."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -98,13 +105,15 @@
         "/api/external/collection/accept-interac-money-request": {
             "post": {
                 "summary": "Accept Interac money request",
-                "description": "Accept an Interac transfer into your business wallet.",
+                "description": "Accept an Interac transfer into your business wallet. Required scope: `collection:interac:accept`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "collection:interac:accept"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -175,7 +184,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

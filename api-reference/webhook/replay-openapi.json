@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "webhook:replay": "Replay webhook deliveries."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -67,13 +74,15 @@
         "/api/external/webhook-replay": {
             "post": {
                 "summary": "Replay webhook",
-                "description": "Trigger a webhook on demand for a successful transaction.",
+                "description": "Trigger a webhook on demand for a successful transaction. Required scope: `webhook:replay`.",
                 "tags": [
                     "Webhook"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "webhook:replay"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -111,7 +120,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

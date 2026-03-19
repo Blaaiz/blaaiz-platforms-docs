@@ -6,6 +6,65 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">16/03/2026</div>
+      <div className="changelog-card">
+        <h3>Granular OAuth Scopes and Credential Rotation</h3>
+        <p>
+          OAuth credentials now support granular scopes and scope bundles,
+          giving integrators fine-grained control over API access.
+        </p>
+        <ul>
+          <li>
+            Added documentation for 21 individual OAuth scopes (e.g.{" "}
+            <code>wallet:read</code>, <code>payout:create</code>,{" "}
+            <code>webhook:write</code>) and 6 scope bundles (e.g.{" "}
+            <code>full-access</code>, <code>read-only</code>,{" "}
+            <code>payouts</code>).
+          </li>
+          <li>
+            Added credential rotation guide — rotate credentials from the
+            dashboard to change scopes or recover from a compromised secret.
+          </li>
+          <li>
+            Webhook registration endpoint now returns a{" "}
+            <code>signing_secret</code> in the response. Store this securely
+            to verify <code>x-blaaiz-signature</code> headers.
+          </li>
+          <li>
+            Legacy API key creation is now disabled. Legacy API key
+            authentication will be removed soon.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">15/03/2026</div>
+      <div className="changelog-card">
+        <h3>OAuth Authentication and Webhook Signing Secret</h3>
+        <p>
+          Blaaiz Platform API authentication is now documented around OAuth
+          client credentials for integrations.
+        </p>
+        <ul>
+          <li>
+            Added OAuth token acquisition guidance for API access.
+          </li>
+          <li>
+            Updated guides and API reference examples to use Bearer tokens
+            instead of legacy API key headers.
+          </li>
+          <li>
+            Clarified that webhook signature verification uses a dedicated
+            webhook <code>signing_secret</code>, not an API credential secret.
+          </li>
+          <li>
+            Marked legacy API key usage as temporary and advised all integrators
+            to switch fully to OAuth immediately.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">15/03/2026</div>
       <div className="changelog-card">
         <h3>Common Use Cases Guide</h3>

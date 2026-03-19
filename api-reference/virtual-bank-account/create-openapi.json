@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "virtual-account:create": "Create virtual accounts."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -143,13 +150,15 @@
         "/api/external/virtual-bank-account": {
             "post": {
                 "summary": "Create virtual bank account",
-                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.\n\n**Important:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. The initial status will be PENDING until the account is fully provisioned. In the development environment, only NGN virtual bank accounts settle.",
+                "description": "Generates a new virtual bank account for the specified wallet. Supports NGN, GBP, USD, EUR.\n\n**Important:** Virtual bank accounts are not immediately issued. Account details are usually provided within a few minutes, but can take a few days if the customer is being reviewed manually or has not passed internal checks. The initial status will be PENDING until the account is fully provisioned. In the development environment, only NGN virtual bank accounts settle. Required scope: `virtual-account:create`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "virtual-account:create"
+                        ]
                     }
                 ],
                 "requestBody": {
@@ -228,7 +237,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

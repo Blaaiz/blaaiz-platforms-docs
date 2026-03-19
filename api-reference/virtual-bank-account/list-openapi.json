@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "virtual-account:read": "Read virtual accounts."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -150,10 +157,12 @@
         "/api/external/virtual-bank-account": {
             "get": {
                 "summary": "Retrieve all virtual bank accounts",
-                "description": "Fetches all virtual bank accounts (VBAs) for the specified wallet.",
+                "description": "Fetches all virtual bank accounts (VBAs) for the specified wallet. Required scope: `virtual-account:read`.",
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "virtual-account:read"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -204,14 +213,14 @@
                         }
                     },
                     "401": {
-                        "description": "Invalid or missing API key",
+                        "description": "Invalid or missing access token",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

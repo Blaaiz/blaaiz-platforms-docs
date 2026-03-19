@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "customer:read": "Read customers."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -109,13 +116,15 @@
         "/api/external/customer": {
             "get": {
                 "summary": "List all customers",
-                "description": "Retrieve all customers with optional filters and pagination.",
+                "description": "Retrieve all customers with optional filters and pagination. Required scope: `customer:read`.",
                 "tags": [
                     "Customer"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "customer:read"
+                        ]
                     }
                 ],
                 "parameters": [],
@@ -163,7 +172,7 @@
                                 },
                                 "example": {
                                     "status": false,
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

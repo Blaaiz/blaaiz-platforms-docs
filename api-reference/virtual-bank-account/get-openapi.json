@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "virtual-account:read": "Read virtual accounts."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -154,13 +161,15 @@
         "/api/external/virtual-bank-account/{id}": {
             "get": {
                 "summary": "Retrieve a single virtual bank account",
-                "description": "Retrieves details of a specific virtual bank account by its ID.",
+                "description": "Retrieves details of a specific virtual bank account by its ID. Required scope: `virtual-account:read`.",
                 "tags": [
                     "Virtual Bank Accounts"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "virtual-account:read"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -211,7 +220,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

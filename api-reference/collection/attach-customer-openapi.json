@@ -20,10 +20,17 @@
     ],
     "components": {
         "securitySchemes": {
-            "apiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "x-blaaiz-api-key"
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "collection:create": "Initiate collections."
+                        }
+                    }
+                }
             }
         },
         "schemas": {
@@ -72,13 +79,15 @@
         "/api/external/collection/attach-customer": {
             "post": {
                 "summary": "Attach customer to collection",
-                "description": "Associate a collection transaction with a verified customer.\n\n**Important:** API card collections cannot be updated with this endpoint.",
+                "description": "Associate a collection transaction with a verified customer.\n\n**Important:** API card collections cannot be updated with this endpoint. Required scope: `collection:create`.",
                 "tags": [
                     "Collection"
                 ],
                 "security": [
                     {
-                        "apiKeyAuth": []
+                        "oauth2ClientCredentials": [
+                            "collection:create"
+                        ]
                     }
                 ],
                 "parameters": [
@@ -151,7 +160,7 @@
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "Invalid or missing API key"
+                                    "message": "Invalid or missing access token"
                                 }
                             }
                         }

@@ -152,7 +152,7 @@ Use the [Simulate Interac webhook](/api-reference/mock/simulate-webhook-interac)
 
 ```bash
 curl -X POST https://api-dev.blaaiz.com/api/external/mock/simulate-webhook/interac \
-  -H "x-blaaiz-api-key: YOUR_DEV_API_KEY" \
+  -H "Authorization: Bearer YOUR_DEV_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "interac_email": "alice@gmail.com",

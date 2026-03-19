@@ -21,13 +21,19 @@ https://api-dev.blaaiz.com
 
 ## Authentication
 
-All API requests require authentication using your API key. Include your API key in the request headers:
+All external API requests require a Bearer access token.
 
-```
-x-blaaiz-api-key: YOUR_API_KEY_HERE
+1. Generate your OAuth credentials from **API & Webhooks** in the Blaaiz dashboard.
+2. Exchange them at `POST /oauth/token` using `grant_type=client_credentials` and the scopes assigned to your credentials.
+3. Include the returned token in your request headers:
+
+```http
+Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
-API keys are generated from the **API Settings** page in the Blaaiz dashboard after API Services have been enabled for your account. Development and production use different API keys.
+OAuth credentials are generated from the **API & Webhooks** page in the Blaaiz dashboard after API Services have been enabled for your account. Development and production use different credentials.
+
+Legacy API key creation is disabled, and legacy API key support will end soon. New integrations should use OAuth only.
 
 See [Getting Started](/guides/getting-started) and [Authentication](/guides/authentication) for the full access steps.
 
@@ -54,4 +60,4 @@ All API responses are returned in JSON format. Successful responses will include
 
 ## Rate limits
 
-All endpoints are rate limited to **100 requests per minute**. See [Rate and usage limits](/guides/rate-limits) for more details.
+External API endpoints are rate limited to **120 requests per minute** and **1,500 requests per hour**. See [Rate and usage limits](/guides/rate-limits) for more details.
