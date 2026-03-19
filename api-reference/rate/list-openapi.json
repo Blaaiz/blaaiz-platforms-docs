@@ -114,7 +114,7 @@
         "/api/external/rate": {
             "get": {
                 "summary": "List rates",
-                "description": "Retrieve exchange rates applicable to the authenticated business.\n\nRates are returned with business-specific overrides applied automatically. The priority order is: `SINGLE_BUSINESS` > `ALL_BUSINESSES` > `GENERAL`. When multiple rates exist for the same currency pair, only the highest-priority rate is returned.\n\nUse the optional `search_term` query parameter to filter rates by currency pair (e.g., `USD`, `USD/NGN`).",
+                "description": "Retrieve exchange rates applicable to the authenticated business.\n\nUse the optional `search_term` query parameter to filter rates by currency pair (e.g., `USD`, `USD/NGN`).",
                 "tags": [
                     "Rate"
                 ],
