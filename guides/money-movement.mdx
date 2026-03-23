@@ -19,7 +19,7 @@ flowchart LR
 
 ## Collections (inbound)
 
-A collection is any inflow of funds into your business wallet. This can happen via a Virtual Bank Account transfer, card payment, or open banking.
+A collection is any inflow of funds into your business wallet. This can happen via a Virtual Bank Account transfer or card payment.
 
 ### Virtual Bank Account collection
 
@@ -98,10 +98,6 @@ When you initiate a card collection via the API:
 <Note>
 If the card requires 3DS authorization, the customer is redirected to complete authentication. If you provided a `redirect_url`, the customer returns to your site after authorization. See [Initiate collection](/api-reference/collection/create).
 </Note>
-
-### Open banking collection
-
-The flow is the same as card collection, but the customer authorizes via their bank's open banking interface instead of entering card details.
 
 ## Payouts (outbound)
 
@@ -200,13 +196,13 @@ Use the [Fee breakdown](/api-reference/fees/get-breakdown) endpoint to preview t
 
 | Flow | Parameter | Fee handling | What your wallet sees |
 |------|-----------|-------------|----------------------|
-| **Collection** (VIBAN, card, open banking) | `amount` | Fees deducted from incoming amount | Credited: amount minus fees |
+| **Collection** (VIBAN, card) | `amount` | Fees deducted from incoming amount | Credited: amount minus fees |
 | **Payout** (`from_amount`) | `from_amount` | Fees deducted from `from_amount` | Debited: `from_amount` |
 | **Payout** (`to_amount`) | `to_amount` | Fees added on top of `to_amount` | Debited: `to_amount` + fees |
 
 ## Related
 
 - [Fee breakdown](/api-reference/fees/get-breakdown) — preview fees before a transaction.
-- [Initiate collection](/api-reference/collection/create) — collect funds via card or open banking.
+- [Initiate collection](/api-reference/collection/create) — collect funds via card.
 - [Create payout](/api-reference/payout/create) — send funds to a recipient.
 - [Webhook events](/guides/webhooks/events) — track transaction status changes.
