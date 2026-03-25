@@ -64,9 +64,9 @@ For convenience, Blaaiz provides pre-built bundles that group related scopes:
 | Bundle | Description |
 | --- | --- |
 | `full-access` | All available scopes (default if none specified) |
-| `read-only` | Read access to wallets, currencies, customers, transactions, fees, and webhooks |
+| `read-only` | Read access to wallets, currencies, customers, transactions, fees, rates, and webhooks |
 | `collections` | Create collections, manage customers, and read transactions |
-| `payouts` | Create payouts, read wallets, banks, beneficiaries, and fees |
+| `payouts` | Create payouts, read wallets, banks, beneficiaries, fees, and rates |
 | `virtual-accounts` | Create and manage virtual accounts and customers |
 | `customers` | Manage customers, beneficiaries, and file uploads |
 
@@ -92,6 +92,7 @@ You can also select scopes individually for fine-grained control:
 | `swap:create` | Initiate swaps |
 | `transaction:read` | Read business transactions |
 | `fees:read` | Read fee breakdowns |
+| `rates:read` | Read exchange rates |
 | `file:upload` | Generate presigned file upload URLs |
 | `webhook:read` | Read webhook configuration |
 | `webhook:write` | Create and update webhook configuration |
