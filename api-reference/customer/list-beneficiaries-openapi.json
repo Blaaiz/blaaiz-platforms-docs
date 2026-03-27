@@ -162,7 +162,7 @@
                                             "type": "individual",
                                             "email": "danyka66@example.org",
                                             "country": "NG",
-                                            "id_type": "id_card",
+                                            "id_type": "passport",
                                             "id_number": "1DaRjlBTMZ",
                                             "verification_status": "PENDING"
                                         }

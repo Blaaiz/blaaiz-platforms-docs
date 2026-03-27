@@ -30,9 +30,17 @@ Sent when a new customer is created for your business.
 
 Sent when a customer's KYC verification is approved. The customer can now be used for Virtual Bank Account creation and other operations that require a verified customer.
 
+<Warning>
+**Verification is not instant.** After documents are uploaded for a customer, they enter a review process. You will not receive this webhook immediately — it arrives once the review is complete.
+
+In most cases, the review finishes within **a few minutes**. However, if the documents require an additional level of checks and screening, the process can take **up to 2 hours**. This is normal and expected. Do not raise support tickets or enquiries during this period — requests about verifications that have been pending for less than 2 hours **will not be attended to**.
+
+If verification has been pending for **5 hours or more**, something may have gone wrong. Only at that point should you contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to investigate and expedite.
+</Warning>
+
 ### customer.rejected
 
-Sent when a customer's KYC verification is rejected. Check the `comment` field for the rejection reason.
+Sent when a customer's KYC verification is rejected. Check the `comment` field for the rejection reason. Common rejection reasons include unclear or illegible document images, unsupported document types (such as national ID cards), expired documents, or fraudulent submissions.
 
 ## Example payload
 
@@ -72,6 +80,6 @@ Sent when a customer's KYC verification is rejected. Check the `comment` field f
 
 | Status     | Description                                    |
 | :--------- | :--------------------------------------------- |
-| `PENDING`  | Customer is awaiting verification.             |
-| `VERIFIED` | Customer KYC has been approved.                |
-| `REJECTED` | Customer KYC has been rejected.                |
+| `PENDING`  | Customer documents are under review. Verification is not instant — it typically completes within a few minutes, but can take up to 2 hours if additional screening is required. Do not escalate before 2 hours. Contact the operations team only if pending for 5 hours or more. |
+| `VERIFIED` | Customer KYC has been approved. The customer can now be used for payouts and Virtual Bank Account creation. |
+| `REJECTED` | Customer KYC has been rejected. Check the `comment` field for the reason. |

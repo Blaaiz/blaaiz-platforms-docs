@@ -24,6 +24,31 @@ Before integrating with the Blaaiz Platform API, review the following guidelines
 - Only `NON-VERIFIED` customer details can be fully updated.
 - If a customer is `VERIFIED`, only fields that are currently `null` can be updated.
 - The customer's `country` must match the identity document provided for KYC.
+- If you need to correct data on a verified customer (wrong document, misspelled name, incorrect details), this cannot be done through the API. You must request a manual correction from the operations team. See [Customer data corrections](/guides/customer-data-corrections) for the full process.
+
+### Verification timeline
+
+Customer verification is **not instant**. When you upload identity documents for a customer, those documents enter a review process. The customer's status will remain `PENDING` until that review is complete, at which point you will receive either a `customer.verified` or `customer.rejected` webhook.
+
+In the majority of cases, the review completes within **a few minutes**. In rare cases, documents may need an extra level of checks and screening — for example, if the document triggers additional compliance checks. When this happens, the review can take **up to 2 hours**. This is expected behaviour and is not a sign that anything has gone wrong.
+
+**Do not raise support tickets or enquiries for verifications that have been pending for less than 2 hours.** Such requests will not be attended to, as the review is still within its normal processing window.
+
+If a customer's verification has been pending for **5 hours or more**, that is a clear signal that something may have gone wrong on our end. At that point — and only at that point — you should contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to have the situation investigated and expedited.
+
+To summarise: wait for the webhook, do not escalate before 2 hours, and only reach out to the operations team if the verification has been pending for 5 hours or longer.
+
+### Accepted identity documents
+
+- **Individual customers**: Only a **Driver's License** (`drivers_license`) or **Passport** (`passport`) is accepted.
+- **Business customers**: Only a **Certificate of Incorporation** (`certificate_of_incorporation`) is accepted.
+- **ID cards (National Identity Cards) are not accepted.** No other identity document types are supported. National ID cards, resident permits, and any other document types will be rejected.
+
+### Document quality requirements
+
+- All uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will not be reviewed and will be rejected.
+- **Fraudulent or falsified documents will not be tolerated.** If a customer submits false, forged, or manipulated documents, the submission will be rejected immediately. Repeated attempts to submit fraudulent or invalid documents will result in the customer being **permanently blacklisted** from the platform.
+- There are no exceptions or compromises on document quality or authenticity.
 
 ### TIN and identification labels
 

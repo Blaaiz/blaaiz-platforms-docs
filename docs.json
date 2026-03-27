@@ -45,6 +45,7 @@
             "group": "Guides",
             "pages": [
               "guides/creating-first-payout",
+              "guides/customer-data-corrections",
               "guides/collections-overview",
               "guides/virtual-bank-accounts",
               "guides/interac-auto-deposits",

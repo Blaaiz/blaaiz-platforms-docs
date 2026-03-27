@@ -18,12 +18,20 @@ Before you can make any payouts, you need to associate them with a customer. Eve
 Make sure to save the `customer_id` returned from this endpoint as you'll need it in future steps.
 
 <Note>
-  The customer's `country` must match the identity document provided for KYC. Also note that only `NON-VERIFIED` customers can be fully updated. If a customer is already `VERIFIED`, only fields that are currently `null` can be updated.
+  The customer's `country` must match the identity document provided for KYC. Also note that only `NON-VERIFIED` customers can be fully updated. If a customer is already `VERIFIED`, only fields that are currently `null` can be updated. If you need to correct a mistake on a verified customer, see [Customer data corrections](/guides/customer-data-corrections).
 </Note>
+
+<Warning>
+  Only **Driver's License** (`drivers_license`) or **Passport** (`passport`) are accepted as identity documents for individual customers. For business customers, only **Certificate of Incorporation** (`certificate_of_incorporation`) is accepted. **ID cards (National Identity Cards) are not accepted.** No other document types (such as resident permits) are supported.
+</Warning>
+
+<Warning>
+  All uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts to submit false or invalid documents will result in the customer being **permanently blacklisted** from the platform. There are no exceptions or compromises.
+</Warning>
 
 ### Step 2: Upload documents for the customer
 
-Once you have created the customer, the next step is to upload documents to verify their identity. The customer will remain in a `"pending"` state until their documents (especially `id_file`) are uploaded and verified.
+Once you have created the customer, the next step is to upload documents to verify their identity. The customer will remain in a `"pending"` state until their documents (especially `id_file`) are uploaded and verified. The identity document must be a **Driver's License** or **Passport** for individual customers, or a **Certificate of Incorporation** for business customers. **ID cards (National Identity Cards) are not accepted.** All uploaded images must be clear and legible — unclear or illegible images will be rejected. Fraudulent documents will result in the customer being permanently blacklisted from the platform.
 
 #### 2.1 Request pre-signed URLs for document upload
 
@@ -45,11 +53,21 @@ After uploading the documents, you'll need to associate the uploaded documents w
 
 - **Endpoint**: `/customer`
 - **Request**: Pass the `customer_id` as a URL parameter, then include the `file_id` for each document in the request body.
-- **Purpose**: Updates the customer by attaching the uploaded files to their profile. Once the files are successfully added, the customer status will change to `"verified"`.
+- **Purpose**: Updates the customer by attaching the uploaded files to their profile. The customer status will remain `"PENDING"` while the documents are reviewed.
+
+<Warning>
+**Verification is not instant.** After you upload documents for a customer, those documents go through a review process before the customer can be verified. This means you should not expect the customer's status to change to `"VERIFIED"` immediately after uploading files.
+
+In most cases, the review completes within **a few minutes**. However, some documents may require an additional level of checks and screening. When this happens, verification can take **up to 2 hours**, and this is completely normal. You should not escalate or raise a support ticket during this window — enquiries about verifications that have been pending for less than 2 hours **will not be attended to**.
+
+If verification has been pending for **5 hours or more**, that indicates something may have gone wrong. At that point — and only at that point — you should contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to request that the situation be expedited.
+
+To track the outcome of the review, listen for the [`customer.verified`](/guides/webhooks/customer) or [`customer.rejected`](/guides/webhooks/customer) webhook. Do not poll the API or assume a timeline — let the webhook tell you when the review is complete.
+</Warning>
 
 ### Step 3: Create a payout
 
-Now that the customer is verified, you can proceed to create a payout.
+Now that the customer is verified (you have received the `customer.verified` webhook), you can proceed to create a payout.
 
 - **Endpoint**: `/payout`
 - **Purpose**: Initiate a payout associated with the verified customer.
@@ -62,7 +80,7 @@ Before initiating a payout, ensure the following prerequisites are in place for 
 
     **Customer must be verified**
 
-    Every payout must be linked to a verified customer. If your customer's identity documents have not been uploaded and approved, the payout will be rejected. Make sure you have completed Step 1 and Step 2 above before attempting a payout.
+    Every payout must be linked to a verified customer. If your customer's identity documents have not been uploaded and approved, the payout will be rejected. Make sure you have completed Step 1 and Step 2 above before attempting a payout. Remember: only a **Driver's License** or **Passport** is accepted for individual customers, and only a **Certificate of Incorporation** for business customers.
 
     **Wallet must exist**
 

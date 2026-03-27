@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Upload Customer Files",
         "version": "1.0.0",
-        "description": "Upload verification files for a customer using file_id values from the File API presigned upload. \n Newly uploaded files override previous records. \n The id_file must be uploaded for the customer to be verified."
+        "description": "Upload verification files for a customer using file_id values from the File API presigned upload. \n Newly uploaded files override previous records. \n The id_file must be uploaded for the customer to be verified. \n The identity document must be a Driver's License or Passport for individual customers, or a Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. No other document types are accepted. \n All uploaded documents must be clear, legible, and authentic. Blurry, cropped, obscured, or unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts will result in the customer being permanently blacklisted from the platform."
     },
     "tags": [
         {
@@ -39,7 +39,7 @@
                 "properties": {
                     "id_file": {
                         "type": "string",
-                        "description": "file_id for identity document (from File API presigned upload)."
+                        "description": "file_id for the identity document (from File API presigned upload). The identity document must be a Driver's License or Passport for individual customers, or a Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. The document image must be clear and legible — unclear or illegible images will be rejected."
                     },
                     "proof_of_address_file": {
                         "type": "string",
@@ -83,7 +83,7 @@
         "/api/external/customer/{id}/files": {
             "post": {
                 "summary": "Upload files for a customer",
-                "description": "Upload verification files for a customer. Use file_id values from the File API presigned upload. Newly uploaded files override previous records. The id_file must be uploaded for verification. Required scope: `customer:write`.",
+                "description": "Upload verification files for a customer. Use file_id values from the File API presigned upload. Newly uploaded files override previous records. The id_file must be uploaded for verification. The identity document must be a Driver's License or Passport for individual customers, or a Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. No other document types are accepted. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform. IMPORTANT: Verification is not instant. After documents are uploaded, they go through a review process. This typically takes a few minutes, but can take up to 2 hours if the documents require additional screening. Do not escalate before 2 hours — such enquiries will not be attended to. If verification has been pending for 5 hours or more, contact the operations team to expedite. Listen for the customer.verified or customer.rejected webhook to know when the review is complete. Required scope: `customer:write`.",
                 "tags": [
                     "Customer"
                 ],

@@ -27,19 +27,34 @@ For the **Collection API**, the currently documented value is:
 
 The `file_category` parameter appears in the **File API** when requesting a pre-signed URL for upload. It represents the type of file you want to upload.
 
-- `identity` – Identity. Required to verify a customer.
+- `identity` – Identity document. **Required** to verify a customer. For individual customers, this must be a **Driver's License** or **Passport**. For business customers, this must be a **Certificate of Incorporation**. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
 - `proof_of_address` – Proof of address.
 - `liveness_check` – Liveness check.
 
+<Warning>
+All uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts to submit false or invalid documents will result in the customer being **permanently blacklisted** from the platform. There are no exceptions or compromises.
+</Warning>
+
 ### Id type
 
-The `id_type` parameter appears in the **Customer API** when creating a new customer. It represents the type of identity file for the customer.
+The `id_type` parameter appears in the **Customer API** when creating a new customer. It represents the type of identity document for the customer.
+
+**For individual customers**, only the following are accepted:
 
 - `drivers_license` – Driver's License.
 - `passport` – Passport.
-- `id_card` – National Identity.
-- `resident_permit` – Resident Permit.
-- `certificate_of_incorporation` – Certificate of Incorporation (for business).
+
+**For business customers**, only the following is accepted:
+
+- `certificate_of_incorporation` – Certificate of Incorporation.
+
+<Warning>
+No other identity document types are accepted. **ID cards (National Identity Cards) are not accepted.** Resident permits and any other document types are also **not supported**. Individual customers must provide either a Driver's License or a Passport. Business customers must provide a Certificate of Incorporation.
+</Warning>
+
+<Warning>
+All uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts to submit false or invalid documents will result in the customer being **permanently blacklisted** from the platform. There are no exceptions or compromises.
+</Warning>
 
 ### Customer type
 

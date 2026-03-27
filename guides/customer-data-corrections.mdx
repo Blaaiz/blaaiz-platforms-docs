@@ -1,0 +1,67 @@
+---
+title: Customer data corrections
+description: How to request changes to verified customer records that can no longer be updated via the API
+---
+
+## Why verified customer data is locked
+
+Once a customer has been verified, their profile is locked down. This is by design. The identity information on a verified customer has been reviewed and approved as part of our KYC process, and allowing unrestricted edits to that data after the fact would undermine the integrity of that verification.
+
+Through the API, you can only update fields on a verified customer that are currently `null`. Any field that already has a value — such as the customer's name, date of birth, country, ID type, or ID number — cannot be changed through the [Update customer](/api-reference/customer/update) endpoint. If you attempt to update a non-null field on a verified customer, the API will return an error.
+
+This is intentional, and it is not something that can be bypassed programmatically.
+
+## When you might need a correction
+
+In practice, mistakes happen. Here are some of the scenarios we commonly see where a correction is needed after a customer has already been verified:
+
+**Wrong identity document was uploaded.** For example, you uploaded a document for the wrong person, or you uploaded a national ID card before realising that only a Driver's License or Passport is accepted for individual customers. The customer got verified, but the document on file is incorrect.
+
+**Typographical errors in personal details.** The customer's name was misspelled during creation, or their date of birth was entered incorrectly. Because these fields are no longer `null`, the API will not let you fix them.
+
+**Incorrect country or ID number.** The country code was set wrong, or the ID number has a digit transposed. Since the customer's `country` must match the identity document provided for KYC, this kind of mismatch can block downstream operations like Virtual Bank Account creation or payouts.
+
+**Business name change.** A business customer has legally changed their name and needs their record updated to match their new Certificate of Incorporation.
+
+These are all legitimate cases where the data on the verified customer needs to be corrected, but the API will not allow you to do it yourself.
+
+## How to request a correction
+
+If you need to correct data on a verified customer, you must contact the Blaaiz operations team directly. Our internal administrators have the ability to update verified customer records on your behalf, provided the request is legitimate and the correction can be validated.
+
+**Send an email to [support@blaaiz.com](mailto:support@blaaiz.com)** with the following information:
+
+1. **Your business name** — so we can locate your account.
+2. **The customer ID** — the `id` of the customer record that needs to be corrected (e.g. `9d4c4ec5-59ea-4130-bf8a-6a5edec401ee`).
+3. **What needs to be changed** — list every field that needs updating and provide both the current (incorrect) value and the correct value. Be specific.
+4. **The reason for the correction** — a brief explanation of what went wrong. For example: "The customer's first name was misspelled during creation" or "We uploaded the wrong identity document."
+5. **Supporting evidence** — if the correction involves identity information (name, ID number, country), attach the correct identity document so the operations team can validate the change.
+
+<Warning>
+The operations team will review every correction request individually. Corrections are not automatic — they are only applied if the request is legitimate and the new data can be verified against a supporting document. Requests that do not include sufficient detail or supporting evidence may be delayed or declined.
+</Warning>
+
+## What happens next
+
+Once the operations team receives your request, they will review the correction and cross-check it against any supporting documents you have provided. If everything checks out, they will update the customer record on your behalf. You will not receive a webhook for this change — the operations team will confirm the update via email.
+
+If the correction is declined (for example, because the supporting document does not match the requested change), you will be notified with the reason.
+
+## What this process is not for
+
+This process exists specifically for correcting genuine mistakes on verified customer records. It is not a workaround for:
+
+- **Re-verifying a rejected customer.** If a customer's KYC was rejected, you should fix the underlying issue (upload the correct document, use a legible image) and resubmit through the API. See the rejection reason in the `customer.rejected` webhook `comment` field.
+- **Changing a customer's identity.** You cannot swap out one person's identity for another. If a customer record was created for the wrong person entirely, you should create a new customer rather than trying to overwrite the existing one.
+- **Bypassing document requirements.** Individual customers must provide a Driver's License or Passport. Business customers must provide a Certificate of Incorporation. The operations team will not accept a correction request that attempts to use an unsupported document type such as a national ID card.
+
+## Avoiding corrections in the first place
+
+Most correction requests we receive are avoidable. Before you submit customer data through the API, take the time to validate it on your end:
+
+- **Double-check names and dates.** Display a confirmation screen in your UI so your users can review their details before submission. A simple "Does this look right?" step catches the majority of typos.
+- **Validate the country code.** Make sure the country you are sending matches the country on the customer's identity document. A mismatch will cause problems during verification and may require a correction later.
+- **Use the right document type.** Individual customers must use a `drivers_license` or `passport`. Business customers must use `certificate_of_incorporation`. If you present the wrong options in your UI, your users will select the wrong type, and you will end up needing a correction.
+- **Check images before uploading.** Make sure the document image is clear, legible, and not cropped. Blurry or unreadable images will be rejected, and if the wrong image somehow gets through, you will need to request a correction.
+
+A few minutes of validation upfront saves days of back-and-forth with the operations team.
