@@ -37,7 +37,7 @@ Once you have created the customer, the next step is to upload documents to veri
 
 - **Endpoint**: `/file`
 - **Purpose**: Provides a pre-signed URL that allows you to upload documents for the customer.
-- **Request**: Specify the `customer_id` and the `file_category` (e.g. `identity`, `proof_of_address`, `liveness_check`).
+- **Request**: Specify the `customer_id` and the `file_category` (e.g. `identity`, `identity_back`, `proof_of_address`, `liveness_check`).
 - **Response**: You'll receive a URL, a set of headers, and a `file_id`. The URL is where you will upload the actual document.
 
 #### 2.2 Upload the document
@@ -54,6 +54,10 @@ After uploading the documents, you'll need to associate the uploaded documents w
 - **Endpoint**: `/customer`
 - **Request**: Pass the `customer_id` as a URL parameter, then include the `file_id` for each document in the request body.
 - **Purpose**: Updates the customer by attaching the uploaded files to their profile. The customer status will remain `"PENDING"` while the documents are reviewed.
+
+<Info>
+**`id_file` triggers verification.** Including `id_file` (the front identity document) in the request signals that document upload is complete and triggers the verification process. Other files (`id_file_back`, `proof_of_address_file`, `liveness_check_file`) can be uploaded before or alongside `id_file`, but verification will only begin once `id_file` is included in the request. If the identity document is two-sided (e.g. driver's license), upload the back side using `identity_back` as the file category and include `id_file_back` in the request.
+</Info>
 
 <Warning>
 **Verification is not instant.** After you upload documents for a customer, those documents go through a review process before the customer can be verified. This means you should not expect the customer's status to change to `"VERIFIED"` immediately after uploading files.

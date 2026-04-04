@@ -39,7 +39,11 @@
                 "properties": {
                     "id_file": {
                         "type": "string",
-                        "description": "file_id for the identity document (from File API presigned upload). The identity document must be a Driver's License or Passport for individual customers, or a Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. The document image must be clear and legible — unclear or illegible images will be rejected."
+                        "description": "file_id for the identity document (from File API presigned upload). The identity document must be a Driver's License or Passport for individual customers, or a Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. The document image must be clear and legible — unclear or illegible images will be rejected. IMPORTANT: Including id_file in the request signals that document upload is complete and triggers the verification process. Other files (id_file_back, proof_of_address_file, liveness_check_file) can be uploaded before or alongside id_file, but verification will only begin once id_file is included in the request."
+                    },
+                    "id_file_back": {
+                        "type": "string",
+                        "description": "file_id for the back side of the identity document (from File API presigned upload). Use this when the identity document is two-sided (e.g. driver's license). Not required for single-sided documents (e.g. passport, certificate of incorporation)."
                     },
                     "proof_of_address_file": {
                         "type": "string",
@@ -114,6 +118,7 @@
                             },
                             "example": {
                                 "id_file": "file_123456",
+                                "id_file_back": "file_234567",
                                 "proof_of_address_file": "file_789012",
                                 "liveness_check_file": "file_345678"
                             }

@@ -6,6 +6,46 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">04/04/2026</div>
+      <div className="changelog-card">
+        <h3>Back ID Document Support for Customer Verification</h3>
+        <p>
+          The File API and Upload Files endpoint now support back-side identity
+          document uploads for two-sided documents (e.g. driver's license).
+        </p>
+        <ul>
+          <li>
+            Added <code>identity_back</code> as a new{" "}
+            <code>file_category</code> option in the File API presigned upload
+            endpoint.
+          </li>
+          <li>
+            Added <code>id_file_back</code> as a new optional parameter in the
+            Upload Files for a Customer endpoint.
+          </li>
+          <li>
+            Back ID uploads are optional — only needed when the identity
+            document has two sides. Single-sided documents (passport,
+            certificate of incorporation) do not require a back upload.
+          </li>
+          <li>
+            The <code>id_file</code> (front ID) remains the verification
+            trigger. Other files (back ID, liveness check, proof of address)
+            can be uploaded before or alongside <code>id_file</code> without
+            triggering verification.
+          </li>
+          <li>
+            Rejected customers can now re-upload documents and resubmit for
+            verification without requiring a manual reset.
+          </li>
+          <li>
+            Uploads are now blocked while verification is actively in progress
+            to prevent document mutation during review.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">16/03/2026</div>
       <div className="changelog-card">
         <h3>Granular OAuth Scopes and Credential Rotation</h3>

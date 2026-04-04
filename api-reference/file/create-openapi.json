@@ -36,7 +36,7 @@
         "schemas": {
             "FileUploadRequest": {
                 "type": "object",
-                "description": "This endpoint allows you to request a pre-signed URL to upload a file for a customer. You will specify the file type you want to upload and for whom. \n \n File Category \n identity - Identity document. Required to verify a customer. IMPORTANT: Only a Driver's License or Passport is accepted for individual customers. Only a Certificate of Incorporation is accepted for business customers. ID cards (National Identity Cards) are NOT accepted. No other document types are supported. \n proof_of_address - Proof of address. \n liveness_check - Liveness check. \n \n Document quality: All uploaded documents must be clear, legible, and authentic. Blurry, cropped, obscured, or unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts will result in the customer being permanently blacklisted from the platform.",
+                "description": "This endpoint allows you to request a pre-signed URL to upload a file for a customer. You will specify the file type you want to upload and for whom. \n \n File Category \n identity - Identity document. Required to verify a customer. IMPORTANT: Only a Driver's License or Passport is accepted for individual customers. Only a Certificate of Incorporation is accepted for business customers. ID cards (National Identity Cards) are NOT accepted. No other document types are supported. \n identity_back - Back side of the identity document. Use this when the identity document is two-sided (e.g. driver's license). Not required for single-sided documents (e.g. passport, certificate of incorporation). \n proof_of_address - Proof of address. \n liveness_check - Liveness check. \n \n Document quality: All uploaded documents must be clear, legible, and authentic. Blurry, cropped, obscured, or unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts will result in the customer being permanently blacklisted from the platform.",
                 "properties": {
                     "customer_id": {
                         "type": "string",
@@ -47,6 +47,7 @@
                         "description": "Category of the file. For the identity category: only a Driver's License or Passport is accepted for individual customers, and only a Certificate of Incorporation for business customers. ID cards (National Identity Cards) are NOT accepted. All documents must be clear and legible — unclear images will be rejected. Fraudulent documents will result in permanent blacklisting.",
                         "enum": [
                             "identity",
+                            "identity_back",
                             "proof_of_address",
                             "liveness_check"
                         ]
