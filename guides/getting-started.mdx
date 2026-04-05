@@ -86,7 +86,7 @@ curl -X POST https://api-prod.blaaiz.com/oauth/token \
   --data-urlencode "scope=wallet:read payout:create transaction:read"
 ```
 
-Use the returned access token as a Bearer token on every external API request. The `scope` parameter should be a space-separated list of the scopes assigned to your credentials. See [Authentication — Scopes](/guides/authentication#scopes) for the full list.
+Use the returned access token as a Bearer token on every external API request. The `scope` parameter must be a space-separated list of **individual scopes** (not bundle names). Do not omit it. See [Authentication — Getting an access token](/guides/authentication#getting-an-access-token) for details and a full-access example.
 
 <Note>
   If you already have an older API-key-based integration, it may still work

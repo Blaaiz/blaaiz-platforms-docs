@@ -36,7 +36,7 @@ If the **API & Webhooks** page is missing, your account has not yet been provisi
 
 ## Getting an access token
 
-Exchange your OAuth credentials for a short-lived access token. Use the scopes that were assigned when you created your credentials:
+Exchange your OAuth credentials for a short-lived access token. You **must** include the `scope` parameter with the individual scopes your token needs:
 
 ```bash
 curl -X POST https://api-prod.blaaiz.com/oauth/token \
@@ -47,7 +47,26 @@ curl -X POST https://api-prod.blaaiz.com/oauth/token \
   --data-urlencode "scope=wallet:read payout:create transaction:read"
 ```
 
-The `scope` parameter must be a space-separated list of scopes that were assigned to your credentials. You can request all of them or a subset. The credential creation response includes the full list of available scopes in the `scopes` field.
+The `scope` parameter must be a **space-separated list of individual scopes** that were assigned to your credentials. You can request all of them or a subset. The credential creation response includes the full list of available scopes in the `scopes` field.
+
+<Warning>
+  **Do not pass bundle names** (e.g. `full-access`, `read-only`) in the `scope`
+  parameter when requesting a token. Bundles are a shortcut for credential
+  creation only — they are expanded into individual scopes at that time. When
+  minting a token, you must list the individual scopes. Passing a bundle name
+  will result in an `Invalid scope(s) provided` error.
+
+  **Do not omit the `scope` parameter.** If you omit it, the token will not
+  inherit your credential's scopes and your API requests will fail with
+  `403 Access Denied`.
+
+  If your credentials were created with the `full-access` bundle, pass all
+  individual scopes as shown below:
+
+  ```
+  scope=wallet:read currency:read bank:read customer:read customer:write beneficiary:read virtual-account:read virtual-account:create virtual-account:close collection:create collection:crypto:create collection:interac:accept payout:create swap:create transaction:read fees:read rates:read file:upload webhook:read webhook:write webhook:replay mock:webhook:trigger
+  ```
+</Warning>
 
 The access token returned from `/oauth/token` is short-lived. Request a new one when it expires.
 
@@ -57,9 +76,9 @@ Client credentials tokens do not use refresh tokens. When the current token expi
 
 When creating OAuth credentials, you can choose which API capabilities to grant. Scopes control what your access token is allowed to do.
 
-### Scope bundles
+### Scope bundles (credential creation only)
 
-For convenience, Blaaiz provides pre-built bundles that group related scopes:
+For convenience, Blaaiz provides pre-built bundles that group related scopes. Bundles can only be used when **creating or rotating credentials** from the dashboard. They are expanded into individual scopes at that time. When requesting a token from `/oauth/token`, you must use [individual scopes](#individual-scopes).
 
 | Bundle | Description |
 | --- | --- |
@@ -99,7 +118,7 @@ You can also select scopes individually for fine-grained control:
 | `webhook:replay` | Replay webhook deliveries |
 | `mock:webhook:trigger` | Trigger mock webhook simulations |
 
-If you do not specify any scopes or bundle when creating credentials, `full-access` is assigned by default.
+If you do not specify any scopes or bundle when creating credentials, the `full-access` bundle is assigned by default. This means your credentials will have all individual scopes available. You still need to pass those individual scopes in the `scope` parameter when [requesting a token](#getting-an-access-token).
 
 <Note>
   Scopes are set when credentials are created or rotated. To change scopes,
