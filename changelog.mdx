@@ -6,6 +6,37 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">05/04/2026</div>
+      <div className="changelog-card">
+        <h3>Customer ID Now Required for All Virtual Bank Accounts</h3>
+        <p>
+          The <code>customer_id</code> field is now <strong>required</strong> when
+          creating a Virtual Bank Account for all currencies, including NGN. Previously,
+          NGN allowed creating accounts without a customer by passing an{" "}
+          <code>account_name</code> instead — this is no longer supported.
+        </p>
+        <ul>
+          <li>
+            <code>customer_id</code> is now a required field in the{" "}
+            <a href="/api-reference/virtual-bank-account/create">Create Virtual Bank Account</a>{" "}
+            request for all currencies (NGN, GBP, EUR, USD).
+          </li>
+          <li>
+            The <code>account_name</code> request parameter has been removed.
+          </li>
+          <li>
+            The customer must have <code>verification_status</code> of{" "}
+            <code>VERIFIED</code> before a Virtual Bank Account can be created.
+          </li>
+        </ul>
+        <p>
+          <strong>Action required:</strong> If your integration creates NGN Virtual
+          Bank Accounts without a <code>customer_id</code>, you must update your
+          integration to create and verify a customer first.
+        </p>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">04/04/2026</div>
       <div className="changelog-card">
         <h3>Back ID Document Support for Customer Verification</h3>

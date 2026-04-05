@@ -36,23 +36,20 @@
         "schemas": {
             "CreateVBARequest": {
                 "type": "object",
-                "description": "Supports NGN, GBP, USD, EUR. \n For NGN, account_name is required. \n For GBP/USD/EUR, customer must have type=individual (business not supported).",
+                "description": "Supports NGN, GBP, USD, EUR. A verified customer is required for all currencies. For GBP/USD/EUR, the customer must have type=individual (business type is not supported).",
                 "properties": {
                     "wallet_id": {
                         "type": "string",
                         "description": "ID of the business wallet the account will be associated with."
                     },
-                    "account_name": {
-                        "type": "string",
-                        "description": "Name for the virtual bank account holder (max 255 chars).\nRequired when currency is NGN."
-                    },
                     "customer_id": {
                         "type": "string",
-                        "description": "Customer ID the VBA should be created for.\nFor GBP/USD/EUR, customer must have type=individual (business not supported)."
+                        "description": "ID of the verified customer the VBA should be created for. The customer must belong to your business and have verification_status=VERIFIED. For GBP/USD/EUR, the customer must have type=individual (business type is not supported)."
                     }
                 },
                 "required": [
-                    "wallet_id"
+                    "wallet_id",
+                    "customer_id"
                 ]
             },
             "VirtualBankAccount": {
@@ -172,7 +169,6 @@
                                 "default": {
                                     "value": {
                                         "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
-                                        "account_name": "Jane Doe",
                                         "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee"
                                     }
                                 }
@@ -214,15 +210,35 @@
                         "content": {
                             "application/json": {
                                 "examples": {
-                                    "currency_not_supported": {
+                                    "customer_not_verified": {
                                         "value": {
-                                            "message": "Currency GBP not supported."
+                                            "message": "Business customer is not verified. Ensure you have uploaded identify docs for customer."
+                                        }
+                                    },
+                                    "customer_not_found": {
+                                        "value": {
+                                            "message": "Business customer does not belong to this business."
                                         }
                                     },
                                     "duplicate_account": {
                                         "value": {
-                                            "message": "A virtual bank account with the name 'John Doe' already exists for this business wallet using the 'BANK78' provider. Please choose a different name."
+                                            "message": "A virtual bank account already exists for this business customer and wallet using the 'BANK78' provider."
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "The customer id field is required.",
+                                    "errors": {
+                                        "customer_id": [
+                                            "The customer id field is required."
+                                        ]
                                     }
                                 }
                             }

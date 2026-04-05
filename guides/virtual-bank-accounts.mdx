@@ -77,13 +77,17 @@ Before creating a Virtual Bank Account, ensure the following prerequisites are i
 
     You must have a wallet in the currency you want to create a Virtual Bank Account for. Pass a valid `wallet_id` in your request.
 
+    **Customer is always required**
+
+    You must provide a `customer_id` for all currencies. The customer must belong to your business and must have `verification_status` of `VERIFIED` before you can create a Virtual Bank Account.
+
     **No duplicate accounts**
 
     You cannot create a second Virtual Bank Account for the same customer and wallet combination. If one already exists, the request will be rejected.
 
     **Customer country and identity document must match**
 
-    For any customer-backed Virtual Bank Account, the customer's `country` must match the country on the identity document submitted for KYC.
+    The customer's `country` must match the country on the identity document submitted for KYC.
 
     **Accepted identity documents**
 
@@ -94,17 +98,13 @@ Before creating a Virtual Bank Account, ensure the following prerequisites are i
     All uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts to submit false or invalid documents will result in the customer being **permanently blacklisted** from the platform. There are no exceptions or compromises.
   </Tab>
   <Tab title="NGN">
-    **Account name is required**
+    **Customer is required**
 
-    For NGN Virtual Bank Accounts, you must provide an `account_name` in your request. This is the name that will appear on the virtual account.
+    You must provide a `customer_id`. The customer must be verified and belong to your business.
 
-    **Customer is optional**
+    **Immediate activation**
 
-    You can create NGN Virtual Bank Accounts with or without a `customer_id`. If you provide a `customer_id`, the customer must belong to your business.
-
-    **Duplicate check by account name**
-
-    When creating without a customer, the system checks for duplicates by `account_name`. You cannot create two Virtual Bank Accounts with the same name on the same wallet.
+    NGN Virtual Bank Accounts are typically activated immediately and the response will return with a `SUCCESSFUL` status along with the account details.
   </Tab>
   <Tab title="GBP">
     **Customer is required**
