@@ -30,7 +30,9 @@ Before integrating with the Blaaiz Platform API, review the following guidelines
 
 Customer verification is **not instant**. When you upload identity documents for a customer, those documents enter a review process. The customer's status will remain `PENDING` until that review is complete, at which point you will receive either a `customer.verified` or `customer.rejected` webhook.
 
-In the majority of cases, the review completes within **a few minutes**. In rare cases, documents may need an extra level of checks and screening — for example, if the document triggers additional compliance checks. When this happens, the review can take **up to 2 hours**. This is expected behaviour and is not a sign that anything has gone wrong.
+For **individual** customers, the review completes within **a few minutes** in the majority of cases. In rare cases, documents may need an extra level of checks and screening — for example, if the document triggers additional compliance checks. When this happens, the review can take **up to 2 hours**. This is expected behaviour and is not a sign that anything has gone wrong.
+
+For **business** customers, verification typically takes **1–5 business days**. Business verification involves additional compliance checks, including review of the Certificate of Incorporation and related business documentation. This longer timeline is standard and expected.
 
 **Do not raise support tickets or enquiries for verifications that have been pending for less than 2 hours.** Such requests will not be attended to, as the review is still within its normal processing window.
 
