@@ -27,7 +27,7 @@ For the **Collection API**, the currently documented value is:
 
 The `file_category` parameter appears in the **File API** when requesting a pre-signed URL for upload. It represents the type of file you want to upload.
 
-- `identity` – Identity document. **Required** to verify a customer. For individual customers, this must be a **Driver's License** or **Passport**. For business customers, this must be a **Certificate of Incorporation**. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
+- `identity` – Identity document. **Required** to verify a customer. For individual customers, this must be a **Driver's License**, **Passport**, or **Resident Permit**. For business customers, this must be a **Certificate of Incorporation**. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
 - `identity_back` – Back side of the identity document. Use this when the identity document is two-sided (e.g. driver's license). Not required for single-sided documents (e.g. passport, certificate of incorporation).
 - `proof_of_address` – Proof of address.
 - `liveness_check` – Liveness check.
@@ -44,13 +44,14 @@ The `id_type` parameter appears in the **Customer API** when creating a new cust
 
 - `drivers_license` – Driver's License.
 - `passport` – Passport.
+- `resident_permit` – Resident Permit.
 
 **For business customers**, only the following is accepted:
 
 - `certificate_of_incorporation` – Certificate of Incorporation.
 
 <Warning>
-No other identity document types are accepted. **ID cards (National Identity Cards) are not accepted.** Resident permits and any other document types are also **not supported**. Individual customers must provide either a Driver's License or a Passport. Business customers must provide a Certificate of Incorporation.
+No other identity document types are accepted. **ID cards (National Identity Cards) are not accepted.** Individual customers must provide a Driver's License, Passport, or Resident Permit. Business customers must provide a Certificate of Incorporation.
 </Warning>
 
 <Warning>

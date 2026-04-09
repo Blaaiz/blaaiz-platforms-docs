@@ -22,7 +22,7 @@ Make sure to save the `customer_id` returned from this endpoint as you'll need i
 </Note>
 
 <Warning>
-  Only **Driver's License** (`drivers_license`) or **Passport** (`passport`) are accepted as identity documents for individual customers. For business customers, only **Certificate of Incorporation** (`certificate_of_incorporation`) is accepted. **ID cards (National Identity Cards) are not accepted.** No other document types (such as resident permits) are supported.
+  Only **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`) are accepted as identity documents for individual customers. For business customers, only **Certificate of Incorporation** (`certificate_of_incorporation`) is accepted. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
 </Warning>
 
 <Warning>
@@ -31,7 +31,7 @@ Make sure to save the `customer_id` returned from this endpoint as you'll need i
 
 ### Step 2: Upload documents for the customer
 
-Once you have created the customer, the next step is to upload documents to verify their identity. The customer will remain in a `"pending"` state until their documents (especially `id_file`) are uploaded and verified. The identity document must be a **Driver's License** or **Passport** for individual customers, or a **Certificate of Incorporation** for business customers. **ID cards (National Identity Cards) are not accepted.** All uploaded images must be clear and legible — unclear or illegible images will be rejected. Fraudulent documents will result in the customer being permanently blacklisted from the platform.
+Once you have created the customer, the next step is to upload documents to verify their identity. The customer will remain in a `"pending"` state until their documents (especially `id_file`) are uploaded and verified. The identity document must be a **Driver's License**, **Passport**, or **Resident Permit** for individual customers, or a **Certificate of Incorporation** for business customers. **ID cards (National Identity Cards) are not accepted.** All uploaded images must be clear and legible — unclear or illegible images will be rejected. Fraudulent documents will result in the customer being permanently blacklisted from the platform.
 
 #### 2.1 Request pre-signed URLs for document upload
 
@@ -84,7 +84,7 @@ Before initiating a payout, ensure the following prerequisites are in place for 
 
     **Customer must be verified**
 
-    Every payout must be linked to a verified customer. If your customer's identity documents have not been uploaded and approved, the payout will be rejected. Make sure you have completed Step 1 and Step 2 above before attempting a payout. Remember: only a **Driver's License** or **Passport** is accepted for individual customers, and only a **Certificate of Incorporation** for business customers.
+    Every payout must be linked to a verified customer. If your customer's identity documents have not been uploaded and approved, the payout will be rejected. Make sure you have completed Step 1 and Step 2 above before attempting a payout. Remember: only a **Driver's License**, **Passport**, or **Resident Permit** is accepted for individual customers, and only a **Certificate of Incorporation** for business customers.
 
     **Wallet must exist**
 
