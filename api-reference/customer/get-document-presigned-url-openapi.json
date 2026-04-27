@@ -1,0 +1,62 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get KYB Document Upload URL",
+        "version": "1.0.0",
+        "description": "Step one of the two-step KYB document upload flow for business-type customers. Issues a 5-minute presigned S3 URL for uploading a single file. Returns a `file_id` that must be passed to POST /api/external/customer/{customer}/document to register the file as a KYB document."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": { "customer:write": "Create and update customers and KYC data." }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/document/presigned-url": {
+            "post": {
+                "summary": "Get a KYB document upload URL",
+                "description": "Two-step upload, step one. Returns a `file_id`, a presigned `url`, and the headers required to PUT the file directly to S3. The URL is valid for 5 minutes and accepts a single PUT.\n\nStep two: call `POST /api/external/customer/{customer}/document` with the same `file_id` to register the document.\n\nMax file size 25 MB. Allowed types: `application/pdf`, `image/jpeg`, `image/png`. Files outside these limits are rejected at registration time.\n\nThe customer must be of type `business`. Individual customers do not use this endpoint — they use the legacy file flow (`POST /api/external/file/get-presigned-url` followed by `POST /api/external/customer/{id}/files`).\n\nRequired scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Presigned URL ready.",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Upload URL generated successfully",
+                                    "data": {
+                                        "file_id": "f6c04a3e-3cdb-4b07-87e5-7a7c0d8b1c10",
+                                        "url": "https://s3.amazonaws.com/...?X-Amz-Signature=...",
+                                        "headers": { "x-amz-acl": "private" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": { "description": "Unauthorized." },
+                    "404": { "description": "Customer not found." }
+                }
+            }
+        }
+    }
+}

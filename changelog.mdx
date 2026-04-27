@@ -6,6 +6,187 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">26/04/2026</div>
+      <div className="changelog-card">
+        <h3>Breaking: business-type customers now use a dedicated KYB flow</h3>
+
+        <p>
+          <strong>Does this affect you?</strong>
+        </p>
+        <ul>
+          <li>
+            <strong>You only create <code>type=individual</code> customers</strong> —
+            nothing changes. Continue using{" "}
+            <a href="/api-reference/file/create">POST /file/get-presigned-url</a> +{" "}
+            <a href="/api-reference/customer/upload-files">POST /customer/{"{id}"}/files</a>.
+            That flow is unchanged.
+          </li>
+          <li>
+            <strong>You create <code>type=business</code> customers</strong> — yes,
+            you must migrate. The legacy{" "}
+            <code>POST /customer/{"{id}"}/files</code> with <code>id_file=&lt;cert_of_inc&gt;</code>{" "}
+            no longer triggers verification for business customers. The file is still
+            stored, but our verification pipeline does not look at it for businesses,
+            and <code>/submit</code> will return <code>422</code> with a readiness error.
+          </li>
+          <li>
+            <strong>Your existing <code>VERIFIED</code> business customers</strong> are
+            untouched. They remain <code>VERIFIED</code> and valid for every operation
+            they were valid for before. You only need to migrate the flow you use to
+            verify <strong>new</strong> business customers.
+          </li>
+        </ul>
+
+        <p>
+          <strong>Migration at a glance.</strong>
+        </p>
+        <ul>
+          <li>
+            <strong>Before</strong> (no longer works for business):{" "}
+            <code>POST /customer</code> with{" "}
+            <code>type=business</code>, <code>id_type=certificate_of_incorporation</code>{" "}
+            → upload via <code>/file/get-presigned-url</code> →{" "}
+            <code>POST /customer/{"{id}"}/files</code> with <code>id_file</code>.
+          </li>
+          <li>
+            <strong>Now</strong>:{" "}
+            <code>POST /customer</code> with <code>type=business</code> +{" "}
+            <code>business_name</code> + <code>registration_number</code> +{" "}
+            <code>incorporation_country</code> + (optional)<code>owners</code> array
+            (or add owners later via <code>PUT /customer/{"{id}"}</code>) → upload
+            owner ID files via{" "}
+            <code>POST /customer/{"{customer}"}/owner/{"{owner}"}/file/presigned-url</code>{" "}
+            and{" "}
+            <code>POST /customer/{"{customer}"}/owner/{"{owner}"}/files</code> →
+            register KYB documents via{" "}
+            <code>POST /customer/{"{customer}"}/document/presigned-url</code> and{" "}
+            <code>POST /customer/{"{customer}"}/document</code> → finalize with{" "}
+            <a href="/api-reference/customer/submit">
+              <code>POST /customer/{"{customer}"}/submit</code>
+            </a>.
+          </li>
+          <li>
+            <strong>
+              Customer-level <code>id_type</code> and <code>id_number</code> are no
+              longer required for business customers
+            </strong>
+            . Use <code>registration_number</code> +{" "}
+            <code>incorporation_country</code> as the canonical identifier instead.
+            The legacy fields remain accepted for back-compat — if you still send{" "}
+            <code>id_type</code> on a business customer, it must be{" "}
+            <code>certificate_of_incorporation</code>. Individuals continue to require{" "}
+            <code>id_type</code> + <code>id_number</code> as before.
+          </li>
+          <li>
+            <strong>Uniqueness:</strong>{" "}
+            <code>registration_number</code> is now unique within your business per{" "}
+            <code>incorporation_country</code> — two of your business customers cannot
+            share the same <code>(registration_number, incorporation_country)</code>{" "}
+            pair. The same number across different incorporation countries is fine.
+          </li>
+          <li>
+            <strong>
+              Customer-level <code>country</code> is no longer required for business
+              customers
+            </strong>
+            . If omitted, the system auto-fills it from{" "}
+            <code>incorporation_country</code> so downstream operations behave
+            identically. Individuals continue to require <code>country</code>.
+          </li>
+          <li>
+            The certificate-of-incorporation <strong>file</strong> goes into the new
+            KYB document collection (<code>type=CERTIFICATE_OF_INCORPORATION</code>)
+            instead of through <code>/files</code>.
+          </li>
+        </ul>
+
+        <p>
+          <strong>Rules <code>/submit</code> enforces for business customers</strong>{" "}
+          (each returns <code>422</code> with a specific message):
+        </p>
+        <ul>
+          <li>At least one beneficial owner.</li>
+          <li>
+            <strong>
+              Owner <code>ownership_percentage</code> values must sum to exactly 100
+            </strong>
+            . 99.99% won't pass.
+          </li>
+          <li>
+            At least one KYB document of a formation type:{" "}
+            <code>CERTIFICATE_OF_INCORPORATION</code>,{" "}
+            <code>ARTICLES_OF_INCORPORATION</code>,{" "}
+            <code>BENEFICIAL_OWNERSHIP_CERTIFICATE</code>,{" "}
+            <code>INCORPORATION_DOCUMENTS</code>, or <code>CAC_STATUS_REPORT</code>.
+          </li>
+        </ul>
+
+        <p>
+          <strong>What's new in the response shape.</strong>{" "}
+          <a href="/api-reference/customer/get">GET /customer/{"{id}"}</a> now returns:
+        </p>
+        <ul>
+          <li>
+            <code>owners[]</code> — beneficial owners with per-record{" "}
+            <code>status</code> (<code>PENDING</code> / <code>PROCESSING</code> /{" "}
+            <code>APPROVED</code> / <code>REJECTED</code>) and{" "}
+            <code>admin_comments</code> (array of strings).{" "}
+            <code>APPROVED</code> and <code>PROCESSING</code> owners are locked from
+            edits.
+          </li>
+          <li>
+            <code>documents[]</code> — KYB document collection with the same{" "}
+            <code>status</code> + <code>admin_comments</code> shape and the same lock
+            semantics. Note: this replaces nothing — it is a new field on the customer.
+          </li>
+          <li>
+            On <code>customer.status_changed</code> with{" "}
+            <code>new_status=REJECTED</code> for a business customer, render each
+            owner's and each KYB document's <code>admin_comments</code> entries to your
+            end customer as separate bullets. Rejected items are editable;{" "}
+            <code>APPROVED</code> items stay locked. Fix and call <code>/submit</code>{" "}
+            again to re-review only the items you changed.
+          </li>
+        </ul>
+
+        <p>
+          <strong>Webhook contract.</strong>{" "}
+          <code>customer.status_changed</code> remains the single customer-level event;
+          you do not need to update your webhook handler. Inspect{" "}
+          <code>old_status</code> and <code>new_status</code> as before. Business
+          customers introduce one new <code>new_status</code> value:{" "}
+          <code>PROCESSING</code>, fired right after <code>/submit</code>. There are{" "}
+          <strong>no</strong> per-owner or per-document webhooks — the customer-level
+          event is the only signal.
+        </p>
+
+        <p>
+          <strong>Timeline expectations.</strong> Individual KYC remains a
+          minutes-to-2-hours process. Business KYB review typically takes{" "}
+          <strong>1–5 business days</strong>. Wait for{" "}
+          <code>customer.status_changed</code>; do not raise support tickets within
+          the standard window.
+        </p>
+
+        <p>
+          <strong>Not yet available.</strong> USD, GBP, and EUR Virtual Bank Accounts
+          and direct payouts in those currencies for <code>type=business</code>{" "}
+          customers. NGN VBAs and CAD payouts work today. KYB is the foundation for
+          the future expansion.
+        </p>
+
+        <p>
+          Read these before migrating:{" "}
+          <a href="/guides/kyb/overview">Business customer KYB overview</a>,{" "}
+          <a href="/guides/kyb/onboarding">Onboarding a business customer</a>{" "}
+          (full curl walkthrough + a "Common mistakes" section that calls out the
+          /files trap),{" "}
+          <a href="/guides/kyb/handling-rejections">Handling KYB rejections</a>, and{" "}
+          <a href="/faq/kyb">KYB FAQ</a>.
+        </p>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">06/04/2026</div>
       <div className="changelog-card">
         <h3>PHP SDK Now Available</h3>

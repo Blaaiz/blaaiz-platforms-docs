@@ -32,18 +32,20 @@ Customer verification is **not instant**. When you upload identity documents for
 
 For **individual** customers, the review completes within **a few minutes** in the majority of cases. In rare cases, documents may need an extra level of checks and screening — for example, if the document triggers additional compliance checks. When this happens, the review can take **up to 2 hours**. This is expected behaviour and is not a sign that anything has gone wrong.
 
-For **business** customers, verification typically takes **1–5 business days**. Business verification involves additional compliance checks, including review of the Certificate of Incorporation and related business documentation. This longer timeline is standard and expected.
+For **business** customers, verification typically takes **1–5 business days**. Business verification involves additional compliance checks against company registries, beneficial-ownership records, and risk databases. This longer timeline is standard and expected. Business customers go through the dedicated [KYB flow](/guides/kyb/overview) — beneficial owners and KYB documents — not the legacy `/files` endpoint.
 
-**Do not raise support tickets or enquiries for verifications that have been pending for less than 2 hours.** Such requests will not be attended to, as the review is still within its normal processing window.
+**For individual customers**, do not raise support tickets or enquiries for verifications that have been pending for less than 2 hours. Such requests will not be attended to, as the review is still within its normal processing window.
 
-If a customer's verification has been pending for **5 hours or more**, that is a clear signal that something may have gone wrong on our end. At that point — and only at that point — you should contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to have the situation investigated and expedited.
+If an individual customer's verification has been pending for **5 hours or more**, that is a clear signal that something may have gone wrong on our end. At that point — and only at that point — you should contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to have the situation investigated and expedited.
 
-To summarise: wait for the webhook, do not escalate before 2 hours, and only reach out to the operations team if the verification has been pending for 5 hours or longer.
+**For business customers**, the equivalent escalation threshold is **5 business days**. Do not raise tickets within the 1–5 business day window. Wait for the `customer.status_changed` webhook.
+
+To summarise: wait for the webhook. For individuals, do not escalate before 2 hours and only reach out if pending for 5 hours or more. For businesses, only escalate if a customer has been in `PROCESSING` for more than 5 business days.
 
 ### Accepted identity documents
 
-- **Individual customers**: Only a **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`) is accepted.
-- **Business customers**: Only a **Certificate of Incorporation** (`certificate_of_incorporation`) is accepted.
+- **Individual customers**: `id_type` is required and must be **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`). The matching document file is uploaded via the legacy File API.
+- **Business customers**: `id_type` is no longer required at the customer level — businesses identify via `registration_number` + `incorporation_country`. If you do send `id_type` for back-compat, only **Certificate of Incorporation** (`certificate_of_incorporation`) is valid. The actual certificate file goes into the [KYB document collection](/guides/kyb/onboarding), not through the File API.
 - **ID cards (National Identity Cards) are not accepted.** No other identity document types are supported. National ID cards and any other document types will be rejected.
 
 ### Document quality requirements

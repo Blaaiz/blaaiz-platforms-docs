@@ -65,10 +65,14 @@
                         "type": "string"
                     },
                     "id_type": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers."
                     },
                     "id_number": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers."
                     },
                     "verification_status": {
                         "type": "string"
@@ -80,8 +84,6 @@
                     "type",
                     "email",
                     "country",
-                    "id_type",
-                    "id_number",
                     "verification_status"
                 ]
             },

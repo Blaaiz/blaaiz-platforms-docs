@@ -19,9 +19,7 @@ Your business has two webhook URLs: `collection_url` and `payout_url`. The table
 | `payout.processing` | Payout is being processed | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
 | `payout.completed` | Payout completed successfully | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
 | `payout.failed` | Payout failed | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
-| `customer.created` | New customer created | `collection_url` | [Customer](/guides/webhooks/customer) |
-| `customer.verified` | Customer KYC verified | `collection_url` | [Customer](/guides/webhooks/customer) |
-| `customer.rejected` | Customer KYC rejected | `collection_url` | [Customer](/guides/webhooks/customer) |
+| `customer.status_changed` | Customer's `verification_status` transitioned. The single event covers all customer-level transitions for both KYC (individual) and KYB (business): inspect `old_status` and `new_status` on the payload to know which way it moved. The legacy event labels `customer.verified` and `customer.rejected` are still mentioned in this guide for clarity, but the wire `event_type` value is always `customer.status_changed`. | `collection_url` | [Customer](/guides/webhooks/customer) |
 | `virtual_account.created` | Virtual account created | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 | `virtual_account.ready` | Virtual account ready to receive funds | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 | `virtual_account.rejected` | Virtual account verification rejected | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |

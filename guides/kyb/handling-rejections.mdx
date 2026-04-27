@@ -1,0 +1,77 @@
+---
+title: Handling KYB rejections
+description: How to read admin feedback, fix the right things, and re-submit a rejected business customer.
+---
+
+When a business customer is rejected, the API tells you exactly what needs fixing — at the owner level, at the document level, or both. This guide explains how to read the feedback and act on it.
+
+Read [Business customer KYB](/guides/kyb/overview) first.
+
+## How rejection feedback is delivered
+
+You receive a `customer.status_changed` webhook on your `collection_url` with `new_status=REJECTED`. The customer-level `comment` field gives a brief summary, but the per-record detail lives on the customer.
+
+Fetch the customer with `GET /api/external/customer/{id}` and inspect:
+
+- `verification_status` — will be `REJECTED`.
+- `owners[].status` and `owners[].admin_comments` — for each owner.
+- `documents[].status` and `documents[].admin_comments` — for each KYB document.
+
+`admin_comments` is an **array of strings**. Display each entry to your end customer as a separate bullet — that's how compliance writes them. An empty / null array means "no specific comment for this record."
+
+Records still showing `APPROVED` are fine and locked. Records showing `REJECTED` are what you need to fix. Records may also still be `PROCESSING` if compliance hadn't decided on them yet, but in normal flow every record is terminal by the time you receive a customer-level rejection.
+
+## What you can edit
+
+| Record state | What you can do |
+| :--- | :--- |
+| Owner — `APPROVED` | Nothing via the API. Contact operations if a correction is needed. |
+| Owner — `REJECTED` | Edit any field via `PUT /customer/{id}` (with the `owners` array) or replace ID files via the owner-files presigned-URL flow. |
+| Document — `APPROVED` | Nothing via the API. Contact operations if a correction is needed. |
+| Document — `REJECTED` | Edit metadata or replace the file via `PUT /customer/{id}/document/{document}`. Or `DELETE` and re-register a fresh one. |
+| Customer-level fields | Editable while the customer is `REJECTED`. Same field-locking rules as for `VERIFIED` apply — fields that already have a value can't be changed; if you need a customer-level correction, see [Customer data corrections](/guides/customer-data-corrections). |
+
+## Fixing common issues
+
+**Owner ID rejected because the image was unclear.**
+Get a fresh presigned URL for `id_document_front` (and `id_document_back` if applicable), upload a clearer scan, register the new file. The owner's `id_document_path` updates and the owner's `status` stays `REJECTED` until you re-submit.
+
+**Owner ID rejected because the document is expired.**
+Replace it via the same flow, but make sure the new document's expiry is in the future and matches the owner's `id_expiry_date` field. Update the owner's `id_expiry_date` via `PUT /customer/{id}` if it changed.
+
+**KYB document rejected because the wrong type was registered.**
+Either `PUT /customer/{id}/document/{document}` to change the `type`, or `DELETE` and register a new document with the right type. Then re-upload the correct file if needed.
+
+**KYB document rejected because of file quality.**
+Get a fresh presigned URL via `POST /customer/{id}/document/presigned-url`, upload a clearer scan, then `PUT /customer/{id}/document/{document}` with the new `file_id` to replace the file.
+
+**Compliance asks for a new document type that wasn't part of the original submission.**
+Register it via the standard document flow (presigned URL → PUT → register). The new document starts at `PENDING`. When you re-submit, all `PENDING` documents flip to `PROCESSING` along with the customer.
+
+## Re-submitting
+
+Once you've fixed everything called out in `admin_comments`:
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/submit \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+The customer flips back to `PROCESSING`. Every `PENDING` owner and document (i.e. the records you just edited or added) flips to `PROCESSING`. Records that were already `APPROVED` are not touched — that work isn't redone.
+
+You'll receive another `customer.status_changed` webhook when compliance issues the new verdict. Same 1–5 business day window applies.
+
+## What not to do
+
+**Don't recreate the customer from scratch.** All your `APPROVED` work would be lost. Edit and re-submit the existing customer.
+
+**Don't try to flip an owner or document's `status` yourself.** The `status` and `admin_comments` fields are admin-managed. If you send them in an update payload, they're silently dropped.
+
+**Don't ignore the per-record comments and just re-upload the same files.** If compliance rejected an owner because the ID is expired, uploading the same expired ID will get the customer rejected again. Read each `admin_comments` entry and fix the specific issue.
+
+**Don't re-submit while you're still mid-fix.** Once you call `/submit`, every record at `PENDING` flips to `PROCESSING` — that includes documents you haven't replaced yet. Make every fix, then submit once.
+
+## When to escalate
+
+If `customer.status_changed` says `REJECTED` but no owner or document carries `admin_comments`, that's a compliance gap on our side. Email [support@blaaiz.com](mailto:support@blaaiz.com) with the `customer_id` so the operations team can attach the missing feedback. Otherwise, work the comments before reaching out — most rejections we see are perfectly actionable from the per-record detail alone.

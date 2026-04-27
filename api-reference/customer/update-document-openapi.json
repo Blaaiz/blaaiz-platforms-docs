@@ -1,0 +1,91 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Update KYB Document",
+        "version": "1.0.0",
+        "description": "Edit metadata or replace the underlying file on a KYB document. Only allowed when the document is editable — `APPROVED` and `PROCESSING` documents are locked, `REJECTED` and `PENDING` documents are editable so the business can fix and re-submit."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": { "customer:write": "Create and update customers and KYC data." }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/document/{document}": {
+            "put": {
+                "summary": "Update a KYB document",
+                "description": "Edit `type`, `name`, `description`, or replace the underlying file by supplying a new `file_id` from a fresh presigned URL call. Send only the fields you want to change.\n\nNot allowed when the document is locked for review (status `APPROVED` or `PROCESSING`) — these return 400. `PENDING` and `REJECTED` documents are editable. Required scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+                    { "name": "document", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "CERTIFICATE_OF_INCORPORATION",
+                                            "ARTICLES_OF_INCORPORATION",
+                                            "BENEFICIAL_OWNERSHIP_CERTIFICATE",
+                                            "INCORPORATION_DOCUMENTS",
+                                            "CAC_STATUS_REPORT",
+                                            "ACCOUNT_AGREEMENT",
+                                            "PROOF_OF_ADDRESS",
+                                            "BANK_STATEMENT",
+                                            "LICENSE",
+                                            "SHARE_REGISTRATION",
+                                            "COMPANY_OWNERSHIP_STRUCTURE",
+                                            "DIRECTORS_REGISTER",
+                                            "OTHER"
+                                        ]
+                                    },
+                                    "name": { "type": "string", "maxLength": 255 },
+                                    "description": { "type": "string", "nullable": true, "maxLength": 2000 },
+                                    "file_id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "Provide to replace the underlying file. Must come from a fresh presigned URL call."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": { "description": "Document updated." },
+                    "400": {
+                        "description": "Document is locked (status APPROVED or PROCESSING).",
+                        "content": { "application/json": { "example": { "message": "Cannot modify a document that has been approved or is currently under review." } } }
+                    },
+                    "401": { "description": "Unauthorized." },
+                    "404": { "description": "Customer or document not found." },
+                    "422": { "description": "Validation error or replacement file failed checks." }
+                }
+            }
+        }
+    }
+}

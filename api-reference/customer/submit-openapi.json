@@ -1,0 +1,93 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Submit Customer for Verification",
+        "version": "1.0.0",
+        "description": "Submit a finished customer for verification — the explicit \"I'm done editing, please review me\" signal.\n\nFor business-type customers, this is the only way to start verification. For individual customers, this is an alternative to the legacy `id_file`-on-/files trigger."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": { "customer:write": "Create and update customers and KYC data." }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/submit": {
+            "post": {
+                "summary": "Submit customer for verification",
+                "description": "Locks the customer for review and starts the verification flow. The customer's `verification_status` flips out of `PENDING` (or `REJECTED` on re-submission).\n\n**Readiness check.** This endpoint enforces what data must be present before review can begin:\n\n- **Individual customers** must have `id_file` already uploaded (via the legacy file flow).\n- **Business-type customers** must have at least one beneficial owner, the owners' `ownership_percentage` must sum to exactly 100, and at least one document of a formation type (`CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`) must be present in the document collection.\n\nIf any precondition fails, the response is 422 with a specific message describing the gap.\n\n**What happens on success** depends on customer type and your business settings:\n\n- **Individual + external KYC enabled** → handed to the KYC provider for review.\n- **Individual + external KYC disabled** → marked `VERIFIED` immediately.\n- **Business + auto-verify enabled** → marked `VERIFIED` immediately.\n- **Business + auto-verify disabled** → moves to `PROCESSING` for manual compliance review.\n\nIn every flow, all `PENDING` owners and `PENDING` KYB documents flip to `PROCESSING` so they're visibly under review and frozen from further edits. Owners and documents that were already `APPROVED` or `REJECTED` are not touched.\n\nA `customer.status_changed` webhook fires for the customer-level transition. There are no per-owner or per-document webhooks.\n\n**Verification is not instant.** For individual customers, review typically completes within minutes (up to 2 hours under additional screening). For business-type customers, review typically takes 1–5 business days. Do not escalate before 2 hours for individuals or 5 hours for unusual cases — listen for the `customer.status_changed` webhook.\n\nRequired scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Customer submitted.",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Customer submitted for verification successfully",
+                                    "data": {
+                                        "id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
+                                        "type": "business",
+                                        "verification_status": "PROCESSING",
+                                        "owners": [
+                                            { "id": "019a6e22-8b4c-7c8d-9d12-c0c1ab3f1a90", "first_name": "Jane", "status": "PROCESSING" }
+                                        ],
+                                        "documents": [
+                                            { "id": "019a6e10-1fb3-7b2f-8f8b-ad1e92c4017a", "type": "CERTIFICATE_OF_INCORPORATION", "status": "PROCESSING" }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Customer is already verified or under review.",
+                        "content": { "application/json": { "example": { "message": "Customer is already verified or under review." } } }
+                    },
+                    "401": { "description": "Unauthorized." },
+                    "404": { "description": "Customer not found." },
+                    "422": {
+                        "description": "Customer is not ready for submission.",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "missing_owners": {
+                                        "value": { "message": "Cannot submit business customer for verification: at least one owner is required." }
+                                    },
+                                    "ownership_sum_wrong": {
+                                        "value": { "message": "Cannot submit business customer for verification: ownership_percentage of all owners must sum to 100%, but currently sums to 90%." }
+                                    },
+                                    "no_formation_doc": {
+                                        "value": { "message": "Cannot submit business customer for verification: at least one formation document is required." }
+                                    },
+                                    "individual_missing_id_file": {
+                                        "value": { "message": "Cannot submit individual customer for verification: id_file is required." }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

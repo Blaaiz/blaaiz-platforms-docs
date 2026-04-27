@@ -1,0 +1,210 @@
+---
+title: Onboarding a business customer
+description: End-to-end walkthrough for creating, populating, and submitting a business-type customer for KYB.
+---
+
+This guide walks through onboarding a `type=business` customer from creation to verification. Read [Business customer KYB](/guides/kyb/overview) first if you haven't — it explains the lifecycle and the rules that this walkthrough assumes.
+
+## Prerequisites
+
+- An OAuth access token with `customer:write` and `customer:read` scopes — see [Authentication](/guides/authentication).
+- The business's basic profile information (name, registration number, country of incorporation, etc.).
+- Each beneficial owner's personal details and a clear ID document image.
+- The company's formation document (Certificate of Incorporation or equivalent).
+
+## Step 1: Create the customer
+
+Create the customer with `type=business`. You can include the `owners` array up front (up to 5 entries) or add owners later via `PUT /api/external/customer/{id}`.
+
+```bash
+curl -X POST https://api-prod.blaaiz.com/api/external/customer \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "business",
+    "business_name": "Acme Corp",
+    "trading_name": "Acme",
+    "business_type": "llc",
+    "registration_number": "RC123456",
+    "incorporation_country": "NG",
+    "incorporation_date": "2019-03-12",
+    "industry_type": "Software & SaaS",
+    "business_description": "B2B SaaS platform for African logistics operators.",
+    "website": "https://acme.example.com",
+    "source_of_funds": "business_revenue",
+    "estimated_annual_revenue": "1000000_4999999",
+    "expected_monthly_payments": 250,
+    "account_purpose": "send_receive_funds_related_parties",
+    "email": "contact@acme.example.com",
+    "phone": "+2348012345678",
+    "tin": "12345678-0001",
+    "owners": [
+      {
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "ownership_percentage": 60,
+        "is_beneficial_owner": true,
+        "is_signer": true,
+        "has_control": true
+      },
+      {
+        "first_name": "John",
+        "last_name": "Smith",
+        "ownership_percentage": 40,
+        "is_beneficial_owner": true
+      }
+    ]
+  }'
+```
+
+<Note>
+For business customers the canonical identifier is `registration_number` + `incorporation_country`, not the legacy `id_type` / `id_number` fields. Both `registration_number` and `incorporation_country` are required at create time. The actual certificate-of-incorporation **file** goes into the KYB document collection in step 4 — never through `/files`.
+
+`country` is also optional for businesses — if omitted, it auto-fills from `incorporation_country`. The legacy `id_type` and `id_number` fields are still accepted on the request shape for back-compat. If you send `id_type` on a business customer, it must be `certificate_of_incorporation`. New integrations should omit all three.
+</Note>
+
+Save the returned `id` as your `customer_id`. The `verification_status` is `PENDING`.
+
+## Step 2: Add KYC data (operating address, etc.)
+
+If you have additional address or KYC fields to capture — including the operating address when it differs from the registered address — call `POST /api/external/customer/{id}/kyc-data`:
+
+```bash
+curl -X POST https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/kyc-data \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "street": "456 Business Ave",
+    "city": "Lagos",
+    "state": "Lagos",
+    "zip_code": "100001",
+    "operating_street": "789 Operations Blvd",
+    "operating_city": "Lagos",
+    "operating_state": "Lagos",
+    "operating_zip_code": "100002"
+  }'
+```
+
+This step is optional — fields you didn't capture at creation can also be patched via `PUT /api/external/customer/{id}` later.
+
+## Step 3: Upload an ID file for each owner
+
+Each owner needs at least their `id_document_front`. For two-sided IDs (e.g. driver's license) include `id_document_back`. The flow is two steps per file: get a presigned URL, PUT the file to S3, then register the upload.
+
+### 3.1 Get a presigned URL
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/owner/OWNER_ID/file/presigned-url \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "file_category": "id_document_front" }'
+```
+
+The response gives you `file_id`, `url` (a 5-minute presigned S3 URL), and `headers`.
+
+### 3.2 PUT the file to S3
+
+```bash
+curl -X PUT "$URL" \
+  -H "x-amz-acl: private" \
+  -H "Content-Type: application/pdf" \
+  --data-binary @owner-jane-passport.pdf
+```
+
+Max 25 MB. Allowed MIME: `application/pdf`, `image/jpeg`, `image/png`. The file must be clear, legible, and authentic — see [General guidelines](/guides/general-guidelines) for the document quality rules. Fraudulent documents result in permanent blacklisting.
+
+### 3.3 Register the upload
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/owner/OWNER_ID/files \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "id_document_front": "FILE_ID" }'
+```
+
+Repeat 3.1–3.3 for each owner. If the owner has a two-sided ID, do the back side as a separate `file_category=id_document_back` round.
+
+## Step 4: Register KYB documents
+
+The company's formation document and any other corporate paperwork (articles, share register, bank statements, proof of address, etc.) go into the KYB document collection. Same two-step pattern.
+
+### 4.1 Get a presigned URL
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/document/presigned-url \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+Response gives you `file_id` and a 5-minute `url`.
+
+### 4.2 PUT the file to S3
+
+Same as 3.2.
+
+### 4.3 Register the document
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/document \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "CERTIFICATE_OF_INCORPORATION",
+    "name": "Acme Corp — Certificate of Incorporation.pdf",
+    "file_id": "FILE_ID",
+    "description": "Filed 2019-03-12, Companies House"
+  }'
+```
+
+You must register at least one document of a formation type before `/submit` will accept the customer. Formation types are `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, and `CAC_STATUS_REPORT`. Compliance may require additional document types depending on the business profile — review feedback comes through `admin_comments` on the customer-level rejection.
+
+## Step 5: Submit for verification
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/submit \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+The customer flips to `PROCESSING`. All `PENDING` owners and documents flip to `PROCESSING` along with it. They're now locked from edits.
+
+If the readiness check fails, the response is 422. Common causes:
+
+| Message | Fix |
+| :--- | :--- |
+| "at least one owner is required" | Add an owner via `PUT /customer/{id}` with the `owners` array. |
+| "ownership_percentage of all owners must sum to 100%, but currently sums to X%" | Adjust the percentages so they total 100. |
+| "at least one formation document is required" | Register one with a formation type via step 4. |
+
+## Step 6: Wait for the webhook
+
+You will receive a `customer.status_changed` webhook on your `collection_url` when the customer transitions to `VERIFIED` or `REJECTED`. Business KYB review typically takes 1–5 business days. **Do not poll, do not raise tickets within that window** — see [General guidelines](/guides/general-guidelines#verification-timing).
+
+If `VERIFIED`, the customer is ready to use — for an NGN Virtual Bank Account, an NGN payout, or any other operation that requires a verified customer.
+
+If `REJECTED`, every owner and document that needed fixing will have entries in its `admin_comments` array explaining what's wrong. See [Handling KYB rejections](/guides/kyb/handling-rejections).
+
+## Common mistakes
+
+These are the patterns we see most often that cause grief.
+
+**1. Calling `POST /customer/{id}/files` for a business customer.**
+The file is stored but `/submit` doesn't look at it. Symptom: you upload everything, call `/submit`, and get a 422 about owners or formation documents. Fix: use the dedicated owner-file and KYB-document endpoints from steps 3 and 4.
+
+**2. Ownership percentages that don't sum to 100.**
+`/submit` enforces this strictly. 99.99% won't do. Add up the values across every owner and make sure they total exactly 100.
+
+**3. Trying to edit an `APPROVED` or `PROCESSING` owner / document.**
+The API returns 400. To correct an APPROVED record, contact operations — see [Customer data corrections](/guides/customer-data-corrections). To wait out a `PROCESSING` record, hold for the customer-level webhook; if its status flips to `REJECTED`, you'll be able to fix it then.
+
+**4. Sending `status` or `admin_comments` in your update payloads.**
+Those fields are admin-managed. They're silently stripped from your requests — your owner stays at `PENDING` and your comments don't get saved. Don't rely on them appearing on the response if you sent them.
+
+**5. Forgetting `registration_number` and `incorporation_country` at create time.**
+These two are required for `type=business` and they're how the business is indexed in our compliance system. The legacy `id_type` / `id_number` are no longer required for businesses (kept accepted only for back-compat).
+
+**6. Treating `customer.created` as "ready to transact."**
+`customer.created` fires the moment you POST `/customer`. Verification has not even started yet. Wait for `customer.status_changed` with `new_status=VERIFIED`.

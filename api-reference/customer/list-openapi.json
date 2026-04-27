@@ -36,44 +36,31 @@
         "schemas": {
             "CustomerSummary": {
                 "type": "object",
+                "description": "Customer summary returned by list endpoints. Lighter than the full Customer object — relations like `kyc_data`, `owners`, and `documents` are not included on list. Use `GET /customer/{id}` for the full record.",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "first_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "last_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "business_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "phone_number": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "string"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
+                    "id": { "type": "string", "format": "uuid" },
+                    "business_id": { "type": "string", "format": "uuid" },
+                    "type": { "type": "string", "enum": ["individual", "business"] },
+                    "first_name": { "type": "string", "nullable": true },
+                    "last_name": { "type": "string", "nullable": true },
+                    "business_name": { "type": "string", "nullable": true },
+                    "email": { "type": "string", "format": "email" },
+                    "phone": { "type": "string", "nullable": true },
+                    "country": { "type": "string", "nullable": true },
+                    "id_type": { "type": "string", "nullable": true, "description": "Set for individual customers. May be null on business customers." },
+                    "id_number": { "type": "string", "nullable": true, "description": "Set for individual customers. May be null on business customers." },
+                    "registration_number": { "type": "string", "nullable": true, "description": "Set for business customers." },
+                    "incorporation_country": { "type": "string", "nullable": true, "description": "Set for business customers." },
+                    "verification_status": { "type": "string", "enum": ["PENDING", "PROCESSING", "VERIFIED", "REJECTED"] },
+                    "created_at": { "type": "string", "format": "date-time" },
+                    "updated_at": { "type": "string", "format": "date-time" }
                 },
                 "required": [
                     "id",
+                    "business_id",
                     "type",
                     "email",
-                    "status",
+                    "verification_status",
                     "created_at"
                 ]
             },
@@ -140,23 +127,40 @@
                                     "message": "Customers retrieved successfully",
                                     "data": [
                                         {
-                                            "id": "customer_123",
+                                            "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                            "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
                                             "type": "individual",
                                             "first_name": "John",
                                             "last_name": "Doe",
-                                            "email": "john@example.com",
-                                            "phone_number": "+2348012345678",
-                                            "status": "verified",
-                                            "created_at": "2024-01-15T10:30:00Z"
+                                            "business_name": null,
+                                            "email": "john.doe@example.com",
+                                            "phone": "+2348012345678",
+                                            "country": "NG",
+                                            "id_type": "passport",
+                                            "id_number": "A12345678",
+                                            "registration_number": null,
+                                            "incorporation_country": null,
+                                            "verification_status": "VERIFIED",
+                                            "created_at": "2024-01-15T10:30:00.000000Z",
+                                            "updated_at": "2024-01-15T10:35:00.000000Z"
                                         },
                                         {
-                                            "id": "customer_456",
+                                            "id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
+                                            "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
                                             "type": "business",
+                                            "first_name": null,
+                                            "last_name": null,
                                             "business_name": "Acme Corp",
-                                            "email": "contact@acme.com",
-                                            "phone_number": "+2348012345679",
-                                            "status": "verified",
-                                            "created_at": "2024-01-14T09:20:00Z"
+                                            "email": "contact@acme.example.com",
+                                            "phone": "+2348012345679",
+                                            "country": "NG",
+                                            "id_type": null,
+                                            "id_number": null,
+                                            "registration_number": "RC123456",
+                                            "incorporation_country": "NG",
+                                            "verification_status": "VERIFIED",
+                                            "created_at": "2024-01-14T09:20:00.000000Z",
+                                            "updated_at": "2024-01-14T09:25:00.000000Z"
                                         }
                                     ]
                                 }

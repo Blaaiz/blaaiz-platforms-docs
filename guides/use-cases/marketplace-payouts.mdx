@@ -26,7 +26,11 @@ sequenceDiagram
 
 ## Step-by-step
 
-1. **Onboard sellers** — [Create customers](/api-reference/customer/create) for each seller with KYC documents.
+1. **Onboard sellers** — [Create customers](/api-reference/customer/create) for each seller. Sole-trader sellers use `type=individual` and the standard KYC flow. Incorporated sellers (LLCs, limited companies, etc.) use `type=business` and must complete the [KYB flow](/guides/kyb/overview) — beneficial owners and KYB documents, not the legacy `/files` endpoint.
+
+   <Note>
+   USD, GBP, and EUR Virtual Bank Accounts and direct payouts in those currencies currently support `type=individual` only. If your incorporated sellers receive in those currencies, you cannot provision a USD/GBP/EUR VBA for them today. NGN VBAs work for both types. KYB completion is the foundation for the future business-customer expansion in USD/GBP/EUR.
+   </Note>
 2. **Create Virtual Bank Accounts** — Call [POST /virtual-bank-account](/api-reference/virtual-bank-account/create) to provision accounts for receiving buyer payments. For NGN accounts, activation is instant. For USD, GBP, and EUR, wait for the [`virtual_account.ready`](/guides/webhooks/virtual-account) webhook before sharing account details.
 3. **Collect from buyers** — Share the Virtual Bank Account details with buyers. When a buyer sends money, the funds land in your wallet and you receive a `collection.completed` webhook — no API call required. For CAD, buyers pay via [Interac](/guides/interac-auto-deposits).
 4. **Funds land in your wallet** — Collections credit your business wallet after fees. See [Money movement](/guides/money-movement) for how fees are calculated.

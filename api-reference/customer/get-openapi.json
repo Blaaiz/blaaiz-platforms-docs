@@ -34,107 +34,154 @@
             }
         },
         "schemas": {
-            "Address": {
+            "KycData": {
+                "type": "object",
+                "description": "KYC / KYB profile data. Returned when the relation is loaded (which is always the case for `GET /customer/{id}`).",
+                "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "dob": { "type": "string", "format": "date", "nullable": true, "description": "Date of birth. Populated for individual customers." },
+                    "street": { "type": "string", "nullable": true, "description": "Registered address — street." },
+                    "city": { "type": "string", "nullable": true },
+                    "state": { "type": "string", "nullable": true },
+                    "zip_code": { "type": "string", "nullable": true },
+                    "operating_street": { "type": "string", "nullable": true, "description": "Business operating address (when different from registered). Used by business customers; null for individuals." },
+                    "operating_city": { "type": "string", "nullable": true },
+                    "operating_state": { "type": "string", "nullable": true },
+                    "operating_zip_code": { "type": "string", "nullable": true },
+                    "id_expiry_date": { "type": "string", "format": "date", "nullable": true },
+                    "id_issue_date": { "type": "string", "format": "date", "nullable": true }
+                }
+            },
+            "RecentComment": {
+                "type": "object",
+                "description": "Compliance-team comment attached to the customer (e.g. status-change notes). Returned when loaded.",
+                "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "comment": { "type": "string" },
+                    "type": { "type": "string", "example": "info" },
+                    "created_at": { "type": "string", "format": "date-time" }
+                }
+            },
+            "Owner": {
                 "type": "object",
                 "properties": {
-                    "street": {
-                        "type": "string"
+                    "id": { "type": "string", "format": "uuid" },
+                    "first_name": { "type": "string" },
+                    "last_name": { "type": "string" },
+                    "email": { "type": "string", "format": "email", "nullable": true },
+                    "phone": { "type": "string", "nullable": true },
+                    "date_of_birth": { "type": "string", "format": "date", "nullable": true },
+                    "nationality": { "type": "string", "nullable": true },
+                    "title": { "type": "string", "nullable": true },
+                    "ownership_percentage": { "type": "string", "example": "60.00" },
+                    "has_control": { "type": "boolean" },
+                    "is_signer": { "type": "boolean" },
+                    "is_beneficial_owner": { "type": "boolean" },
+                    "country": { "type": "string", "nullable": true },
+                    "id_document_type": { "type": "string", "nullable": true },
+                    "id_document_number": { "type": "string", "nullable": true },
+                    "id_document_country": { "type": "string", "nullable": true },
+                    "id_expiry_date": { "type": "string", "format": "date", "nullable": true },
+                    "tin": { "type": "string", "nullable": true },
+                    "is_pep": { "type": "boolean" },
+                    "usa_tax_residency": { "type": "boolean" },
+                    "status": {
+                        "type": "string",
+                        "enum": ["PENDING", "PROCESSING", "APPROVED", "REJECTED"],
+                        "description": "Owner KYB review state. PENDING = not yet submitted; PROCESSING = under compliance review; APPROVED/REJECTED = terminal. APPROVED and PROCESSING are locked from edits."
                     },
-                    "city": {
-                        "type": "string"
-                    },
-                    "state": {
-                        "type": "string"
-                    },
-                    "country": {
-                        "type": "string"
-                    },
-                    "postal_code": {
-                        "type": "string"
+                    "admin_comments": {
+                        "type": "array",
+                        "nullable": true,
+                        "description": "Reviewer feedback. Display each entry as a separate bullet to the end customer.",
+                        "items": { "type": "string" }
                     }
                 }
             },
-            "File": {
+            "KybDocument": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "category": {
-                        "type": "string"
-                    },
-                    "url": {
-                        "type": "string",
-                        "format": "uri"
-                    },
-                    "uploaded_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
+                    "id": { "type": "string", "format": "uuid" },
+                    "type": { "type": "string", "example": "CERTIFICATE_OF_INCORPORATION" },
+                    "name": { "type": "string" },
+                    "extension": { "type": "string" },
+                    "description": { "type": "string", "nullable": true },
+                    "status": { "type": "string", "enum": ["PENDING", "PROCESSING", "APPROVED", "REJECTED"] },
+                    "admin_comments": { "type": "array", "nullable": true, "items": { "type": "string" } },
+                    "url": { "type": "string", "nullable": true, "description": "2-minute presigned download URL." },
+                    "created_at": { "type": "string", "format": "date-time" },
+                    "updated_at": { "type": "string", "format": "date-time" }
                 }
             },
             "Customer": {
                 "type": "object",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "first_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "last_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "business_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "phone_number": {
-                        "type": "string"
-                    },
-                    "date_of_birth": {
-                        "type": "string"
-                    },
-                    "address": {
-                        "$ref": "#/components/schemas/Address"
-                    },
+                    "id": { "type": "string", "format": "uuid" },
+                    "business_id": { "type": "string", "format": "uuid", "description": "ID of the platform business that owns this customer." },
+                    "type": { "type": "string", "enum": ["individual", "business"] },
+                    "first_name": { "type": "string", "nullable": true, "description": "Set for individual customers. Null for businesses." },
+                    "last_name": { "type": "string", "nullable": true, "description": "Set for individual customers. Null for businesses." },
+                    "business_name": { "type": "string", "nullable": true, "description": "Set for business customers. Null for individuals." },
+                    "trading_name": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "business_type": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "registration_number": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "incorporation_country": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "incorporation_date": { "type": "string", "format": "date", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "industry_type": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "business_description": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "website": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "source_of_funds": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "estimated_annual_revenue": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "expected_monthly_payments": { "type": "integer", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "account_purpose": { "type": "string", "nullable": true, "description": "Business KYB field. Null for individuals." },
+                    "email": { "type": "string", "format": "email" },
+                    "phone": { "type": "string", "nullable": true },
+                    "country": { "type": "string", "nullable": true, "description": "ISO alpha-2." },
                     "id_type": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers (which identify via `registration_number` + `incorporation_country`)."
                     },
                     "id_number": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers."
                     },
-                    "files": {
+                    "tin": { "type": "string", "nullable": true, "description": "Tax identification number." },
+                    "verification_status": {
+                        "type": "string",
+                        "enum": ["PENDING", "PROCESSING", "VERIFIED", "REJECTED"],
+                        "description": "Customer-level verification state. `PROCESSING` is the under-review state for business customers between `/submit` and the compliance verdict; individual customers typically transition `PENDING → VERIFIED` (or `→ REJECTED`) without a separate `PROCESSING` step."
+                    },
+                    "enhanced_due_diligence": { "type": "boolean", "description": "Whether enhanced due-diligence is enabled for this customer." },
+                    "kyc_data": {
+                        "$ref": "#/components/schemas/KycData",
+                        "description": "Profile data: registered address, operating address (business), date of birth (individual), ID expiry/issue dates."
+                    },
+                    "owners": {
                         "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/File"
-                        }
+                        "description": "Beneficial owners. Empty / absent for individual customers.",
+                        "items": { "$ref": "#/components/schemas/Owner" }
                     },
-                    "status": {
-                        "type": "string"
+                    "documents": {
+                        "type": "array",
+                        "description": "KYB document collection — incorporation certificates, articles, beneficial-ownership certificates, bank statements, etc. Empty / absent for individual customers.",
+                        "items": { "$ref": "#/components/schemas/KybDocument" }
                     },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
+                    "recent_comments": {
+                        "type": "array",
+                        "description": "Recent compliance-team comments attached to this customer (e.g. status-change notes). Returned when loaded.",
+                        "items": { "$ref": "#/components/schemas/RecentComment" }
                     },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
+                    "created_at": { "type": "string", "format": "date-time" },
+                    "updated_at": { "type": "string", "format": "date-time" }
                 },
                 "required": [
                     "id",
+                    "business_id",
                     "type",
                     "email",
-                    "status",
+                    "verification_status",
                     "created_at",
                     "updated_at"
                 ]
@@ -205,37 +252,119 @@
                                 "schema": {
                                     "$ref": "#/components/schemas/GetCustomerResponse"
                                 },
-                                "example": {
-                                    "status": true,
-                                    "message": "Customer retrieved successfully",
-                                    "data": {
-                                        "id": "customer_123456789",
-                                        "type": "individual",
-                                        "first_name": "John",
-                                        "last_name": "Doe",
-                                        "email": "john@example.com",
-                                        "phone_number": "+2348012345678",
-                                        "date_of_birth": "1990-01-15",
-                                        "address": {
-                                            "street": "123 Main Street",
-                                            "city": "Lagos",
-                                            "state": "Lagos",
-                                            "country": "NG",
-                                            "postal_code": "100001"
-                                        },
-                                        "id_type": "passport",
-                                        "id_number": "A12345678",
-                                        "files": [
-                                            {
-                                                "id": "file_123",
-                                                "category": "identity",
-                                                "url": "https://...",
-                                                "uploaded_at": "2024-01-15T10:35:00Z"
+                                "examples": {
+                                    "individual": {
+                                        "summary": "Verified individual customer",
+                                        "value": {
+                                            "message": "Customer retrieved successfully",
+                                            "data": {
+                                                "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                                "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                                "type": "individual",
+                                                "first_name": "John",
+                                                "last_name": "Doe",
+                                                "business_name": null,
+                                                "email": "john.doe@example.com",
+                                                "phone": "+2348012345678",
+                                                "country": "NG",
+                                                "id_type": "passport",
+                                                "id_number": "A12345678",
+                                                "tin": null,
+                                                "verification_status": "VERIFIED",
+                                                "enhanced_due_diligence": false,
+                                                "kyc_data": {
+                                                    "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec40200",
+                                                    "dob": "1990-01-15",
+                                                    "street": "123 Main Street",
+                                                    "city": "Lagos",
+                                                    "state": "Lagos",
+                                                    "zip_code": "100001",
+                                                    "operating_street": null,
+                                                    "operating_city": null,
+                                                    "operating_state": null,
+                                                    "operating_zip_code": null,
+                                                    "id_expiry_date": "2030-01-15",
+                                                    "id_issue_date": "2020-01-15"
+                                                },
+                                                "created_at": "2024-01-15T10:30:00.000000Z",
+                                                "updated_at": "2024-01-15T10:40:00.000000Z"
                                             }
-                                        ],
-                                        "status": "verified",
-                                        "created_at": "2024-01-15T10:30:00Z",
-                                        "updated_at": "2024-01-15T10:40:00Z"
+                                        }
+                                    },
+                                    "business": {
+                                        "summary": "Verified business customer with owners and KYB documents",
+                                        "value": {
+                                            "message": "Customer retrieved successfully",
+                                            "data": {
+                                                "id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
+                                                "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                                "type": "business",
+                                                "first_name": null,
+                                                "last_name": null,
+                                                "business_name": "Acme Corp",
+                                                "trading_name": "Acme",
+                                                "business_type": "llc",
+                                                "registration_number": "RC123456",
+                                                "incorporation_country": "NG",
+                                                "incorporation_date": "2019-03-12",
+                                                "industry_type": "Software & SaaS",
+                                                "business_description": "B2B SaaS platform for African logistics operators.",
+                                                "website": "https://acme.example.com",
+                                                "source_of_funds": "business_revenue",
+                                                "estimated_annual_revenue": "1000000_4999999",
+                                                "expected_monthly_payments": 250,
+                                                "account_purpose": "send_receive_funds_related_parties",
+                                                "email": "contact@acme.example.com",
+                                                "phone": "+2348012345678",
+                                                "country": "NG",
+                                                "id_type": null,
+                                                "id_number": null,
+                                                "tin": "12345678-0001",
+                                                "verification_status": "VERIFIED",
+                                                "enhanced_due_diligence": false,
+                                                "kyc_data": {
+                                                    "id": "019a6da3-4a9a-7033-81b9-12489eff13f0",
+                                                    "dob": null,
+                                                    "street": "456 Business Ave",
+                                                    "city": "Lagos",
+                                                    "state": "Lagos",
+                                                    "zip_code": "100001",
+                                                    "operating_street": "789 Operations Blvd",
+                                                    "operating_city": "Lagos",
+                                                    "operating_state": "Lagos",
+                                                    "operating_zip_code": "100002",
+                                                    "id_expiry_date": null,
+                                                    "id_issue_date": null
+                                                },
+                                                "owners": [
+                                                    {
+                                                        "id": "019a6e22-8b4c-7c8d-9d12-c0c1ab3f1a90",
+                                                        "first_name": "Jane",
+                                                        "last_name": "Doe",
+                                                        "ownership_percentage": "60.00",
+                                                        "is_beneficial_owner": true,
+                                                        "is_signer": true,
+                                                        "has_control": true,
+                                                        "id_document_type": "passport",
+                                                        "status": "APPROVED",
+                                                        "admin_comments": null
+                                                    }
+                                                ],
+                                                "documents": [
+                                                    {
+                                                        "id": "019a6e10-1fb3-7b2f-8f8b-ad1e92c4017a",
+                                                        "type": "CERTIFICATE_OF_INCORPORATION",
+                                                        "name": "Acme Inc — Certificate of Incorporation.pdf",
+                                                        "extension": "pdf",
+                                                        "status": "APPROVED",
+                                                        "admin_comments": null,
+                                                        "url": "https://s3.amazonaws.com/...?X-Amz-Signature=..."
+                                                    }
+                                                ],
+                                                "created_at": "2024-01-15T10:30:00.000000Z",
+                                                "updated_at": "2024-01-15T10:40:00.000000Z"
+                                            }
+                                        }
                                     }
                                 }
                             }

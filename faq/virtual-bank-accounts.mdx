@@ -7,6 +7,8 @@ description: Frequently asked questions about virtual bank accounts
 
 Yes. Every Virtual Bank Account must be linked to a verified customer. Each customer needs their own virtual account to ensure proper tracking of payments. You cannot create a Virtual Bank Account without providing a valid `customer_id`.
 
+NGN Virtual Bank Accounts work for both `type=individual` and `type=business` customers — businesses must complete the [KYB flow](/guides/kyb/overview) first. USD, GBP, and EUR Virtual Bank Accounts currently support `type=individual` only.
+
 ## Can I create multiple virtual bank accounts for the same customer?
 
 Not for the same currency and wallet. Each customer can only have one Virtual Bank Account per wallet and provider combination. If one already exists, the request will be rejected.
@@ -14,6 +16,8 @@ Not for the same currency and wallet. Each customer can only have one Virtual Ba
 ## How do we create a virtual bank account?
 
 1. [Create a customer](/api-reference/customer/create) and complete their verification.
+   - For `type=individual`, follow the standard KYC flow (upload identity files via `/files`).
+   - For `type=business`, follow the [KYB flow](/guides/kyb/onboarding) (owners + KYB documents + `/submit`).
 2. Use the [Create Virtual Bank Account](/api-reference/virtual-bank-account/create) endpoint with `wallet_id` and `customer_id`.
 
 If the customer flow requires a `tin`, get the correct label or field from the [Get identification type](/api-reference/virtual-bank-account/get-identification-type) endpoint before collecting it.

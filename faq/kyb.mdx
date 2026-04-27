@@ -1,0 +1,85 @@
+---
+title: Business customer KYB
+description: Common questions about onboarding and verifying type=business customers.
+---
+
+These questions cover the KYB flow for `type=business` customers. For individual customers (`type=individual`), see the [Webhooks and notifications FAQ](/faq/webhooks-and-notifications) and [API integration FAQ](/faq/api-integration).
+
+## My business customer is stuck at PENDING after I uploaded `id_file`. Why?
+
+Because `/files` and `id_file` are not the right path for business customers. The `id_file` upload is the legacy individual-customer flow — it stores the file in the customer's `id_file_path` column, but `/submit` does not look at that column for `type=business` customers. It looks for owners and a formation document in the new KYB document collection.
+
+Use the dedicated KYB flow:
+
+1. Add owners (via `POST /customer` with the `owners` array, or `PUT /customer/{id}` after creation).
+2. Upload each owner's ID files via `POST /customer/{id}/owner/{owner}/file/presigned-url` and `POST /customer/{id}/owner/{owner}/files`.
+3. Register KYB documents (cert of inc, articles, bank statements, etc.) via `POST /customer/{id}/document/presigned-url` and `POST /customer/{id}/document`.
+4. Call `POST /customer/{id}/submit`.
+
+See [Onboarding a business customer](/guides/kyb/onboarding) for the full walkthrough.
+
+## How long does business KYB take?
+
+Typically **1–5 business days**. Compliance reviews each owner and each document individually, then issues the customer-level verdict. This is longer than individual KYC (which usually completes within minutes) because business verification involves checks against company registries, beneficial-ownership records, and risk databases.
+
+Wait for the `customer.status_changed` webhook. Do not raise support tickets within the standard 5-business-day window — those will not be attended to. Only escalate if a customer has been in `PROCESSING` for more than 5 business days.
+
+## Can I edit an APPROVED owner?
+
+No, not via the API. Once an owner is `APPROVED`, the API returns 400 on edit, delete, and file-replacement attempts.
+
+If you need to correct genuine bad data on an APPROVED owner (typo, wrong document, etc.), email [support@blaaiz.com](mailto:support@blaaiz.com) with the `customer_id`, the `owner.id`, what's wrong, and supporting evidence. The operations team can correct it on your behalf — see [Customer data corrections](/guides/customer-data-corrections).
+
+## Why did `/submit` return 422?
+
+The most common reasons:
+
+- **No owners.** Add at least one owner.
+- **Ownership percentages don't sum to 100.** Add up your owners' `ownership_percentage` values; they must total exactly 100. 99.99% won't pass.
+- **No formation document.** Register at least one document of type `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.
+
+The error message names the specific gap. Fix it, then call `/submit` again.
+
+## Are owner or KYB-document state changes reflected in webhook events?
+
+No. Only the customer-level state change (`customer.status_changed`) emits a webhook. Per-owner and per-document state changes happen silently from your perspective — they're internal review noise.
+
+When the customer-level verdict arrives (`VERIFIED` or `REJECTED`), fetch the customer with `GET /customer/{id}` and inspect the `owners` and `documents` arrays for per-record `status` and `admin_comments`.
+
+## Do I still need `id_type=certificate_of_incorporation` for a business customer?
+
+No. For business customers the canonical identifier is now `registration_number` + `incorporation_country` — both are required at create time. The legacy `id_type` and `id_number` fields are no longer required for businesses, though they remain accepted for back-compat. If you do send `id_type` on a business customer, it must still be `certificate_of_incorporation`.
+
+The actual certificate of incorporation **file** does not go via `/files` either way — it goes into the KYB document collection with `type=CERTIFICATE_OF_INCORPORATION`.
+
+## Can a business customer have multiple owners?
+
+Yes — up to 5 per customer. Each owner has their own ID, address, and review state. Their `ownership_percentage` values must sum to exactly 100 across all owners.
+
+## Can I create a `type=business` customer without owners and add them later?
+
+Yes. Owners are required for `/submit`, not for creation. You can `POST /customer` with `type=business` and the basic profile fields, then later `PUT /customer/{id}` with an `owners` array.
+
+You can also progressively add or replace owners between `/submit` and `customer.status_changed` only if the customer is in a `REJECTED` state — once you've called `/submit` and the customer is `PROCESSING`, the owners are locked.
+
+## What's `admin_comments` for and how should I display it?
+
+`admin_comments` is an array of strings written by our compliance reviewers during the review of a specific owner or document. Each entry should be displayed as a separate bullet to your end customer.
+
+Examples of what you might see:
+
+- `["ID document is expired", "Re-upload a current passport"]`
+- `["Document image is illegible", "Please re-upload a clearer scan"]`
+- `["Beneficial ownership certificate does not match the registered owners on the customer record"]`
+
+Render the comments alongside each rejected owner / document so the end customer knows exactly what to fix.
+
+## Can I use a verified business customer for a USD / GBP / EUR Virtual Bank Account?
+
+Not yet. Today, USD, GBP, and EUR Virtual Bank Accounts support `type=individual` only. NGN Virtual Bank Accounts support both `type=individual` and `type=business`.
+
+USD/GBP/EUR for business customers is on the roadmap — KYB is the foundation that enables that work.
+
+## Can I use a verified business customer for payouts?
+
+Yes — for payout currencies that support business customers today (NGN and CAD on the relevant rails). USD, GBP, and EUR business-customer payouts are not yet available; those are future expansions building on KYB.

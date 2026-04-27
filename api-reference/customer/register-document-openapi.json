@@ -1,0 +1,114 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Register KYB Document",
+        "version": "1.0.0",
+        "description": "Step two of the two-step KYB document upload flow. Attach a previously-uploaded file to the customer's KYB document collection.\n\nThe customer must be of type `business`. The customer must not be locked for review (must be in PENDING or REJECTED state)."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": { "customer:write": "Create and update customers and KYC data." }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/document": {
+            "post": {
+                "summary": "Register a KYB document",
+                "description": "Use after PUTting a file to the presigned URL. The server verifies that the upload exists, checks size and MIME, and stores the document with status `PENDING`.\n\nMax file size 25 MB. Allowed MIME: `application/pdf`, `image/jpeg`, `image/png`. Files that fail these checks return 422.\n\n**Formation documents are required for verification.** When you call `POST /api/external/customer/{customer}/submit`, at least one document of a formation type must be present. Formation types are: `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, `CAC_STATUS_REPORT`. Other types may be required by your compliance reviewer depending on the business profile.\n\nAll uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts to submit false or invalid documents will result in the customer being **permanently blacklisted** from the platform. There are no exceptions or compromises.\n\nThe customer must be of type `business`. Required scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["type", "name", "file_id"],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "description": "Document type. Determines whether the document satisfies the formation-document requirement at submit time.",
+                                        "enum": [
+                                            "CERTIFICATE_OF_INCORPORATION",
+                                            "ARTICLES_OF_INCORPORATION",
+                                            "BENEFICIAL_OWNERSHIP_CERTIFICATE",
+                                            "INCORPORATION_DOCUMENTS",
+                                            "CAC_STATUS_REPORT",
+                                            "ACCOUNT_AGREEMENT",
+                                            "PROOF_OF_ADDRESS",
+                                            "BANK_STATEMENT",
+                                            "LICENSE",
+                                            "SHARE_REGISTRATION",
+                                            "COMPANY_OWNERSHIP_STRUCTURE",
+                                            "DIRECTORS_REGISTER",
+                                            "OTHER"
+                                        ],
+                                        "example": "CERTIFICATE_OF_INCORPORATION"
+                                    },
+                                    "name": { "type": "string", "maxLength": 255, "example": "Acme Inc — Certificate of Incorporation.pdf" },
+                                    "file_id": { "type": "string", "format": "uuid", "description": "The `file_id` returned by POST /api/external/customer/{customer}/document/presigned-url." },
+                                    "description": { "type": "string", "maxLength": 2000, "nullable": true, "example": "Filed 2019-03-12, Companies House" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Document registered.",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Document created successfully",
+                                    "data": {
+                                        "id": "019a6e10-1fb3-7b2f-8f8b-ad1e92c4017a",
+                                        "business_customer_id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
+                                        "type": "CERTIFICATE_OF_INCORPORATION",
+                                        "name": "Acme Inc — Certificate of Incorporation.pdf",
+                                        "extension": "pdf",
+                                        "description": "Filed 2019-03-12, Companies House",
+                                        "status": "PENDING",
+                                        "admin_comments": null,
+                                        "url": "https://s3.amazonaws.com/...?X-Amz-Signature=...",
+                                        "created_at": "2026-04-20T10:14:31.000000Z",
+                                        "updated_at": "2026-04-20T10:14:31.000000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Customer is verified or under review and cannot accept new documents.",
+                        "content": { "application/json": { "example": { "message": "Cannot modify documents while customer verification is in progress." } } }
+                    },
+                    "401": { "description": "Unauthorized." },
+                    "404": { "description": "Customer not found." },
+                    "422": {
+                        "description": "Validation error or uploaded file failed size/MIME checks.",
+                        "content": { "application/json": { "example": { "message": "Document file exceeds the 25 MB maximum." } } }
+                    }
+                }
+            }
+        }
+    }
+}
