@@ -32,13 +32,21 @@ If you need to correct genuine bad data on an APPROVED owner (typo, wrong docume
 
 ## Why did `/submit` return 422?
 
-The most common reasons:
+`/submit` enforces a readiness floor — if any check fails, the response is `422` and the message names the specific gap. The most common reasons:
 
+- **Customer-level identity missing.** `business_name`, `registration_number`, and `incorporation_country` are all required, and `incorporation_country` must be a valid ISO 3166-1 alpha-2 code.
+- **`country` does not equal `incorporation_country`.** For businesses, the registered-address country must equal the country of incorporation. When changing the jurisdiction, send both fields together.
 - **No owners.** Add at least one owner.
 - **Ownership percentages don't sum to 100.** Add up your owners' `ownership_percentage` values; they must total exactly 100. 99.99% won't pass.
+- **Duplicate owner emails.** Emails must be unique within the customer (case-insensitive).
+- **An owner is missing `id_document_front`** — run the owner-file flow for that owner.
+- **`id_document_back` is missing or stray.** `drivers_license`, `id_card`, and `resident_permit` require a back image; `passport` must not have one.
+- **An owner's `date_of_birth` is under 18.**
+- **An owner's `id_expiry_date` is in the past.** Replace the document with a current one.
+- **Invalid ISO codes** for `nationality`, `country`, or `id_document_country` on an owner.
 - **No formation document.** Register at least one document of type `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.
 
-The error message names the specific gap. Fix it, then call `/submit` again.
+Fix the named gap and call `/submit` again. The full readiness checklist is in [Business customer KYB → Readiness](/guides/kyb/overview#readiness).
 
 ## Are owner or KYB-document state changes reflected in webhook events?
 
@@ -58,9 +66,15 @@ Yes — up to 5 per customer. Each owner has their own ID, address, and review s
 
 ## Can I create a `type=business` customer without owners and add them later?
 
-Yes. Owners are required for `/submit`, not for creation. You can `POST /customer` with `type=business` and the basic profile fields, then later `PUT /customer/{id}` with an `owners` array.
+Yes — but the customer cannot be verified without them. Owners are mandatory for KYB; they're just not required at create time. You can `POST /customer` with `type=business` and the basic profile fields, then later `PUT /customer/{id}` with an `owners` array, or attach owners individually before calling `/submit`.
 
-You can also progressively add or replace owners between `/submit` and `customer.status_changed` only if the customer is in a `REJECTED` state — once you've called `/submit` and the customer is `PROCESSING`, the owners are locked.
+You can also add or replace owners between cycles if the customer comes back `REJECTED`. Once you've called `/submit` and the customer is `PROCESSING` or `VERIFIED`, every owner — and the customer itself — is locked. Edits return `400`. Wait for the customer-level webhook before attempting changes.
+
+## Why does editing a rejected owner clear its `admin_comments`?
+
+When you change any field on a `REJECTED` owner — or replace its ID file — the API automatically flips that owner's `status` back to `PENDING` and clears its `admin_comments`. The same applies to `REJECTED` KYB documents. This signals "the issue compliance flagged has been addressed; please re-review on the next submit." You don't manually reset state. Fix the data, then call `/submit` to re-route the corrected record through review with any other pending records.
+
+`APPROVED` records are not touched on re-submit — that work isn't redone.
 
 ## What's `admin_comments` for and how should I display it?
 
@@ -73,6 +87,16 @@ Examples of what you might see:
 - `["Beneficial ownership certificate does not match the registered owners on the customer record"]`
 
 Render the comments alongside each rejected owner / document so the end customer knows exactly what to fix.
+
+## My business customer has three country fields. Which is which?
+
+A business customer carries up to three ISO alpha-2 country codes, each with a distinct meaning:
+
+- `incorporation_country` — the legal jurisdiction the company is registered in (e.g. a Delaware LLC has `incorporation_country=US`). Top-level on the customer, business-only, required at create time.
+- `country` — the **registered-address** country. Top-level. For businesses, this must equal `incorporation_country` because by company law a company's registered office is in the country of incorporation. Sending divergent values fails the request.
+- `operating_country` — the **operating-address** country, on KYC data. This is the only one that can differ — a UK-incorporated company can operate from Lagos, with `incorporation_country=GB`, `country=GB`, `operating_country=NG`. Required whenever any other `operating_*` field is set.
+
+Postal-code validation follows the same per-address split: `zip_code` is validated against `country`, `operating_zip_code` is validated against `operating_country`. Each address is self-describing.
 
 ## Can I use a verified business customer for a USD / GBP / EUR Virtual Bank Account?
 

@@ -24,25 +24,31 @@ Three records each carry their own state. They share the same four-state vocabul
 
 ### Customer (`verification_status`)
 
-| State | What it means |
-| :--- | :--- |
-| `PENDING` | Editable. You're still preparing the customer. Add owners, upload documents, then call `/submit`. |
-| `PROCESSING` | Submitted. Compliance is reviewing. Customer is locked from edits. |
-| `VERIFIED` | Approved. Customer can now be used wherever a verified customer is required. |
-| `REJECTED` | Rejected. Editable — fix the issues called out in `admin_comments` on each owner / document, then re-submit. |
+| State | Customer fields | Owners / documents (any kind of edit) |
+| :--- | :--- | :--- |
+| `PENDING` | Editable | Editable |
+| `PROCESSING` | Locked | Locked |
+| `VERIFIED` | Locked | Locked |
+| `REJECTED` | Editable | Editable |
+
+`PROCESSING` is the active-review window — the persisted snapshot is frozen so compliance reviews a stable picture. Wait for the customer-level webhook before attempting edits. `VERIFIED` is final; corrections on a verified customer go through operations (see [Customer data corrections](/guides/customer-data-corrections)).
 
 ### Owner and KYB document (`status`)
 
-Same four for both. Each individual owner and each individual KYB document has its own status.
+Each owner and each document has its own status, even while the customer is `PENDING`.
 
-| State | Locked from your edits? |
+| State | Editable by you? |
 | :--- | :--- |
-| `PENDING` | No — you're still preparing it. |
-| `PROCESSING` | **Yes** — under compliance review. |
-| `APPROVED` | **Yes** — compliance has signed off. |
-| `REJECTED` | No — fix and re-submit. |
+| `PENDING` | Yes |
+| `PROCESSING` | No — under compliance review |
+| `APPROVED` | No — compliance has signed off |
+| `REJECTED` | Yes — fix and re-submit |
 
-"Locked" means the API will return `400` if you try to edit fields, replace files, or delete the record. To get an APPROVED owner or document edited, contact the operations team — see [Customer data corrections](/guides/customer-data-corrections).
+"Editable" assumes the parent customer's state allows it: even a `PENDING` owner is locked while the customer is `PROCESSING` or `VERIFIED`. Locked edits return `400`. To correct an `APPROVED` owner or document, contact operations — see [Customer data corrections](/guides/customer-data-corrections).
+
+### Editing a `REJECTED` owner or document
+
+When you edit a previously rejected owner or document — change a field, replace a file, anything — its `status` automatically flips back to `PENDING` and its `admin_comments` are cleared. You don't need to manually reset state. Fix the data, then call `/submit` to re-route the corrected record through review.
 
 ## What `/submit` does
 
@@ -58,13 +64,25 @@ There are no per-owner or per-document webhooks. The customer-level event is the
 
 ## Readiness
 
-`/submit` enforces what must be present before review can begin:
+`/submit` enforces what must be present and consistent before review can begin. If any of the checks below fails, the response is `422` with a message naming the specific gap, the customer stays editable, and you can fix and call `/submit` again.
 
-- At least one beneficial owner.
-- The owners' `ownership_percentage` must sum to **exactly 100**.
-- At least one KYB document of a formation type: `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.
+**Customer-level**
 
-If anything is missing, the response is `422` with a specific message describing the gap. The customer stays editable so you can fix it and call `/submit` again.
+- `business_name`, `registration_number`, and `incorporation_country` are all set; `incorporation_country` is a valid ISO alpha-2 code.
+- `country` (registered-address country) is set and equals `incorporation_country` — a company's registered office sits in its country of incorporation by company law.
+- `operating_country` is set whenever any other `operating_*` address field is set, and is a valid ISO alpha-2 code (the operating address can be in a different country from the registered one).
+
+**Owners**
+
+- At least one owner attached.
+- The owners' `ownership_percentage` values sum to **exactly 100**.
+- Owner emails are unique within the customer (case-insensitive).
+- For each owner: `id_document_front` is uploaded; `id_document_back` is uploaded for `drivers_license`, `id_card`, and `resident_permit` types and absent for `passport`.
+- For each owner with the field set: `date_of_birth` is at least 18 years ago, `id_expiry_date` is strictly after today, and `nationality` / `country` / `id_document_country` are valid ISO alpha-2 codes.
+
+**KYB documents**
+
+- At least one document of a formation type: `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.
 
 ## Verification timeline
 

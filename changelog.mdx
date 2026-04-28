@@ -83,13 +83,55 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
             pair. The same number across different incorporation countries is fine.
           </li>
           <li>
+            <strong>Country fields are explicit and split.</strong> A business
+            customer now carries three ISO alpha-2 country codes, each with a
+            distinct meaning:
+            <ul>
+              <li>
+                <code>incorporation_country</code> — the legal jurisdiction
+                the company is registered in. Top-level, business-only,
+                required.
+              </li>
+              <li>
+                <code>country</code> — the registered-address country.
+                Top-level, required for both individuals and businesses.
+                For businesses, must equal <code>incorporation_country</code>{" "}
+                (a company's registered office sits in its country of
+                incorporation by company law). The cross-field check is
+                enforced at validation time, including on update — when
+                changing the jurisdiction, send both fields together.
+              </li>
+              <li>
+                <code>operating_country</code> — the operating-address
+                country, on KYC data. Business-only. Required whenever any
+                other <code>operating_*</code> field is supplied. Can
+                differ from the other two when the business operates from
+                a different jurisdiction.
+              </li>
+            </ul>
+            Postal-code validation is anchored per address:{" "}
+            <code>zip_code</code> against <code>country</code>,{" "}
+            <code>operating_zip_code</code> against{" "}
+            <code>operating_country</code>. Same rules across{" "}
+            <code>POST /customer</code>, <code>PUT /customer/{"{id}"}</code>,
+            and <code>POST /customer/{"{id}"}/kyc-data</code>.
+          </li>
+          <li>
+            <strong>Type-specific fields are strictly scoped.</strong>{" "}
+            Sending fields that don't apply to the customer's{" "}
+            <code>type</code> (for example, <code>operating_*</code> on{" "}
+            <code>type=individual</code>, or business KYB fields on an
+            individual) fails the entire request with <code>422</code>.
+            Send only what applies.
+          </li>
+          <li>
             <strong>
-              Customer-level <code>country</code> is no longer required for business
-              customers
+              Explicit <code>null</code> on update clears nullable fields
             </strong>
-            . If omitted, the system auto-fills it from{" "}
-            <code>incorporation_country</code> so downstream operations behave
-            identically. Individuals continue to require <code>country</code>.
+            . On <code>PUT /customer/{"{id}"}</code>, sending a property as{" "}
+            <code>null</code> writes <code>null</code> to the column. Omit
+            the property to leave it unchanged. Applies to the customer
+            object and to entries inside the <code>owners</code> array.
           </li>
           <li>
             The certificate-of-incorporation <strong>file</strong> goes into the new
@@ -99,16 +141,42 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
         </ul>
 
         <p>
-          <strong>Rules <code>/submit</code> enforces for business customers</strong>{" "}
-          (each returns <code>422</code> with a specific message):
+          <strong>Readiness floor that <code>/submit</code> enforces for business customers</strong>{" "}
+          (each returns <code>422</code> with a specific message; same checks
+          run on initial submit and on re-submit after a <code>REJECTED</code>{" "}
+          verdict):
         </p>
         <ul>
+          <li>
+            <strong>Customer-level identity</strong> —{" "}
+            <code>business_name</code>, <code>registration_number</code>, and a
+            valid ISO <code>incorporation_country</code> are all set;{" "}
+            <code>country</code> equals <code>incorporation_country</code>.
+          </li>
           <li>At least one beneficial owner.</li>
           <li>
             <strong>
-              Owner <code>ownership_percentage</code> values must sum to exactly 100
+              Owner <code>ownership_percentage</code> values sum to exactly 100
             </strong>
             . 99.99% won't pass.
+          </li>
+          <li>
+            <strong>Owner emails are unique within the customer</strong>{" "}
+            (case-insensitive).
+          </li>
+          <li>
+            <strong>Per-owner ID slot consistency</strong> — every owner has{" "}
+            <code>id_document_front</code>;{" "}
+            <code>drivers_license</code> / <code>id_card</code> /{" "}
+            <code>resident_permit</code> require <code>id_document_back</code>;{" "}
+            <code>passport</code> must not have a back image.
+          </li>
+          <li>
+            <strong>Per-owner identity invariants</strong> —{" "}
+            <code>date_of_birth</code> is at least 18 years ago,{" "}
+            <code>id_expiry_date</code> is strictly after today, and ISO codes
+            (<code>nationality</code>, <code>country</code>,{" "}
+            <code>id_document_country</code>) are valid alpha-2 where set.
           </li>
           <li>
             At least one KYB document of a formation type:{" "}
@@ -118,6 +186,25 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
             <code>INCORPORATION_DOCUMENTS</code>, or <code>CAC_STATUS_REPORT</code>.
           </li>
         </ul>
+
+        <p>
+          <strong>Lock matrix.</strong> A child record (owner or document) is
+          locked if its own <code>status</code> is <code>APPROVED</code> or{" "}
+          <code>PROCESSING</code>, OR the parent customer is in{" "}
+          <code>PROCESSING</code> or <code>VERIFIED</code>. Edits to locked
+          records return <code>400</code>. Wait for{" "}
+          <code>customer.status_changed</code> before attempting edits.
+        </p>
+
+        <p>
+          <strong>Editing a <code>REJECTED</code> owner or document
+          auto-resets it.</strong> Any field change or file replacement on a
+          previously-rejected owner or document flips its <code>status</code>{" "}
+          back to <code>PENDING</code> and clears its{" "}
+          <code>admin_comments</code>. The corrected record is re-routed
+          through review on the next <code>/submit</code>. Records that are{" "}
+          <code>APPROVED</code> stay locked and aren't re-reviewed.
+        </p>
 
         <p>
           <strong>What's new in the response shape.</strong>{" "}

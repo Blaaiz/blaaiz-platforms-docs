@@ -29,12 +29,16 @@ Records still showing `APPROVED` are fine and locked. Records showing `REJECTED`
 | Owner — `REJECTED` | Edit any field via `PUT /customer/{id}` (with the `owners` array) or replace ID files via the owner-files presigned-URL flow. |
 | Document — `APPROVED` | Nothing via the API. Contact operations if a correction is needed. |
 | Document — `REJECTED` | Edit metadata or replace the file via `PUT /customer/{id}/document/{document}`. Or `DELETE` and re-register a fresh one. |
-| Customer-level fields | Editable while the customer is `REJECTED`. Same field-locking rules as for `VERIFIED` apply — fields that already have a value can't be changed; if you need a customer-level correction, see [Customer data corrections](/guides/customer-data-corrections). |
+| Customer-level fields | Fully editable while the customer is `REJECTED`. The verified-state field lock does not apply here. |
+
+### Editing a `REJECTED` owner or document resets it to `PENDING`
+
+When you change any field on a rejected owner or document — or replace its file — the API automatically flips its `status` from `REJECTED` back to `PENDING` and clears its `admin_comments`. You don't manually reset state. Fix the data, then re-submit; the corrected record is re-routed through review with the rest of the pending records.
 
 ## Fixing common issues
 
 **Owner ID rejected because the image was unclear.**
-Get a fresh presigned URL for `id_document_front` (and `id_document_back` if applicable), upload a clearer scan, register the new file. The owner's `id_document_path` updates and the owner's `status` stays `REJECTED` until you re-submit.
+Get a fresh presigned URL for `id_document_front` (and `id_document_back` if applicable), upload a clearer scan, register the new file. The owner's `id_document_path` updates, the owner flips to `PENDING`, and `admin_comments` is cleared. Re-submit when you're done with all fixes.
 
 **Owner ID rejected because the document is expired.**
 Replace it via the same flow, but make sure the new document's expiry is in the future and matches the owner's `id_expiry_date` field. Update the owner's `id_expiry_date` via `PUT /customer/{id}` if it changed.

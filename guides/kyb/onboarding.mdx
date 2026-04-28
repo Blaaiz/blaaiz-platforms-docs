@@ -14,7 +14,7 @@ This guide walks through onboarding a `type=business` customer from creation to 
 
 ## Step 1: Create the customer
 
-Create the customer with `type=business`. You can include the `owners` array up front (up to 5 entries) or add owners later via `PUT /api/external/customer/{id}`.
+Create the customer with `type=business`. Beneficial owners are required for verification (see [Readiness](/guides/kyb/overview#readiness)) but you don't have to include them on this initial call — you can attach them now via the `owners` array (up to 5 entries) or add them later via `PUT /api/external/customer/{id}`. Either way, every owner that exists at `/submit` time must satisfy the readiness checks.
 
 ```bash
 curl -X POST https://api-prod.blaaiz.com/api/external/customer \
@@ -27,6 +27,7 @@ curl -X POST https://api-prod.blaaiz.com/api/external/customer \
     "business_type": "llc",
     "registration_number": "RC123456",
     "incorporation_country": "NG",
+    "country": "NG",
     "incorporation_date": "2019-03-12",
     "industry_type": "Software & SaaS",
     "business_description": "B2B SaaS platform for African logistics operators.",
@@ -60,7 +61,15 @@ curl -X POST https://api-prod.blaaiz.com/api/external/customer \
 <Note>
 For business customers the canonical identifier is `registration_number` + `incorporation_country`, not the legacy `id_type` / `id_number` fields. Both `registration_number` and `incorporation_country` are required at create time. The actual certificate-of-incorporation **file** goes into the KYB document collection in step 4 — never through `/files`.
 
-`country` is also optional for businesses — if omitted, it auto-fills from `incorporation_country`. The legacy `id_type` and `id_number` fields are still accepted on the request shape for back-compat. If you send `id_type` on a business customer, it must be `certificate_of_incorporation`. New integrations should omit all three.
+**Two countries, two addresses.** A business customer carries up to three ISO country codes:
+
+- `incorporation_country` — the legal jurisdiction the company is registered in. Top-level, business-only, required.
+- `country` — the registered-address country. Top-level. For businesses, must equal `incorporation_country` (a company's registered office sits in its country of incorporation by company law). The cross-field check is enforced at validation time — sending divergent values fails the request with `422`. When changing the jurisdiction on update, send both fields together.
+- `operating_country` — the operating-address country, can differ from the other two. Lives on KYC data alongside the rest of the `operating_*` fields. Required whenever any other `operating_*` field is supplied (so each address is self-describing).
+
+Postal-code validation is anchored per address: `zip_code` against `country`, `operating_zip_code` against `operating_country`.
+
+The legacy `id_type` and `id_number` fields are still accepted on the request shape for back-compat with older integrations; if you send `id_type` on a business customer, it must be `certificate_of_incorporation`. New integrations should omit `id_type` and `id_number`.
 </Note>
 
 Save the returned `id` as your `customer_id`. The `verification_status` is `PENDING`.
@@ -81,9 +90,12 @@ curl -X POST https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/kyc-d
     "operating_street": "789 Operations Blvd",
     "operating_city": "Lagos",
     "operating_state": "Lagos",
-    "operating_zip_code": "100002"
+    "operating_zip_code": "100002",
+    "operating_country": "NG"
   }'
 ```
+
+`operating_country` anchors the postal-code validation on `operating_zip_code` — if you send any of the `operating_*` fields and `operating_country` is not yet persisted on the row, you must include it.
 
 This step is optional — fields you didn't capture at creation can also be patched via `PUT /api/external/customer/{id}` later.
 
@@ -169,15 +181,24 @@ curl -X POST \
   -H "Authorization: Bearer ACCESS_TOKEN"
 ```
 
-The customer flips to `PROCESSING`. All `PENDING` owners and documents flip to `PROCESSING` along with it. They're now locked from edits.
+The customer flips to `PROCESSING`. All `PENDING` owners and documents flip to `PROCESSING` along with it. The customer-level fields, every owner, and every document are now locked from your edits until the customer-level webhook arrives.
 
-If the readiness check fails, the response is 422. Common causes:
+If the readiness check fails, the response is `422` with a message naming the specific gap. The full list of preconditions is in [Readiness](/guides/kyb/overview#readiness). Common cases you'll hit:
 
-| Message | Fix |
+| Symptom | Where to fix it |
 | :--- | :--- |
-| "at least one owner is required" | Add an owner via `PUT /customer/{id}` with the `owners` array. |
-| "ownership_percentage of all owners must sum to 100%, but currently sums to X%" | Adjust the percentages so they total 100. |
-| "at least one formation document is required" | Register one with a formation type via step 4. |
+| "at least one owner is required" | Add an owner (step 1 or `PUT /customer/{id}` with the `owners` array). |
+| "ownership_percentage of all owners must sum to 100%" | Adjust the percentages across all owners so they total 100. |
+| "at least one formation document is required" | Register one with a formation type — step 4. |
+| "owner ... is missing id_document_front" | Run step 3 for that owner. |
+| "owner ... id_document_type=drivers_license requires id_document_back" | Add the back-side upload — re-run step 3 with `file_category=id_document_back`. |
+| "owner ... id_document_type=passport must not have id_document_back" | The owner has a stale back image from a previous `id_document_type`. Either change the type back to one that requires it, or contact support to clear the file. |
+| "owner ... date_of_birth must be at least 18 years ago" | Update the owner's DOB. |
+| "owner ... id_expiry_date must be a future date" | Replace the ID with a current document and update `id_expiry_date`. |
+| "owner emails must be unique within the customer" | Two owners share an email. Update one of them. |
+| "business_name / registration_number / incorporation_country is required" | The field was cleared since creation. Set it via `PUT /customer/{id}`. |
+| "incorporation_country must be a valid ISO 3166-1 alpha-2 country code" | Use a real ISO code (e.g. `NG`, `US`, `GB`). |
+| "country must equal incorporation_country" | The two diverged. Update both together via `PUT /customer/{id}` — `{"country": "GB", "incorporation_country": "GB"}` — so the registered-address country matches the legal jurisdiction. |
 
 ## Step 6: Wait for the webhook
 
@@ -197,8 +218,8 @@ The file is stored but `/submit` doesn't look at it. Symptom: you upload everyth
 **2. Ownership percentages that don't sum to 100.**
 `/submit` enforces this strictly. 99.99% won't do. Add up the values across every owner and make sure they total exactly 100.
 
-**3. Trying to edit an `APPROVED` or `PROCESSING` owner / document.**
-The API returns 400. To correct an APPROVED record, contact operations — see [Customer data corrections](/guides/customer-data-corrections). To wait out a `PROCESSING` record, hold for the customer-level webhook; if its status flips to `REJECTED`, you'll be able to fix it then.
+**3. Trying to edit a customer (or its owners / documents) while the customer is `PROCESSING` or `VERIFIED`.**
+The API returns 400. `PROCESSING` is the active-review window — wait for the customer-level webhook before attempting any edits. If the customer comes back `REJECTED`, parent + child edits unlock and you can fix the issues. For corrections on a `VERIFIED` customer, see [Customer data corrections](/guides/customer-data-corrections).
 
 **4. Sending `status` or `admin_comments` in your update payloads.**
 Those fields are admin-managed. They're silently stripped from your requests — your owner stays at `PENDING` and your comments don't get saved. Don't rely on them appearing on the response if you sent them.
@@ -206,5 +227,11 @@ Those fields are admin-managed. They're silently stripped from your requests —
 **5. Forgetting `registration_number` and `incorporation_country` at create time.**
 These two are required for `type=business` and they're how the business is indexed in our compliance system. The legacy `id_type` / `id_number` are no longer required for businesses (kept accepted only for back-compat).
 
-**6. Treating `customer.created` as "ready to transact."**
+**6. Sending `incorporation_country` without `country` (or vice versa) on update.**
+For business customers, `country` (registered-address country) must equal `incorporation_country` (legal jurisdiction). When you change the jurisdiction, update both fields in the same `PUT` payload. Updating only one leaves the other at its persisted value, which produces a divergent pair and a `422`. Sending different values for the two also returns `422`.
+
+**7. Sending `operating_*` fields without `operating_country`.**
+Each address has its own country anchor: `zip_code` validates against `country`, `operating_zip_code` validates against `operating_country`. At create time, sending any `operating_*` field requires `operating_country`. At update time, the persisted value is used as a fallback — but if you've never set it, the request fails.
+
+**8. Treating `customer.created` as "ready to transact."**
 `customer.created` fires the moment you POST `/customer`. Verification has not even started yet. Wait for `customer.status_changed` with `new_status=VERIFIED`.
