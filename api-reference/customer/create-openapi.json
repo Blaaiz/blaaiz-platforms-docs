@@ -45,6 +45,11 @@
                         ],
                         "description": "Customer type."
                     },
+                    "kyb_scope": {
+                        "type": "string",
+                        "enum": ["FULL", "MINIMAL"],
+                        "description": "Business-only. Selects what data we require to onboard the customer, and which currencies they can hold a Virtual Bank Account in.\n\n- `FULL` (Standard KYB) — Business identity (name, registration number, country of incorporation), beneficial owners summing to 100% ownership, an ID file for each owner, plus a formation document. Eligible for NGN / USD / GBP / EUR VBAs.\n- `MINIMAL` — Same business identity as Full, **without owners or per-owner ID files**, plus a formation document. Eligible for NGN VBAs only.\n\n**Who can use `MINIMAL`:** Minimal is gated by an admin-controlled allow list. Allow-listed platforms who omit `kyb_scope` default to `MINIMAL` and can pass `FULL` explicitly when they need a customer to qualify for non-NGN currencies. Platforms not on the list get `FULL` by default — sending `MINIMAL` returns `422`. Forbidden on `type=individual` (returns `422`).\n\nDirection is one-way: a `MINIMAL` customer can be upgraded via `POST /customer/{id}/upgrade-kyb-scope`. There is no downgrade. See the [Business customer KYB guide](/guides/kyb/overview)."
+                    },
                     "email": {
                         "type": "string",
                         "format": "email"
@@ -58,14 +63,13 @@
                         "enum": [
                             "drivers_license",
                             "passport",
-                            "resident_permit",
-                            "certificate_of_incorporation"
+                            "resident_permit"
                         ],
-                        "description": "Identity document type. **Required for `type=individual`** — `drivers_license`, `passport`, or `resident_permit`. **Not required for `type=business`** (and not recommended for new integrations); businesses identify via `registration_number` + `incorporation_country`. If you do send `id_type` on a business customer for back-compat, it must be `certificate_of_incorporation`."
+                        "description": "Personal identity document type. **Individual customers only.**\n\n- **`type=individual`** — required. Must be `drivers_license`, `passport`, or `resident_permit`.\n- **`type=business`** — prohibited. Businesses identify via `registration_number` + `incorporation_country` regardless of `kyb_scope`. Sending `id_type` on a business returns `422`."
                     },
                     "id_number": {
                         "type": "string",
-                        "description": "Identity document number. **Required for `type=individual`** (the number from the document supplied via `id_type`). **Not required for `type=business`**; businesses use `registration_number`."
+                        "description": "Personal identity document number. **Individual customers only.**\n\n- **`type=individual`** — required. The number on the document supplied via `id_type`.\n- **`type=business`** — prohibited. Businesses identify via `registration_number`. Sending `id_number` on a business returns `422`."
                     },
                     "first_name": {
                         "type": "string",
@@ -141,11 +145,11 @@
                     },
                     "registration_number": {
                         "type": "string",
-                        "description": "Business KYB field. **Required for `type=business`** — registration / company number from the issuing authority. Together with `incorporation_country`, this is the canonical identifier for a business customer.\n\nUnique per business: two of your customers cannot share the same `(registration_number, incorporation_country)` pair. The same number is fine across different incorporation countries (jurisdictions overlap), and across different Blaaiz businesses."
+                        "description": "Business registration / company number from the issuing authority. **Required for every business customer regardless of `kyb_scope`.** Together with `incorporation_country`, this is the canonical identifier for a business customer.\n\nUnique per platform: two of your customers cannot share the same `(registration_number, incorporation_country)` pair. The same number is fine across different incorporation countries (jurisdictions overlap), and across different platforms."
                     },
                     "incorporation_country": {
                         "type": "string",
-                        "description": "Business KYB field. **Required for `type=business`** — legal jurisdiction of incorporation, as ISO alpha-2. Distinct from `country` (registered-address country) and `operating_country` (operating-address country); for businesses, `country` must equal `incorporation_country` (a company's registered office sits in its country of incorporation)."
+                        "description": "Legal jurisdiction of incorporation, as ISO alpha-2. **Required for every business customer regardless of `kyb_scope`.** Distinct from `country` (registered-address country) and `operating_country` (operating-address country); for businesses, `country` must equal `incorporation_country` (a company's registered office sits in its country of incorporation)."
                     },
                     "incorporation_date": {
                         "type": "string",
@@ -270,6 +274,12 @@
                     },
                     "verification_status": {
                         "type": "string"
+                    },
+                    "kyb_scope": {
+                        "type": "string",
+                        "enum": ["FULL", "MINIMAL"],
+                        "nullable": true,
+                        "description": "Set for business customers; `null` for individuals. Determines KYB data set + VBA currency eligibility."
                     }
                 },
                 "required": [
@@ -355,9 +365,24 @@
                                         "id_issue_date": "2020-01-15"
                                     }
                                 },
-                                "business": {
+                                "business_minimal": {
+                                    "summary": "Business customer — MINIMAL (allow-listed, NGN-only)",
                                     "value": {
                                         "type": "business",
+                                        "kyb_scope": "MINIMAL",
+                                        "business_name": "Acme Nigeria Limited",
+                                        "country": "NG",
+                                        "incorporation_country": "NG",
+                                        "registration_number": "RC123456",
+                                        "email": "ops@acme.example.ng",
+                                        "phone": "+2348012345678"
+                                    }
+                                },
+                                "business": {
+                                    "summary": "Business customer — FULL (Standard KYB)",
+                                    "value": {
+                                        "type": "business",
+                                        "kyb_scope": "FULL",
                                         "business_name": "Acme Corp",
                                         "trading_name": "Acme",
                                         "business_type": "llc",
@@ -436,7 +461,8 @@
                                         "country": "NG",
                                         "id_type": "passport",
                                         "id_number": "6733823632872",
-                                        "verification_status": "PENDING"
+                                        "verification_status": "PENDING",
+                                        "kyb_scope": null
                                     }
                                 }
                             }

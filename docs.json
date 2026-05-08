@@ -233,6 +233,7 @@
               "/api-reference/customer/add-kyc-openapi.json POST /api/external/customer/{id}/kyc-data",
               "/api-reference/customer/upload-files-openapi.json POST /api/external/customer/{id}/files",
               "/api-reference/customer/submit-openapi.json POST /api/external/customer/{customer}/submit",
+              "/api-reference/customer/upgrade-kyb-scope-openapi.json POST /api/external/customer/{customer}/upgrade-kyb-scope",
               {
                 "group": "KYB documents (business customers)",
                 "pages": [
