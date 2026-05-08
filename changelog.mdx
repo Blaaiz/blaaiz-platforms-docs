@@ -6,6 +6,81 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">06/05/2026</div>
+      <div className="changelog-card">
+        <h3>New: <code>kyb_scope</code> on business customers — Standard and Minimal KYB</h3>
+
+        <p>
+          Business customers now carry a <code>kyb_scope</code> field that picks
+          one of two onboarding paths:
+        </p>
+        <ul>
+          <li>
+            <strong><code>FULL</code></strong> (Standard KYB) — business identity
+            (name, registration number, country of incorporation), beneficial
+            owners summing to 100% ownership, an ID file for each owner, plus a
+            formation document. Eligible for NGN, USD, GBP, and EUR Virtual Bank
+            Accounts.
+          </li>
+          <li>
+            <strong><code>MINIMAL</code></strong> — same business identity as
+            Full, <strong>without owners or per-owner ID files</strong>, plus a
+            formation document. Eligible for NGN VBAs only.
+          </li>
+        </ul>
+
+        <p>
+          <strong>Who can use Minimal:</strong> Minimal is gated by an admin-controlled
+          allow list — typically Nigerian platforms collecting payments in naira
+          for their own customers. Allow-listed platforms default to{" "}
+          <code>MINIMAL</code> when they don't send <code>kyb_scope</code>, and
+          can pass <code>FULL</code> explicitly when they need non-NGN currencies.
+          Platforms not on the list default to <code>FULL</code>; sending{" "}
+          <code>MINIMAL</code> returns <code>422</code>. Contact{" "}
+          <a href="mailto:support@blaaiz.com">support@blaaiz.com</a> if your use
+          case is genuinely NGN-only.
+        </p>
+
+        <p>
+          <strong>Upgrading is one-way.</strong> Use{" "}
+          <a href="/api-reference/customer/upgrade-kyb-scope">
+            POST /customer/{"{id}"}/upgrade-kyb-scope
+          </a>{" "}
+          to promote a <code>MINIMAL</code> customer to <code>FULL</code> by
+          adding beneficial owners. There is no downgrade. After the upgrade,
+          upload owner ID files and call <code>/submit</code> to re-verify under
+          the Standard checks.
+        </p>
+
+        <p>
+          <strong>How businesses identify themselves.</strong> Every business
+          customer (Minimal or Full) identifies via{" "}
+          <code>registration_number</code> + <code>incorporation_country</code>.
+          The <code>id_type</code> and <code>id_number</code> fields are
+          individual-only — sending them on a business create or update returns
+          422.
+        </p>
+
+        <p>
+          <strong>Backwards compatibility.</strong> Existing business customers
+          (created before this release) are tagged <code>kyb_scope=MINIMAL</code>{" "}
+          and have their canonical identity columns backfilled from the legacy
+          ones. Their NGN VBAs continue to work; the legacy columns stay
+          populated for read-side compatibility. To enable non-NGN currencies
+          for an existing business customer, call the upgrade endpoint.
+        </p>
+
+        <p>
+          <strong>Read these:</strong>
+        </p>
+        <ul>
+          <li><a href="/guides/kyb/overview">Business customer KYB — Overview</a> (Two paths section, what we check before /submit, upgrade flow).</li>
+          <li><a href="/guides/kyb/onboarding">Onboarding a business customer</a> (Minimal KYB onboarding section + Upgrading section).</li>
+          <li><a href="/api-reference/customer/upgrade-kyb-scope">POST /customer/{"{id}"}/upgrade-kyb-scope</a> — new endpoint reference.</li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">26/04/2026</div>
       <div className="changelog-card">
         <h3>Breaking: business-type customers now use a dedicated KYB flow</h3>

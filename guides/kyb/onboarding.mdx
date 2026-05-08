@@ -3,7 +3,9 @@ title: Onboarding a business customer
 description: End-to-end walkthrough for creating, populating, and submitting a business-type customer for KYB.
 ---
 
-This guide walks through onboarding a `type=business` customer from creation to verification. Read [Business customer KYB](/guides/kyb/overview) first if you haven't — it explains the lifecycle and the rules that this walkthrough assumes.
+This guide walks through onboarding a `type=business` customer from creation to verification. Read [Business customer KYB](/guides/kyb/overview) first if you haven't — it explains the lifecycle, the `kyb_scope` model (Standard / FULL vs Minimal), and the rules that this walkthrough assumes.
+
+The **first six steps cover Standard (FULL) onboarding** — the default flow, which produces a customer that can hold an NGN, USD, GBP, or EUR Virtual Bank Account. The [Minimal KYB onboarding](#minimal-kyb-onboarding-whitelisted-merchants) section at the end is the abbreviated NGN-only flow for whitelisted merchants. If you're not sure which one applies to you: you almost certainly want Standard.
 
 ## Prerequisites
 
@@ -69,7 +71,7 @@ For business customers the canonical identifier is `registration_number` + `inco
 
 Postal-code validation is anchored per address: `zip_code` against `country`, `operating_zip_code` against `operating_country`.
 
-The legacy `id_type` and `id_number` fields are still accepted on the request shape for back-compat with older integrations; if you send `id_type` on a business customer, it must be `certificate_of_incorporation`. New integrations should omit `id_type` and `id_number`.
+**Do not send `id_type` or `id_number` on a business customer.** Those columns are individual-only — they identify a person's passport / driver's license / resident permit. Businesses identify via `registration_number` + `incorporation_country`. Sending `id_type` or `id_number` on a business create or update returns `422`.
 </Note>
 
 Save the returned `id` as your `customer_id`. The `verification_status` is `PENDING`.
@@ -235,3 +237,106 @@ Each address has its own country anchor: `zip_code` validates against `country`,
 
 **8. Treating `customer.created` as "ready to transact."**
 `customer.created` fires the moment you POST `/customer`. Verification has not even started yet. Wait for `customer.status_changed` with `new_status=VERIFIED`.
+
+## Minimal KYB onboarding
+
+<Note>
+This section only applies if your platform has been **placed on the Minimal KYB allow list by Blaaiz**. If you haven't been told you're on the allow list, you aren't — sending `kyb_scope=MINIMAL` returns 422 with a "not configured for minimal KYB" message. Read [Two onboarding paths](/guides/kyb/overview#two-onboarding-paths-standard-and-minimal) for context.
+</Note>
+
+The Minimal flow is for platforms whose business customers only need NGN Virtual Bank Accounts. It's the same shape as the Standard flow above — business name, country, registration number, country of incorporation, formation document — **but you don't have to provide beneficial owners**. Customers onboarded this way can hold NGN VBAs and run NGN payouts; they cannot hold USD / GBP / EUR VBAs unless upgraded.
+
+The data you send is a strict subset of Standard. So the steps you skip are: (3) per-owner ID file uploads, and the owners array on the create payload.
+
+### Step 1 (Minimal): Create the customer
+
+```bash
+curl -X POST https://api-prod.blaaiz.com/api/external/customer \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "business",
+    "kyb_scope": "MINIMAL",
+    "business_name": "Acme Corp",
+    "email": "contact@acme.example.com",
+    "country": "NG",
+    "incorporation_country": "NG",
+    "registration_number": "RC-123456",
+    "phone": "+2348012345678"
+  }'
+```
+
+What's required:
+
+- `type=business`
+- `kyb_scope=MINIMAL` (or omit it — allow-listed platforms default to MINIMAL)
+- `business_name`
+- `email`
+- `country` (ISO alpha-2)
+- `incorporation_country` (ISO alpha-2; must equal `country`)
+- `registration_number` — the company's registration / RC number
+
+What's **not** required:
+
+- Beneficial owners (owners array)
+- Per-owner ID files
+- Operating address
+
+Save the returned `id` as your `customer_id`.
+
+### Step 2 (Minimal): Register the formation document
+
+This step is mandatory and identical to [Step 4 of the Standard flow](#step-4-register-kyb-documents): get a presigned URL, PUT the file to S3, then register it via `POST /customer/{id}/document` with `type=CERTIFICATE_OF_INCORPORATION`.
+
+### Step 3 (Minimal): Submit for verification
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/submit \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+If your platform has `auto_verify_business_customers` enabled, the customer goes straight to `VERIFIED`. Otherwise it goes to `PROCESSING` and compliance reviews it (typically within 1 business day for the Minimal data set, since there's less to review).
+
+You're done — the customer can now have an NGN VBA created.
+
+## Upgrading from Minimal to Full
+
+If a Minimal customer later needs to hold a USD / GBP / EUR VBA, you upgrade them to Full by adding beneficial-owner data:
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/upgrade-kyb-scope \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "owners": [
+      {
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "ownership_percentage": 60,
+        "is_beneficial_owner": true,
+        "is_signer": true,
+        "has_control": true
+      },
+      {
+        "first_name": "John",
+        "last_name": "Smith",
+        "ownership_percentage": 40,
+        "is_beneficial_owner": true
+      }
+    ]
+  }'
+```
+
+What this does:
+
+- Saves the new owners on the customer record.
+- Flips `kyb_scope` to `FULL`.
+- If the customer was `VERIFIED`, transitions them back to `PENDING`.
+
+`registration_number` and `incorporation_country` are already on the customer from Minimal onboarding, so you don't need to send them again. (You can if you want to update them, but typically you don't.)
+
+After the upgrade, upload owner ID files via the normal owner-file endpoints (Step 3 of the Standard flow), and call `/submit` to re-verify under the Standard checks.
+
+**One-way only** — there is no downgrade. If you're not sure whether to onboard a customer at Minimal or Full, default to Full (or whichever scope your default behavior produces): you can always add owners and re-submit, but you can't remove the Full data once it's on file.
