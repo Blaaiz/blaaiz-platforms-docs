@@ -214,8 +214,8 @@ If `REJECTED`, every owner and document that needed fixing will have entries in 
 
 These are the patterns we see most often that cause grief.
 
-**1. Calling `POST /customer/{id}/files` for a business customer.**
-The file is stored but `/submit` doesn't look at it. Symptom: you upload everything, call `/submit`, and get a 422 about owners or formation documents. Fix: use the dedicated owner-file and KYB-document endpoints from steps 3 and 4.
+**1. Calling `POST /customer/{id}/files` (or `POST /file/get-presigned-url`) for a business customer.**
+Both endpoints reject business customers with `400` — they're individual-only. Symptom: you can't even upload. Fix: use the dedicated owner-file and KYB-document endpoints from steps 3 and 4.
 
 **2. Ownership percentages that don't sum to 100.**
 `/submit` enforces this strictly. 99.99% won't do. Add up the values across every owner and make sure they total exactly 100.
@@ -227,7 +227,7 @@ The API returns 400. `PROCESSING` is the active-review window — wait for the c
 Those fields are admin-managed. They're silently stripped from your requests — your owner stays at `PENDING` and your comments don't get saved. Don't rely on them appearing on the response if you sent them.
 
 **5. Forgetting `registration_number` and `incorporation_country` at create time.**
-These two are required for `type=business` and they're how the business is indexed in our compliance system. The legacy `id_type` / `id_number` are no longer required for businesses (kept accepted only for back-compat).
+These two are required for `type=business` and they're how the business is indexed in our compliance system. The legacy `id_type` / `id_number` are **prohibited** on business customers — sending either returns `422`.
 
 **6. Sending `incorporation_country` without `country` (or vice versa) on update.**
 For business customers, `country` (registered-address country) must equal `incorporation_country` (legal jurisdiction). When you change the jurisdiction, update both fields in the same `PUT` payload. Updating only one leaves the other at its persisted value, which produces a divergent pair and a `422`. Sending different values for the two also returns `422`.
