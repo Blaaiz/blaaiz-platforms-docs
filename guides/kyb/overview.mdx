@@ -51,7 +51,7 @@ A business customer is a company. Verifying it requires more than an ID document
 The legacy `id_file` / `id_file_back` / `proof_of_address_file` / `liveness_check_file` slots that work for individual customers don't model this. Business customers use a separate set of endpoints.
 
 <Warning>
-**Do not call `POST /api/external/customer/{id}/files` for a `type=business` customer.** The file is stored, but `/submit` does not look at the legacy `id_file_path` for businesses — it requires a formation document in the new collection. Calling `/files` on a business customer just orphans the upload. Read [Onboarding a business customer](/guides/kyb/onboarding) for the path that actually works.
+**`POST /api/external/customer/{id}/files` and `POST /api/external/file/get-presigned-url` reject `type=business` customers with `400`.** Both endpoints are individual-only. Business customers must use the KYB document flow described in [Onboarding a business customer](/guides/kyb/onboarding) — owner ID files via the owner-file endpoints, KYB documents via the document endpoints.
 </Warning>
 
 ## Lifecycle states
@@ -166,8 +166,8 @@ You can think of an upgrade as: "add the owner data, then re-submit." Splitting 
 
 **The upgrade endpoint is the only way to change `kyb_scope`.** The regular `PUT /customer/{id}` endpoint rejects `kyb_scope` in the payload — admin downgrades are also blocked by the same rule. To "fix" a customer onboarded at the wrong scope, talk to support.
 
-## What this is the foundation for
+## What KYB unlocks
 
-KYB unlocks NGN Virtual Bank Accounts and CAD payouts for business-type customers today. USD, GBP, and EUR Virtual Bank Accounts and direct payouts in those currencies for business-type customers are **not yet available** — those are future expansions building on top of KYB. When they ship, only `kyb_scope=FULL` customers will be eligible.
+A verified business customer can hold Virtual Bank Accounts and act as a payout recipient. NGN VBAs are available for both Minimal and Full customers. USD, GBP, and EUR VBAs are gated to **`kyb_scope=FULL`** — Minimal customers are NGN-only.
 
-For verified individual customers, USD/GBP/EUR Virtual Bank Accounts and payouts already work — see [Virtual Bank Accounts](/guides/virtual-bank-accounts).
+For payout currency support on business customers, see [Creating your first payout](/guides/creating-first-payout). For verified individual customers, see [Virtual Bank Accounts](/guides/virtual-bank-accounts).

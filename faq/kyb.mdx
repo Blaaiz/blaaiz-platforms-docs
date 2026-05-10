@@ -5,11 +5,11 @@ description: Common questions about onboarding and verifying type=business custo
 
 These questions cover the KYB flow for `type=business` customers. For individual customers (`type=individual`), see the [Webhooks and notifications FAQ](/faq/webhooks-and-notifications) and [API integration FAQ](/faq/api-integration).
 
-## My business customer is stuck at PENDING after I uploaded `id_file`. Why?
+## Why does `POST /customer/{id}/files` return 400 for my business customer?
 
-Because `/files` and `id_file` are not the right path for business customers. The `id_file` upload is the legacy individual-customer flow — it stores the file in the customer's `id_file_path` column, but `/submit` does not look at that column for `type=business` customers. It looks for owners and a formation document in the new KYB document collection.
+Because `/files` (and the matching presigned-URL endpoint `POST /file/get-presigned-url`) is individual-only. Both endpoints reject `type=business` customers with `400` — there's no fallback storage, no orphaned upload, the request just fails.
 
-Use the dedicated KYB flow:
+Business customers use a different flow:
 
 1. Add owners (via `POST /customer` with the `owners` array, or `PUT /customer/{id}` after creation).
 2. Upload each owner's ID files via `POST /customer/{id}/owner/{owner}/file/presigned-url` and `POST /customer/{id}/owner/{owner}/files`.
@@ -100,10 +100,10 @@ Postal-code validation follows the same per-address split: `zip_code` is validat
 
 ## Can I use a verified business customer for a USD / GBP / EUR Virtual Bank Account?
 
-Not yet. Today, USD, GBP, and EUR Virtual Bank Accounts support `type=individual` only. NGN Virtual Bank Accounts support both `type=individual` and `type=business`.
+Yes — provided the customer is on `kyb_scope=FULL`. NGN VBAs work for both Minimal and Full business customers. USD, GBP, and EUR VBAs are gated to Full — a Minimal customer trying to allocate a non-NGN VBA gets a clear error pointing at the upgrade endpoint.
 
-USD/GBP/EUR for business customers is on the roadmap — KYB is the foundation that enables that work.
+If you have a Minimal customer who needs non-NGN currencies, use [`POST /customer/{id}/upgrade-kyb-scope`](/api-reference/customer/upgrade-kyb-scope) to promote them to Full, attach owners, and re-submit.
 
 ## Can I use a verified business customer for payouts?
 
-Yes — for payout currencies that support business customers today (NGN and CAD on the relevant rails). USD, GBP, and EUR business-customer payouts are not yet available; those are future expansions building on KYB.
+Yes — NGN payouts work today for verified business customers. For the current state of other payout-currency rails on business customers, contact [support@blaaiz.com](mailto:support@blaaiz.com).

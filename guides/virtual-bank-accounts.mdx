@@ -20,7 +20,7 @@ For **NGN**, the Virtual Bank Account is typically activated immediately and the
 For **GBP**, **EUR**, and **USD**, the account is created asynchronously. The response will return with a `PENDING` status. Once the account is fully activated, you will receive a `virtual_account.ready` webhook with the account details (account number, bank name, etc.). If the account creation fails or is rejected, you will receive a `virtual_account.failed` or `virtual_account.rejected` webhook instead.
 
 <Note>
-**Customer type restrictions by currency.** NGN Virtual Bank Accounts work for both `type=individual` and `type=business` customers — businesses must complete the [KYB flow](/guides/kyb/overview) (beneficial owners + KYB documents + `/submit`) before the customer is `VERIFIED`. **GBP, EUR, and USD currently support `type=individual` only.** `type=business` for those currencies is not yet available; KYB is the foundation for that future expansion.
+**Customer type restrictions by currency.** NGN Virtual Bank Accounts work for both `type=individual` and `type=business` customers (Minimal and Full). **GBP, EUR, and USD Virtual Bank Accounts** require either `type=individual` (verified) or `type=business` with `kyb_scope=FULL` — `kyb_scope=MINIMAL` is NGN-only. Business customers must complete the [KYB flow](/guides/kyb/overview) (`/submit`) before the customer is `VERIFIED`.
 </Note>
 
 <Note>
@@ -91,7 +91,7 @@ Before creating a Virtual Bank Account, ensure the following prerequisites are i
 
     **Accepted identity documents**
 
-    Only a **Driver's License**, **Passport**, or **Resident Permit** is accepted for individual customers. For business customers, only a **Certificate of Incorporation** is accepted. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
+    Only a **Driver's License**, **Passport**, or **Resident Permit** is accepted for individual customers. Business customers identify via `registration_number` + `incorporation_country` and supply a **Certificate of Incorporation** (or equivalent formation document) through the KYB document collection. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
 
     **Document quality**
 
