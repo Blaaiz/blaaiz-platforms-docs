@@ -37,7 +37,7 @@ For USD, here's how it works:
 
 **Virtual account creation:**
 
-- Generate a USD virtual account for your customer via our API. The customer must be **`type=individual`** — USD virtual accounts for `type=business` customers are not yet supported.
+- Generate a USD virtual account for your customer via our API. The customer must be a verified **`type=individual`**, or a verified **`type=business`** on `kyb_scope=FULL`. Business customers on `kyb_scope=MINIMAL` are NGN-only.
 - We'll verify the customer's KYC details first.
 - We'll notify you via webhook once the account details are ready.
 

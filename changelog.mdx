@@ -140,15 +140,15 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
           </li>
           <li>
             <strong>
-              Customer-level <code>id_type</code> and <code>id_number</code> are no
-              longer required for business customers
+              Customer-level <code>id_type</code> and <code>id_number</code> are
+              prohibited on business customers
             </strong>
             . Use <code>registration_number</code> +{" "}
-            <code>incorporation_country</code> as the canonical identifier instead.
-            The legacy fields remain accepted for back-compat — if you still send{" "}
-            <code>id_type</code> on a business customer, it must be{" "}
-            <code>certificate_of_incorporation</code>. Individuals continue to require{" "}
-            <code>id_type</code> + <code>id_number</code> as before.
+            <code>incorporation_country</code> as the canonical identifier. Sending{" "}
+            <code>id_type</code> or <code>id_number</code> on a{" "}
+            <code>type=business</code> create or update returns <code>422</code>.
+            Individuals continue to require <code>id_type</code> +{" "}
+            <code>id_number</code> as before.
           </li>
           <li>
             <strong>Uniqueness:</strong>{" "}
@@ -329,10 +329,10 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
         </p>
 
         <p>
-          <strong>Not yet available.</strong> USD, GBP, and EUR Virtual Bank Accounts
-          and direct payouts in those currencies for <code>type=business</code>{" "}
-          customers. NGN VBAs and CAD payouts work today. KYB is the foundation for
-          the future expansion.
+          <strong>Currency eligibility.</strong> Verified business customers on{" "}
+          <code>kyb_scope=FULL</code> can hold NGN, USD, GBP, and EUR Virtual Bank
+          Accounts. <code>kyb_scope=MINIMAL</code> customers are NGN-only. For
+          payout-currency coverage on business recipients, contact support.
         </p>
 
         <p>
