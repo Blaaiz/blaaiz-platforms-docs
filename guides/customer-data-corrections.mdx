@@ -63,7 +63,7 @@ Most correction requests we receive are avoidable. Before you submit customer da
 
 - **Double-check names and dates.** Display a confirmation screen in your UI so your users can review their details before submission. A simple "Does this look right?" step catches the majority of typos.
 - **Validate the country code.** Make sure the country you are sending matches the country on the customer's identity document. A mismatch will cause problems during verification and may require a correction later.
-- **Use the right document type.** Individual customers must set `id_type` to `drivers_license`, `passport`, or `resident_permit`. Business customers don't need to set `id_type` at all — they identify via `registration_number` + `incorporation_country`; if you do still send `id_type` for a business (back-compat), it must be `certificate_of_incorporation`. If you present the wrong options in your UI, your users will select the wrong type, and you will end up needing a correction.
+- **Use the right document type.** Individual customers must set `id_type` to `drivers_license`, `passport`, or `resident_permit`. Business customers must **not** send `id_type` or `id_number` — those fields are prohibited on businesses and return `422`. Businesses identify via `registration_number` + `incorporation_country`. If you present the wrong options in your UI, your users will select the wrong type, and you will end up needing a correction.
 - **Check images before uploading.** Make sure the document image is clear, legible, and not cropped. Blurry or unreadable images will be rejected, and if the wrong image somehow gets through, you will need to request a correction.
 
 A few minutes of validation upfront saves days of back-and-forth with the operations team.

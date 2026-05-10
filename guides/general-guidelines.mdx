@@ -45,7 +45,7 @@ To summarise: wait for the webhook. For individuals, do not escalate before 2 ho
 ### Accepted identity documents
 
 - **Individual customers**: `id_type` is required and must be **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`). The matching document file is uploaded via the legacy File API.
-- **Business customers**: `id_type` is no longer required at the customer level — businesses identify via `registration_number` + `incorporation_country`. If you do send `id_type` for back-compat, only **Certificate of Incorporation** (`certificate_of_incorporation`) is valid. The actual certificate file goes into the [KYB document collection](/guides/kyb/onboarding), not through the File API.
+- **Business customers**: `id_type` and `id_number` are **prohibited** at the customer level — sending either returns `422`. Businesses identify via `registration_number` + `incorporation_country`. The certificate of incorporation goes into the [KYB document collection](/guides/kyb/onboarding) with `type=CERTIFICATE_OF_INCORPORATION`, not through the File API.
 - **ID cards (National Identity Cards) are not accepted.** No other identity document types are supported. National ID cards and any other document types will be rejected.
 
 ### Document quality requirements

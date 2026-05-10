@@ -22,7 +22,7 @@ Make sure to save the `customer_id` returned from this endpoint as you'll need i
 </Note>
 
 <Warning>
-  For **individual customers**, the customer-level `id_type` is required and must be **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`). **ID cards (National Identity Cards) are not accepted.** For **business customers**, the canonical identifier is `registration_number` + `incorporation_country` — the legacy `id_type` / `id_number` fields are no longer required (still accepted for back-compat; if sent, `id_type` must be `certificate_of_incorporation`). The actual incorporation document file goes into the KYB document collection (see Step 2 below), not through `/files`.
+  For **individual customers**, the customer-level `id_type` is required and must be **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`). **ID cards (National Identity Cards) are not accepted.** For **business customers**, the canonical identifier is `registration_number` + `incorporation_country` — the legacy `id_type` / `id_number` fields are **prohibited** on businesses (returns `422`). The actual incorporation document file goes into the KYB document collection (see Step 2 below), not through `/files`.
 </Warning>
 
 <Warning>
