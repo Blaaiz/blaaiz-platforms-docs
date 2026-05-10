@@ -1,0 +1,280 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Upgrade Customer KYB Scope (MINIMAL → FULL)",
+        "version": "1.0.0",
+        "description": "Promote a `kyb_scope=MINIMAL` business customer to `kyb_scope=FULL` so they qualify for non-NGN Virtual Bank Accounts (USD / GBP / EUR) and the broader Standard KYB feature set. The upgrade attaches beneficial owners and flips the scope.\n\n**One-way only.** A FULL customer cannot be downgraded to MINIMAL. There is no admin path either — once compliance has accepted full data, it stays on file.\n\n**This endpoint saves the new data and flips `kyb_scope` to `FULL` — it does not run the Standard readiness checks.** Those checks (owner ID files uploaded, ownership-percentage rollup to 100, formation document on file) run at `/submit` time. Splitting the steps lets you upload owner ID files after the owners exist as records — running the checks here would force you to upload all owner files before owners even existed.\n\n**Sequence after a successful upgrade:**\n\n1. Upload owner ID files via `POST /api/external/customer/{id}/owner/{owner}/files` (per owner, per slot).\n2. Call `POST /api/external/customer/{id}/submit` to re-route the customer through review under the Standard checks.\n\nIf the customer was `VERIFIED` at the time of the upgrade, this endpoint also flips them back to `PENDING` (an upgrade is a re-onboarding under stricter rules). Existing NGN VBAs are unaffected. The customer is editable again.\n\n**Identity columns are typically not in the payload.** `registration_number` and `incorporation_country` are required at MINIMAL onboarding (canonical for both scopes), so they're already on the customer when you upgrade. The typical upgrade payload is just `owners` plus optional KYB augmentations (`industry_type`, `business_type`, etc.). You can send `registration_number` / `incorporation_country` to override values on file, but that's rarely needed."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "customer:write": "Create and update customers and KYC data."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "UpgradeKybScopeRequest": {
+                "type": "object",
+                "required": ["owners"],
+                "properties": {
+                    "registration_number": {
+                        "type": "string",
+                        "description": "Optional override. The business registration / company number is already on the customer from MINIMAL onboarding (canonical for both scopes), so you typically don't send this. Send it only to update the value during the upgrade. Subject to the standard uniqueness rule on `(business_id, registration_number, incorporation_country)`."
+                    },
+                    "incorporation_country": {
+                        "type": "string",
+                        "description": "Optional override. Already on the customer from Minimal onboarding. Send only if you want to update the value during the upgrade. Must match the customer's `country` after your changes are applied — if they don't match, the request returns 422."
+                    },
+                    "country": {
+                        "type": "string",
+                        "description": "Optional. Update the registered-address country alongside `incorporation_country` when correcting jurisdiction during the upgrade. The resulting `country` and `incorporation_country` must match."
+                    },
+                    "owners": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 5,
+                        "description": "Beneficial owners, signatories, and directors. **Required, at least one owner.** The sum of every owner's `ownership_percentage` must equal exactly `100` (validated at this endpoint). Per-owner ID files are uploaded after the upgrade succeeds, via the dedicated owner-file endpoints — they're not part of this payload.",
+                        "items": {
+                            "type": "object",
+                            "required": ["first_name", "last_name", "ownership_percentage"],
+                            "properties": {
+                                "first_name": { "type": "string", "maxLength": 255 },
+                                "last_name": { "type": "string", "maxLength": 255 },
+                                "email": { "type": "string", "format": "email" },
+                                "phone": { "type": "string" },
+                                "date_of_birth": { "type": "string", "format": "date", "description": "Must be at least 18 years ago." },
+                                "nationality": { "type": "string", "description": "ISO alpha-2." },
+                                "title": { "type": "string", "description": "e.g. 'CEO', 'Director'." },
+                                "ownership_percentage": { "type": "number", "minimum": 0, "maximum": 100 },
+                                "has_control": { "type": "boolean" },
+                                "is_signer": { "type": "boolean" },
+                                "is_beneficial_owner": { "type": "boolean" },
+                                "street": { "type": "string", "minLength": 9, "maxLength": 255 },
+                                "city": { "type": "string" },
+                                "state": { "type": "string" },
+                                "zip_code": { "type": "string" },
+                                "country": { "type": "string", "description": "ISO alpha-2." },
+                                "id_document_type": { "type": "string", "enum": ["passport", "drivers_license", "id_card", "resident_permit"] },
+                                "id_document_number": { "type": "string" },
+                                "id_document_country": { "type": "string", "description": "ISO alpha-2." },
+                                "id_expiry_date": { "type": "string", "format": "date", "description": "Must be in the future." },
+                                "tin": { "type": "string", "minLength": 5, "maxLength": 50 },
+                                "is_pep": { "type": "boolean" },
+                                "usa_tax_residency": { "type": "boolean" }
+                            }
+                        }
+                    },
+                    "trading_name": { "type": "string", "description": "Optional augmentation. Trading or 'doing business as' name." },
+                    "business_type": { "type": "string", "enum": ["corporation", "government_entity", "llc", "non_profit", "other", "partnership", "sole_proprietorship"], "description": "Optional augmentation. Legal entity type." },
+                    "incorporation_date": { "type": "string", "format": "date", "description": "Optional augmentation. Must be in the past." },
+                    "industry_type": { "type": "string", "description": "Optional augmentation." },
+                    "business_description": { "type": "string", "description": "Optional augmentation. Max 2000 chars." },
+                    "website": { "type": "string", "format": "uri", "description": "Optional augmentation." },
+                    "source_of_funds": { "type": "string", "enum": ["business_revenue", "business_loans", "investment_income", "third_party_funds", "other"], "description": "Optional augmentation." },
+                    "estimated_annual_revenue": { "type": "string", "enum": ["0_99999", "100000_499999", "500000_999999", "1000000_4999999", "5000000_24999999", "25000000_99999999", "100000000_249999999", "250000000_plus"], "description": "Optional augmentation. Estimated annual revenue band, in USD." },
+                    "expected_monthly_payments": { "type": "integer", "description": "Optional augmentation." },
+                    "account_purpose": { "type": "string", "enum": ["receive_payments_for_goods_and_services", "send_payments_for_goods_and_services", "send_receive_funds_related_parties", "other"], "description": "Optional augmentation." },
+                    "operating_street": { "type": "string" },
+                    "operating_city": { "type": "string" },
+                    "operating_state": { "type": "string" },
+                    "operating_zip_code": { "type": "string", "description": "Validated against `operating_country`." },
+                    "operating_country": { "type": "string", "description": "ISO alpha-2. Required whenever any other `operating_*` field is supplied." }
+                }
+            },
+            "Customer": {
+                "type": "object",
+                "description": "Updated customer record after the upgrade. `kyb_scope` is now `FULL`. `verification_status` is `PENDING` (or whatever the customer was, except `VERIFIED` which transitions to `PENDING` automatically). Same shape as `GET /customer/{id}`.",
+                "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "type": { "type": "string", "enum": ["business"] },
+                    "kyb_scope": { "type": "string", "enum": ["FULL"] },
+                    "verification_status": { "type": "string", "enum": ["PENDING", "REJECTED", "PROCESSING"] },
+                    "business_name": { "type": "string" },
+                    "registration_number": { "type": "string" },
+                    "incorporation_country": { "type": "string" },
+                    "country": { "type": "string" },
+                    "owners": {
+                        "type": "array",
+                        "items": { "type": "object" }
+                    }
+                }
+            },
+            "UpgradeKybScopeResponse": {
+                "type": "object",
+                "properties": {
+                    "message": { "type": "string" },
+                    "data": { "$ref": "#/components/schemas/Customer" }
+                },
+                "required": ["message", "data"]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": { "type": "boolean" },
+                    "message": { "type": "string" }
+                },
+                "required": ["status", "message"]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/upgrade-kyb-scope": {
+            "post": {
+                "summary": "Upgrade a business customer from MINIMAL to FULL KYB",
+                "description": "Promote a `kyb_scope=MINIMAL` business customer to `kyb_scope=FULL` by attaching beneficial-owner data. Identity columns (`registration_number`, `incorporation_country`) are typically already on file from MINIMAL onboarding.\n\n**Eligibility checks (return `422` on failure):**\n\n- Customer exists and belongs to your platform.\n- Customer is `type=business`.\n- Customer is currently `kyb_scope=MINIMAL` (or has no scope set, treated as Minimal). A FULL customer cannot be \"upgraded\" again.\n- Customer is not `PROCESSING` (rejected with `400` — wait for the customer-level webhook before retrying).\n\n**Validation (return `422` on failure):**\n\n- At least one owner.\n- Ownership percentages sum to exactly 100.\n- Per-owner identity invariants (DOB ≥ 18, expiry future, valid ISO codes where supplied).\n- Owner emails unique within the customer.\n- If you send `registration_number` / `incorporation_country` overrides, they must satisfy the same rules as create.\n- If you send `country` to update jurisdiction, the resulting `country` and `incorporation_country` must match.\n\n**On success:**\n\n1. New owners are saved on the customer.\n2. `kyb_scope` flips to `FULL`.\n3. If the customer was `VERIFIED`, `verification_status` flips back to `PENDING` (re-onboarding under stricter rules). Existing NGN VBAs are unaffected.\n4. An audit comment is recorded.\n5. A `customer.status_changed` webhook fires for the verification-status transition (if any).\n\n**Important:** This endpoint does NOT run the Standard readiness checks. Owner ID files are not part of this payload — upload them per-owner via `POST /api/external/customer/{id}/owner/{owner}/files` after the upgrade succeeds. Then call `POST /api/external/customer/{id}/submit` to re-verify the customer under the Standard checks.\n\nRequired scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/UpgradeKybScopeRequest" },
+                            "example": {
+                                "trading_name": "Acme",
+                                "business_type": "llc",
+                                "incorporation_date": "2019-03-12",
+                                "industry_type": "Software & SaaS",
+                                "business_description": "B2B SaaS platform.",
+                                "website": "https://acme.example.com",
+                                "source_of_funds": "business_revenue",
+                                "estimated_annual_revenue": "1000000_4999999",
+                                "expected_monthly_payments": 250,
+                                "account_purpose": "send_receive_funds_related_parties",
+                                "owners": [
+                                    {
+                                        "first_name": "Jane",
+                                        "last_name": "Doe",
+                                        "email": "jane@acme.example.com",
+                                        "date_of_birth": "1985-04-22",
+                                        "nationality": "NG",
+                                        "title": "CEO",
+                                        "ownership_percentage": 60,
+                                        "has_control": true,
+                                        "is_signer": true,
+                                        "is_beneficial_owner": true,
+                                        "id_document_type": "passport",
+                                        "id_document_number": "A12345678",
+                                        "id_document_country": "NG",
+                                        "id_expiry_date": "2030-01-15",
+                                        "is_pep": false
+                                    },
+                                    {
+                                        "first_name": "John",
+                                        "last_name": "Smith",
+                                        "ownership_percentage": 40,
+                                        "is_beneficial_owner": true
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Customer upgraded. `kyb_scope` is now `FULL`. Owner ID files still need to be uploaded; then call `/submit` to re-verify under the FULL floor.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/UpgradeKybScopeResponse" },
+                                "example": {
+                                    "message": "Customer KYB scope upgraded to FULL. Upload owner ID files and call /submit to re-verify.",
+                                    "data": {
+                                        "id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
+                                        "type": "business",
+                                        "kyb_scope": "FULL",
+                                        "verification_status": "PENDING",
+                                        "business_name": "Acme Nigeria Limited",
+                                        "registration_number": "RC123456",
+                                        "incorporation_country": "NG",
+                                        "country": "NG",
+                                        "owners": [
+                                            { "id": "019a6e22-8b4c-7c8d-9d12-c0c1ab3f1a90", "first_name": "Jane", "last_name": "Doe", "ownership_percentage": 60, "status": "PENDING" },
+                                            { "id": "019a6e22-8b4c-7c8d-9d12-d1d2bc4e2b91", "first_name": "John", "last_name": "Smith", "ownership_percentage": 40, "status": "PENDING" }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Customer is currently under review.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/Error" },
+                                "example": { "status": false, "message": "Customer is under review and cannot be upgraded right now." }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/Error" },
+                                "example": { "status": false, "message": "Invalid or missing access token" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Customer not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/Error" },
+                                "example": { "status": false, "message": "Customer not found" }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Eligibility or validation failure. The message names the specific problem.",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "wrong_type": {
+                                        "value": { "message": "Only business customers can be upgraded." }
+                                    },
+                                    "already_full": {
+                                        "value": { "message": "Customer is already at kyb_scope=FULL." }
+                                    },
+                                    "country_mismatch": {
+                                        "value": { "message": "country must equal incorporation_country." }
+                                    },
+                                    "duplicate_business_identity": {
+                                        "summary": "Upgrade would duplicate another customer's business identity",
+                                        "value": { "message": "Another business customer in this platform already has this registration_number + incorporation_country combination." }
+                                    },
+                                    "missing_owners": {
+                                        "value": { "message": "owners is required and must contain at least one entry." }
+                                    },
+                                    "ownership_sum_wrong": {
+                                        "value": { "message": "owners.ownership_percentage must sum to 100; got 90." }
+                                    },
+                                    "duplicate_owner_emails": {
+                                        "value": { "message": "Owner emails must be unique within the customer." }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

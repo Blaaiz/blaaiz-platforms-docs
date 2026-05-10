@@ -56,9 +56,9 @@ When the customer-level verdict arrives (`VERIFIED` or `REJECTED`), fetch the cu
 
 ## Do I still need `id_type=certificate_of_incorporation` for a business customer?
 
-No. For business customers the canonical identifier is now `registration_number` + `incorporation_country` — both are required at create time. The legacy `id_type` and `id_number` fields are no longer required for businesses, though they remain accepted for back-compat. If you do send `id_type` on a business customer, it must still be `certificate_of_incorporation`.
+No — and you can't send it anymore. For business customers the canonical identifier is `registration_number` + `incorporation_country`, both required at create time. The legacy `id_type` and `id_number` fields are **prohibited** on `type=business` requests (create and update) and return `422`. They're personal-identity columns for individual customers only.
 
-The actual certificate of incorporation **file** does not go via `/files` either way — it goes into the KYB document collection with `type=CERTIFICATE_OF_INCORPORATION`.
+The actual certificate of incorporation **file** goes into the KYB document collection with `type=CERTIFICATE_OF_INCORPORATION`, not via `/files`.
 
 ## Can a business customer have multiple owners?
 

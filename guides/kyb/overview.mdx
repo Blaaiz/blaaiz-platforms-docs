@@ -3,19 +3,55 @@ title: Business customer KYB
 description: How to onboard a business-type customer through the Know Your Business (KYB) flow.
 ---
 
-This guide is for any customer you create with `type=business`. The flow is fundamentally different from `type=individual` and the legacy `/files` endpoint does not work for it. Read this page first, then follow [Onboarding a business customer](/guides/kyb/onboarding) for the step-by-step.
+This guide is for any customer you create with `type=business`. The flow is different from `type=individual` — it has its own set of endpoints, its own data shape, and its own review timeline. Read this page first, then follow [Onboarding a business customer](/guides/kyb/onboarding) for the step-by-step.
 
-## Why a different flow
+## Two onboarding paths: Standard and Minimal
 
-A business customer is a company. Verifying it requires more than an ID document:
+Every business customer carries a **`kyb_scope`** that controls two things:
 
-- **Beneficial owners** — every owner / signatory / director that meets the threshold, with personal ID for each.
-- **A KYB document collection** — incorporation certificate, articles of incorporation, share register, bank statements, etc. The exact set depends on the jurisdiction and the business profile.
+1. **What data you have to send to onboard them.**
+2. **Which currencies they can hold a Virtual Bank Account in.**
 
-The legacy `id_file` / `id_file_back` / `proof_of_address_file` / `liveness_check_file` slots that work for individual customers don't model this. So business customers use a separate set of endpoints.
+| `kyb_scope` | What you have to send | VBA currencies |
+| --- | --- | --- |
+| **`FULL`** (Standard KYB) | Business identity (name, registration number, country of incorporation), beneficial owners summing to 100% ownership, an ID document for each owner, plus a formation document (e.g. Certificate of Incorporation). | NGN, USD, GBP, EUR. |
+| **`MINIMAL`** | Business identity (name, registration number, country of incorporation) plus a formation document. **No beneficial owners required.** | NGN only. |
+
+The two paths share the same identity columns. The only structural difference is whether you have to provide beneficial-owner data.
+
+### Who can use Minimal KYB?
+
+Minimal KYB is gated by an **admin-controlled allow list**. Most platforms onboard their business customers under the Standard (FULL) path. Minimal KYB exists for platforms whose use case is genuinely Nigerian-naira-only — typically Nigerian fintechs collecting payments in NGN for their own customers, where the underlying NGN provider doesn't require beneficial-ownership data.
+
+If your platform is on the allow list:
+- You can pass `kyb_scope=MINIMAL` on a customer create.
+- If you omit `kyb_scope`, your customers default to `MINIMAL`.
+- You can still pass `kyb_scope=FULL` explicitly when you need a customer to qualify for non-NGN currencies.
+
+If your platform is **not** on the allow list:
+- Sending `kyb_scope=MINIMAL` returns `422`.
+- If you omit `kyb_scope`, your customers default to `FULL`.
+- This is the right path for almost everyone — contact [support@blaaiz.com](mailto:support@blaaiz.com) only if your use case is genuinely NGN-only.
+
+### Upgrading from Minimal to Full
+
+A Minimal customer can be upgraded to Full at any time via [`POST /customer/{id}/upgrade-kyb-scope`](/api-reference/customer/upgrade-kyb-scope) — you supply the beneficial owners and the customer flips to `FULL`. After the upgrade, you upload owner ID files and call `/submit` again to re-verify the customer under the Standard floor.
+
+**Upgrades are one-way.** Once a customer is on Full, they stay on Full. There is no admin downgrade.
+
+The rest of this guide covers the **Standard (FULL)** flow. For Minimal onboarding see [Onboarding a business customer → Minimal KYB onboarding](/guides/kyb/onboarding#minimal-kyb-onboarding).
+
+## Why a different flow than individuals?
+
+A business customer is a company. Verifying it requires more than an ID document and a selfie:
+
+- **Beneficial owners** (FULL only) — every owner / signatory / director that meets the threshold, with personal ID for each.
+- **A KYB document collection** (both scopes) — incorporation certificate, articles of incorporation, share register, bank statements, etc. The exact set depends on the jurisdiction and the business profile.
+
+The legacy `id_file` / `id_file_back` / `proof_of_address_file` / `liveness_check_file` slots that work for individual customers don't model this. Business customers use a separate set of endpoints.
 
 <Warning>
-**Do not call `POST /api/external/customer/{id}/files` for a `type=business` customer.** The file is stored, but `/submit` does not look at the legacy `id_file_path` for business customers — it requires beneficial owners and a formation document in the new collection. Calling `/files` on a business customer just orphans the upload. Read [Onboarding a business customer](/guides/kyb/onboarding) for the path that actually works.
+**Do not call `POST /api/external/customer/{id}/files` for a `type=business` customer.** The file is stored, but `/submit` does not look at the legacy `id_file_path` for businesses — it requires a formation document in the new collection. Calling `/files` on a business customer just orphans the upload. Read [Onboarding a business customer](/guides/kyb/onboarding) for the path that actually works.
 </Warning>
 
 ## Lifecycle states
@@ -31,7 +67,7 @@ Three records each carry their own state. They share the same four-state vocabul
 | `VERIFIED` | Locked | Locked |
 | `REJECTED` | Editable | Editable |
 
-`PROCESSING` is the active-review window — the persisted snapshot is frozen so compliance reviews a stable picture. Wait for the customer-level webhook before attempting edits. `VERIFIED` is final; corrections on a verified customer go through operations (see [Customer data corrections](/guides/customer-data-corrections)).
+`PROCESSING` is the active-review window — the saved customer state is frozen so compliance reviews a stable picture. Wait for the customer-level webhook before attempting edits. `VERIFIED` is final; corrections on a verified customer go through operations (see [Customer data corrections](/guides/customer-data-corrections)).
 
 ### Owner and KYB document (`status`)
 
@@ -62,15 +98,28 @@ When you call `POST /api/external/customer/{customer}/submit`:
 
 There are no per-owner or per-document webhooks. The customer-level event is the only signal you need to track.
 
-## Readiness
+## What we check before accepting a `/submit`
 
-`/submit` enforces what must be present and consistent before review can begin. If any of the checks below fails, the response is `422` with a message naming the specific gap, the customer stays editable, and you can fix and call `/submit` again.
+`/submit` runs a set of checks before flipping the customer into `PROCESSING`. If any check fails, the response is `422` with a message naming the specific gap, the customer stays editable, and you can fix and call `/submit` again.
 
-**Customer-level**
+**The required set depends on the customer's `kyb_scope`.** Minimal needs the identity baseline plus a formation document; Full needs everything Minimal needs plus beneficial owners.
 
-- `business_name`, `registration_number`, and `incorporation_country` are all set; `incorporation_country` is a valid ISO alpha-2 code.
-- `country` (registered-address country) is set and equals `incorporation_country` — a company's registered office sits in its country of incorporation by company law.
+### Both Minimal and Full
+
+**Customer-level identity**
+
+- `business_name` is set.
+- `country` (registered-address country) is set and a valid ISO alpha-2 code.
+- `registration_number` is set.
+- `incorporation_country` is set and a valid ISO alpha-2 code.
+- `country` equals `incorporation_country`. By company law a company's registered office sits in its country of incorporation, so the two must agree.
 - `operating_country` is set whenever any other `operating_*` address field is set, and is a valid ISO alpha-2 code (the operating address can be in a different country from the registered one).
+
+**KYB documents**
+
+- At least one document of a formation type: `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.
+
+### Full only — the additional rules
 
 **Owners**
 
@@ -80,9 +129,7 @@ There are no per-owner or per-document webhooks. The customer-level event is the
 - For each owner: `id_document_front` is uploaded; `id_document_back` is uploaded for `drivers_license`, `id_card`, and `resident_permit` types and absent for `passport`.
 - For each owner with the field set: `date_of_birth` is at least 18 years ago, `id_expiry_date` is strictly after today, and `nationality` / `country` / `id_document_country` are valid ISO alpha-2 codes.
 
-**KYB documents**
-
-- At least one document of a formation type: `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.
+**Minimal customers do not need any of the owner rules above.** You can attach owners to a Minimal customer if you want to — they're stored on the record — but they don't gate `/submit`.
 
 ## Verification timeline
 
@@ -98,8 +145,29 @@ If a customer comes back as `REJECTED`, look at the `admin_comments` on each own
 
 See [Handling KYB rejections](/guides/kyb/handling-rejections).
 
+## Upgrading from Minimal to Full
+
+A `kyb_scope=MINIMAL` customer is restricted to NGN VBAs. To enable USD / GBP / EUR for that customer, call [`POST /customer/{id}/upgrade-kyb-scope`](/api-reference/customer/upgrade-kyb-scope) with the beneficial-owner data.
+
+The upgrade endpoint:
+
+1. Checks that the customer is currently `MINIMAL` (or has no scope set, which is treated as Minimal). If they're already `FULL`, returns `422`.
+2. Checks that the customer is not currently in `PROCESSING`. If they are, returns `400` — wait for the customer-level webhook before retrying.
+3. Saves the new owners (and any optional augmentations like `industry_type`, `business_type`, etc.).
+4. Flips `kyb_scope` to `FULL`. **One-way** — there is no downgrade.
+5. If the customer was `VERIFIED`, transitions them back to `PENDING`. An upgrade is a re-onboarding under stricter rules; existing NGN VBAs are unaffected.
+
+The upgrade endpoint does **not** run the Standard readiness checks. It saves the data only. After the upgrade succeeds:
+
+6. Upload owner ID files via the normal owner-file endpoints (per owner, per slot).
+7. Call `POST /customer/{id}/submit` to re-verify under the Standard checks.
+
+You can think of an upgrade as: "add the owner data, then re-submit." Splitting the two steps lets you upload owner ID files between them — running the Standard checks on the upgrade itself would force you to upload all owner files before owners even existed as records.
+
+**The upgrade endpoint is the only way to change `kyb_scope`.** The regular `PUT /customer/{id}` endpoint rejects `kyb_scope` in the payload — admin downgrades are also blocked by the same rule. To "fix" a customer onboarded at the wrong scope, talk to support.
+
 ## What this is the foundation for
 
-KYB unlocks NGN Virtual Bank Accounts and CAD payouts for business-type customers today. USD, GBP, and EUR Virtual Bank Accounts and direct payouts in those currencies for business-type customers are **not yet available** — those are future expansions building on top of KYB.
+KYB unlocks NGN Virtual Bank Accounts and CAD payouts for business-type customers today. USD, GBP, and EUR Virtual Bank Accounts and direct payouts in those currencies for business-type customers are **not yet available** — those are future expansions building on top of KYB. When they ship, only `kyb_scope=FULL` customers will be eligible.
 
 For verified individual customers, USD/GBP/EUR Virtual Bank Accounts and payouts already work — see [Virtual Bank Accounts](/guides/virtual-bank-accounts).
