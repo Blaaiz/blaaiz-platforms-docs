@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Update Customer",
         "version": "1.0.0",
-        "description": "Update customer profile details. Non-verified customers can update all fields. Verified customers can only update fields that are currently null. The customer's country must match the country on the identity document submitted for KYC. Accepted identity documents: Driver's License, Passport, or Resident Permit for individual customers, Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform."
+        "description": "Update customer profile details.\n\n**State rules.**\n\n- A `PENDING` or `REJECTED` customer is fully editable.\n- A `PROCESSING` customer is locked — the API returns `400` on any data edit. Wait for the customer-level webhook before editing.\n- A `VERIFIED` customer can only set fields that are currently `null` (the verified-state field lock). For corrections to fields that already carry a value, see [Customer data corrections](/guides/customer-data-corrections).\n\n**Explicit `null` clears a field.** Sending `\"website\": null` clears `website`; omitting `website` from the payload leaves the stored value unchanged.\n\n**Two countries, two addresses.** A business carries up to three ISO country codes:\n\n- `incorporation_country` — legal jurisdiction.\n- `country` — registered-address country. For businesses, must equal `incorporation_country`. The cross-field check runs against post-merge effective values, so when you change one, send the other to match (otherwise the unchanged side falls back to the persisted value and a divergence is rejected with `422`).\n- `operating_country` — operating-address country, can differ from the other two.\n\nPostal-code validation is anchored per address: `zip_code` against `country`, `operating_zip_code` against `operating_country`. If you update a postcode without sending its country, the persisted country is used as the anchor.\n\n**Owners.** For business customers, this endpoint is where you create, update, and edit beneficial owners via the `owners` array — include each owner's `id` to update them, omit `id` to create a new one. To delete an owner, use `DELETE /api/external/customer/{customer}/owner/{owner}`. Owners with `status` of `APPROVED` or `PROCESSING` cannot be modified and will return `400`. The `status` and `admin_comments` fields are admin-managed and silently ignored if sent.\n\n**Editing a `REJECTED` owner or document resets it to `PENDING`.** Any field change or file replacement on a previously-rejected owner / document automatically flips its `status` back to `PENDING` and clears its `admin_comments`. After fixing rejected items, re-submit to re-route them through review.\n\n**Type-specific fields.** Sending fields that don't apply to the customer's type fails the entire request with `422`.\n\nID cards (National Identity Cards) are not accepted. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform."
     },
     "tags": [
         {
@@ -34,26 +34,6 @@
             }
         },
         "schemas": {
-            "Address": {
-                "type": "object",
-                "properties": {
-                    "street": {
-                        "type": "string"
-                    },
-                    "city": {
-                        "type": "string"
-                    },
-                    "state": {
-                        "type": "string"
-                    },
-                    "country": {
-                        "type": "string"
-                    },
-                    "postal_code": {
-                        "type": "string"
-                    }
-                }
-            },
             "UpdateCustomerRequest": {
                 "type": "object",
                 "properties": {
@@ -75,7 +55,7 @@
                     },
                     "country": {
                         "type": "string",
-                        "description": "Country code (e.g., NG, CA, US). This must match the country on the identity document submitted for KYC."
+                        "description": "ISO alpha-2 country code of the **registered address**. For `type=individual`, must match the country on the identity document. For `type=business`, must equal `incorporation_country` (cross-field check at validation time). When changing the jurisdiction, send both `country` and `incorporation_country` together — sending only one leaves the other at its persisted value, which produces a divergence and `422`."
                     },
                     "id_type": {
                         "type": "string",
@@ -85,10 +65,11 @@
                             "resident_permit",
                             "certificate_of_incorporation"
                         ],
-                        "description": "Identity document type. For individual customers, `drivers_license` (Driver's License), `passport` (Passport), or `resident_permit` (Resident Permit) are accepted. For business customers, only `certificate_of_incorporation` (Certificate of Incorporation) is accepted. ID cards (National Identity Cards) are not accepted. No other document types are supported."
+                        "description": "Identity document type. **For individual customers**, `drivers_license`, `passport`, or `resident_permit`. **For business customers**, the canonical identifier is `registration_number` + `incorporation_country` — `id_type` is not required, but `certificate_of_incorporation` is still accepted for back-compat. ID cards (National Identity Cards) are not accepted. As with all verified-customer fields, an existing non-null value cannot be changed via this endpoint."
                     },
                     "id_number": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Identity document number. For business customers, prefer `registration_number` instead. Subject to the same verified-field-locking as other identity fields."
                     },
                     "tin": {
                         "type": "string",
@@ -117,53 +98,87 @@
                     "id_issue_date": {
                         "type": "string",
                         "format": "date"
+                    },
+                    "operating_street": { "type": "string", "description": "Business operating address — street. Subject to verified-field-locking like other identity fields." },
+                    "operating_city": { "type": "string", "description": "Business operating city." },
+                    "operating_state": { "type": "string", "description": "Business operating state." },
+                    "operating_zip_code": { "type": "string", "description": "Business operating zip / postal code. Validated against `operating_country`. If you update only `operating_zip_code`, the persisted `operating_country` is used as the anchor." },
+                    "operating_country": { "type": "string", "description": "Business operating address country, as ISO alpha-2. Anchors postal-code validation for `operating_zip_code`. Can differ from `country` and `incorporation_country` when the business operates from elsewhere." },
+                    "trading_name": { "type": "string", "description": "Business KYB field." },
+                    "business_type": { "type": "string", "enum": ["corporation", "government_entity", "llc", "non_profit", "other", "partnership", "sole_proprietorship"], "description": "Business KYB field. Legal entity type." },
+                    "registration_number": { "type": "string", "description": "Business KYB field. Unique per business: two of your customers cannot share the same `(registration_number, incorporation_country)` pair." },
+                    "incorporation_country": { "type": "string", "description": "Business KYB field — legal jurisdiction of incorporation, as ISO alpha-2. Distinct from `country` (registered-address country) and `operating_country` (operating-address country); for businesses, `country` must equal `incorporation_country`." },
+                    "incorporation_date": { "type": "string", "format": "date", "description": "Business KYB field." },
+                    "industry_type": { "type": "string", "description": "Business KYB field." },
+                    "business_description": { "type": "string", "description": "Business KYB field." },
+                    "website": { "type": "string", "format": "uri", "description": "Business KYB field." },
+                    "source_of_funds": { "type": "string", "enum": ["business_revenue", "business_loans", "investment_income", "third_party_funds", "other"], "description": "Business KYB field." },
+                    "estimated_annual_revenue": { "type": "string", "enum": ["0_99999", "100000_499999", "500000_999999", "1000000_4999999", "5000000_24999999", "25000000_99999999", "100000000_249999999", "250000000_plus"], "description": "Business KYB field. Estimated annual revenue band, in USD." },
+                    "expected_monthly_payments": { "type": "integer", "description": "Business KYB field." },
+                    "account_purpose": { "type": "string", "enum": ["receive_payments_for_goods_and_services", "send_payments_for_goods_and_services", "send_receive_funds_related_parties", "other"], "description": "Business KYB field." },
+                    "owners": {
+                        "type": "array",
+                        "maxItems": 5,
+                        "description": "Business KYB field. Manage beneficial owners with this array — include the owner's `id` to update an existing owner, omit `id` to create a new one. To delete an owner, use `DELETE /api/external/customer/{customer}/owner/{owner}`. Locked owners (status `APPROVED` or `PROCESSING`) cannot be edited and will return 400. The `status` and `admin_comments` fields are admin-managed; if you send them they are silently ignored. Rejected entirely if `type=individual`.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": { "type": "string", "format": "uuid", "description": "Provide to update an existing owner. Omit to create a new one." },
+                                "first_name": { "type": "string" },
+                                "last_name": { "type": "string" },
+                                "email": { "type": "string", "format": "email" },
+                                "phone": { "type": "string" },
+                                "date_of_birth": { "type": "string", "format": "date" },
+                                "nationality": { "type": "string" },
+                                "title": { "type": "string" },
+                                "ownership_percentage": { "type": "number", "minimum": 0, "maximum": 100 },
+                                "has_control": { "type": "boolean" },
+                                "is_signer": { "type": "boolean" },
+                                "is_beneficial_owner": { "type": "boolean" },
+                                "street": { "type": "string" },
+                                "city": { "type": "string" },
+                                "state": { "type": "string" },
+                                "zip_code": { "type": "string" },
+                                "country": { "type": "string" },
+                                "id_document_type": { "type": "string", "enum": ["passport", "drivers_license", "id_card", "resident_permit"] },
+                                "id_document_number": { "type": "string" },
+                                "id_document_country": { "type": "string" },
+                                "id_expiry_date": { "type": "string", "format": "date" },
+                                "tin": { "type": "string" },
+                                "is_pep": { "type": "boolean" },
+                                "usa_tax_residency": { "type": "boolean" }
+                            }
+                        }
                     }
                 }
             },
             "Customer": {
                 "type": "object",
+                "description": "Updated customer record. Same shape as `GET /customer/{id}` (see that endpoint for the full schema including `kyc_data`, `owners`, `documents`, business KYB fields, etc.).",
                 "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "first_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "last_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "business_name": {
-                        "type": "string",
-                        "nullable": true
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "phone_number": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "string"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
+                    "id": { "type": "string", "format": "uuid" },
+                    "business_id": { "type": "string", "format": "uuid" },
+                    "type": { "type": "string", "enum": ["individual", "business"] },
+                    "first_name": { "type": "string", "nullable": true },
+                    "last_name": { "type": "string", "nullable": true },
+                    "business_name": { "type": "string", "nullable": true },
+                    "email": { "type": "string", "format": "email" },
+                    "phone": { "type": "string", "nullable": true },
+                    "country": { "type": "string", "nullable": true },
+                    "id_type": { "type": "string", "nullable": true },
+                    "id_number": { "type": "string", "nullable": true },
+                    "registration_number": { "type": "string", "nullable": true, "description": "Business KYB field. Set for business customers." },
+                    "incorporation_country": { "type": "string", "nullable": true, "description": "Business KYB field. Set for business customers." },
+                    "verification_status": { "type": "string", "enum": ["PENDING", "PROCESSING", "VERIFIED", "REJECTED"] },
+                    "created_at": { "type": "string", "format": "date-time" },
+                    "updated_at": { "type": "string", "format": "date-time" }
                 },
                 "required": [
                     "id",
+                    "business_id",
                     "type",
                     "email",
-                    "status",
+                    "verification_status",
                     "created_at",
                     "updated_at"
                 ]
@@ -271,18 +286,24 @@
                                     "$ref": "#/components/schemas/UpdateCustomerResponse"
                                 },
                                 "example": {
-                                    "status": true,
                                     "message": "Customer updated successfully",
                                     "data": {
-                                        "id": "customer_123456789",
+                                        "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
                                         "type": "individual",
                                         "first_name": "John",
                                         "last_name": "Doe",
-                                        "email": "john@example.com",
-                                        "phone_number": "+2348098765432",
-                                        "status": "verified",
-                                        "created_at": "2024-01-15T10:30:00Z",
-                                        "updated_at": "2024-01-15T11:00:00Z"
+                                        "business_name": null,
+                                        "email": "john.doe@example.com",
+                                        "phone": "+2348098765432",
+                                        "country": "NG",
+                                        "id_type": "passport",
+                                        "id_number": "A12345678",
+                                        "registration_number": null,
+                                        "incorporation_country": null,
+                                        "verification_status": "VERIFIED",
+                                        "created_at": "2024-01-15T10:30:00.000000Z",
+                                        "updated_at": "2024-01-15T11:00:00.000000Z"
                                     }
                                 }
                             }

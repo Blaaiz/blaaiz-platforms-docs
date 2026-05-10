@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Create Customer",
         "version": "1.0.0",
-        "description": "Create a new customer. Verification remains PENDING until files are uploaded and KYC is completed. The customer's country must match the country on the identity document submitted for KYC. Accepted identity documents: Driver's License, Passport, or Resident Permit for individual customers, Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform."
+        "description": "Create a new customer. The required fields and the verification flow that follows depend on the customer type.\n\n**Individual customers** (`type=individual`) require `id_type`, `id_number`, and `country` at the customer level — Driver's License, Passport, or Resident Permit. The customer's `country` must match the country on the identity document. They follow the legacy KYC flow: create the customer, upload identity files via `POST /api/external/file/get-presigned-url` and `POST /api/external/customer/{id}/files`, and verification triggers automatically when `id_file` is included.\n\n**Business-type customers** (`type=business`) require `business_name`, `registration_number`, `incorporation_country`, and `country`. Both `country` and `incorporation_country` are explicit and must be equal — a company's registered office sits in its country of incorporation by company law. The cross-field check is enforced at validation time. Business customers follow the KYB flow: create the customer (include the `owners` array now or attach owners later via `PUT`), upload owner ID files via the dedicated owner-file endpoints, register KYB documents via the dedicated document endpoints, and call `POST /api/external/customer/{id}/submit` when ready. The legacy `/files` endpoint does not work for business customers — see the [Business customer KYB guide](/guides/kyb/overview).\n\n**Two countries, two addresses.** A business carries up to three ISO country codes, each with a distinct meaning:\n\n- `incorporation_country` — the legal jurisdiction the company is registered in. Top-level, business-only, required.\n- `country` — the registered-address country. Top-level. For businesses, must equal `incorporation_country`.\n- `operating_country` — the operating-address country, which can differ when the business operates from elsewhere. Lives on KYC data alongside the other `operating_*` fields, business-only, required whenever any other `operating_*` field is supplied.\n\nPostal-code validation runs against the country the address belongs to: `zip_code` against `country`, `operating_zip_code` against `operating_country`. Each address is self-describing.\n\n**Type-specific fields.** Sending fields that don't apply to the customer type fails the entire request with `422`. Business KYB fields (`registration_number`, `incorporation_country`, `owners`, etc.) and operating-address fields (`operating_*`) are rejected on `type=individual` requests. Likewise, for back-compat, the legacy `id_type` is still accepted on a business customer but only if set to `certificate_of_incorporation` — new integrations should omit it.\n\n**Document quality.** ID cards (National Identity Cards) are not accepted at the customer level. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform."
     },
     "tags": [
         {
@@ -51,7 +51,7 @@
                     },
                     "country": {
                         "type": "string",
-                        "description": "Country code (e.g., NG, CA, US). This must match the country on the identity document submitted for KYC."
+                        "description": "ISO alpha-2 country code of the **registered address**. Required for both `type=individual` and `type=business`. For individuals, must match the country on the identity document. For businesses, must equal `incorporation_country` — a company's registered office sits in its country of incorporation by company law (cross-field check at validation time)."
                     },
                     "id_type": {
                         "type": "string",
@@ -61,10 +61,11 @@
                             "resident_permit",
                             "certificate_of_incorporation"
                         ],
-                        "description": "Identity document type. For individual customers, `drivers_license` (Driver's License), `passport` (Passport), or `resident_permit` (Resident Permit) are accepted. For business customers, only `certificate_of_incorporation` (Certificate of Incorporation) is accepted. ID cards (National Identity Cards) are not accepted. No other document types are supported."
+                        "description": "Identity document type. **Required for `type=individual`** — `drivers_license`, `passport`, or `resident_permit`. **Not required for `type=business`** (and not recommended for new integrations); businesses identify via `registration_number` + `incorporation_country`. If you do send `id_type` on a business customer for back-compat, it must be `certificate_of_incorporation`."
                     },
                     "id_number": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Identity document number. **Required for `type=individual`** (the number from the document supplied via `id_type`). **Not required for `type=business`**; businesses use `registration_number`."
                     },
                     "first_name": {
                         "type": "string",
@@ -108,14 +109,123 @@
                     "id_issue_date": {
                         "type": "string",
                         "format": "date"
+                    },
+                    "operating_street": {
+                        "type": "string",
+                        "description": "Business operating address — street. Use when the operating address differs from the registered (`street`) address."
+                    },
+                    "operating_city": {
+                        "type": "string",
+                        "description": "Business operating city."
+                    },
+                    "operating_state": {
+                        "type": "string",
+                        "description": "Business operating state."
+                    },
+                    "operating_zip_code": {
+                        "type": "string",
+                        "description": "Business operating zip / postal code. Validated against `operating_country` (not `country`) — the operating address is self-describing."
+                    },
+                    "operating_country": {
+                        "type": "string",
+                        "description": "Business operating address country, as ISO alpha-2. **Required whenever any other `operating_*` field is supplied.** Can differ from `country` and `incorporation_country` when the business operates from a different jurisdiction. Anchors postal-code validation for `operating_zip_code`."
+                    },
+                    "trading_name": {
+                        "type": "string",
+                        "description": "Business KYB field. Trading or 'doing business as' name."
+                    },
+                    "business_type": {
+                        "type": "string",
+                        "enum": ["corporation", "government_entity", "llc", "non_profit", "other", "partnership", "sole_proprietorship"],
+                        "description": "Business KYB field. Legal entity type."
+                    },
+                    "registration_number": {
+                        "type": "string",
+                        "description": "Business KYB field. **Required for `type=business`** — registration / company number from the issuing authority. Together with `incorporation_country`, this is the canonical identifier for a business customer.\n\nUnique per business: two of your customers cannot share the same `(registration_number, incorporation_country)` pair. The same number is fine across different incorporation countries (jurisdictions overlap), and across different Blaaiz businesses."
+                    },
+                    "incorporation_country": {
+                        "type": "string",
+                        "description": "Business KYB field. **Required for `type=business`** — legal jurisdiction of incorporation, as ISO alpha-2. Distinct from `country` (registered-address country) and `operating_country` (operating-address country); for businesses, `country` must equal `incorporation_country` (a company's registered office sits in its country of incorporation)."
+                    },
+                    "incorporation_date": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Business KYB field. Must be in the past."
+                    },
+                    "industry_type": {
+                        "type": "string",
+                        "description": "Business KYB field. Free-form industry/sector descriptor."
+                    },
+                    "business_description": {
+                        "type": "string",
+                        "description": "Business KYB field. Description of the business activity (max 2000 chars)."
+                    },
+                    "website": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Business KYB field. Public website URL."
+                    },
+                    "source_of_funds": {
+                        "type": "string",
+                        "enum": ["business_revenue", "business_loans", "investment_income", "third_party_funds", "other"],
+                        "description": "Business KYB field. Where the business's funds originate."
+                    },
+                    "estimated_annual_revenue": {
+                        "type": "string",
+                        "enum": ["0_99999", "100000_499999", "500000_999999", "1000000_4999999", "5000000_24999999", "25000000_99999999", "100000000_249999999", "250000000_plus"],
+                        "description": "Business KYB field. Estimated annual revenue band, in USD."
+                    },
+                    "expected_monthly_payments": {
+                        "type": "integer",
+                        "description": "Business KYB field. Expected monthly payment count (0–1,000,000,000)."
+                    },
+                    "account_purpose": {
+                        "type": "string",
+                        "enum": ["receive_payments_for_goods_and_services", "send_payments_for_goods_and_services", "send_receive_funds_related_parties", "other"],
+                        "description": "Business KYB field. Stated purpose of the Blaaiz account."
+                    },
+                    "owners": {
+                        "type": "array",
+                        "maxItems": 5,
+                        "description": "Business KYB field. Beneficial owners, signatories, and directors. Up to 5 entries. Each entry's `ownership_percentage` must sum across all owners to exactly 100 before `/submit` will accept the customer.",
+                        "items": {
+                            "type": "object",
+                            "required": ["first_name", "last_name"],
+                            "properties": {
+                                "first_name": { "type": "string", "maxLength": 255 },
+                                "last_name": { "type": "string", "maxLength": 255 },
+                                "email": { "type": "string", "format": "email" },
+                                "phone": { "type": "string" },
+                                "date_of_birth": { "type": "string", "format": "date", "description": "Must be at least 18 years ago." },
+                                "nationality": { "type": "string", "description": "ISO alpha-2 country code." },
+                                "title": { "type": "string", "description": "e.g. 'CEO', 'Director'." },
+                                "ownership_percentage": { "type": "number", "minimum": 0, "maximum": 100 },
+                                "has_control": { "type": "boolean" },
+                                "is_signer": { "type": "boolean" },
+                                "is_beneficial_owner": { "type": "boolean" },
+                                "street": { "type": "string", "minLength": 9, "maxLength": 255 },
+                                "city": { "type": "string" },
+                                "state": { "type": "string" },
+                                "zip_code": { "type": "string" },
+                                "country": { "type": "string", "description": "ISO alpha-2 country code." },
+                                "id_document_type": {
+                                    "type": "string",
+                                    "enum": ["passport", "drivers_license", "id_card", "resident_permit"],
+                                    "description": "Owner-level ID type. Note that `id_card` is allowed at the owner level (unlike the customer-level `id_type`)."
+                                },
+                                "id_document_number": { "type": "string" },
+                                "id_document_country": { "type": "string", "description": "ISO alpha-2." },
+                                "id_expiry_date": { "type": "string", "format": "date", "description": "Must be in the future." },
+                                "tin": { "type": "string", "minLength": 5, "maxLength": 50 },
+                                "is_pep": { "type": "boolean", "description": "Politically exposed person." },
+                                "usa_tax_residency": { "type": "boolean" }
+                            }
+                        }
                     }
                 },
                 "required": [
                     "type",
-                    "email",
-                    "country",
-                    "id_type",
-                    "id_number"
+                    "email"
                 ]
             },
             "Customer": {
@@ -149,10 +259,14 @@
                         "type": "string"
                     },
                     "id_type": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers (which identify via `registration_number` + `incorporation_country`)."
                     },
                     "id_number": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers."
                     },
                     "verification_status": {
                         "type": "string"
@@ -164,8 +278,6 @@
                     "type",
                     "email",
                     "country",
-                    "id_type",
-                    "id_number",
                     "verification_status"
                 ]
             },
@@ -205,7 +317,7 @@
         "/api/external/customer": {
             "post": {
                 "summary": "Create a customer",
-                "description": "Create a new customer. Verification remains PENDING until KYC files are uploaded and reviewed. The customer's country must match the country on the identity document submitted for KYC. Accepted identity documents: Driver's License, Passport, or Resident Permit for individual customers, Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform. Required scope: `customer:write`.",
+                "description": "Create a new customer. Verification stays `PENDING` until the type-specific verification flow completes.\n\n**For `type=individual`**, `id_type` and `id_number` are required. After creation, upload identity files via the legacy KYC flow (see [Creating your first payout](/guides/creating-first-payout)). Only Driver's License, Passport, or Resident Permit are accepted as `id_type`.\n\n**For `type=business`**, `business_name` + `registration_number` + `incorporation_country` are required. The legacy `id_type` / `id_number` fields are no longer required (still accepted for back-compat — when supplied, `id_type` must be `certificate_of_incorporation`). After creation, follow the [Business customer KYB](/guides/kyb/overview) flow: register beneficial owners, upload owner ID files, register KYB documents, then call `/submit`.\n\nID cards (National Identity Cards) are not accepted at any stage. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform.\n\nRequired scope: `customer:write`.",
                 "tags": [
                     "Customer"
                 ],
@@ -247,16 +359,56 @@
                                     "value": {
                                         "type": "business",
                                         "business_name": "Acme Corp",
-                                        "email": "contact@acme.com",
+                                        "trading_name": "Acme",
+                                        "business_type": "llc",
+                                        "registration_number": "RC123456",
+                                        "incorporation_country": "NG",
                                         "country": "NG",
-                                        "id_type": "certificate_of_incorporation",
-                                        "id_number": "RC123456",
+                                        "incorporation_date": "2019-03-12",
+                                        "industry_type": "Software & SaaS",
+                                        "business_description": "B2B SaaS platform for African logistics operators.",
+                                        "website": "https://acme.example.com",
+                                        "source_of_funds": "business_revenue",
+                                        "estimated_annual_revenue": "1000000_4999999",
+                                        "expected_monthly_payments": 250,
+                                        "account_purpose": "send_receive_funds_related_parties",
+                                        "email": "contact@acme.com",
                                         "phone": "+2348012345678",
                                         "tin": "12345678-0001",
                                         "street": "456 Business Ave",
                                         "city": "Lagos",
                                         "state": "Lagos",
-                                        "zip_code": "100001"
+                                        "zip_code": "100001",
+                                        "operating_street": "789 Operations Blvd",
+                                        "operating_city": "Lagos",
+                                        "operating_state": "Lagos",
+                                        "operating_zip_code": "100002",
+                                        "operating_country": "NG",
+                                        "owners": [
+                                            {
+                                                "first_name": "Jane",
+                                                "last_name": "Doe",
+                                                "email": "jane@acme.example.com",
+                                                "date_of_birth": "1985-04-22",
+                                                "nationality": "NG",
+                                                "title": "CEO",
+                                                "ownership_percentage": 60,
+                                                "has_control": true,
+                                                "is_signer": true,
+                                                "is_beneficial_owner": true,
+                                                "id_document_type": "passport",
+                                                "id_document_number": "A12345678",
+                                                "id_document_country": "NG",
+                                                "id_expiry_date": "2030-01-15",
+                                                "is_pep": false
+                                            },
+                                            {
+                                                "first_name": "John",
+                                                "last_name": "Smith",
+                                                "ownership_percentage": 40,
+                                                "is_beneficial_owner": true
+                                            }
+                                        ]
                                     }
                                 }
                             }

@@ -1,0 +1,86 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Owner ID File Upload URL",
+        "version": "1.0.0",
+        "description": "Step one of the two-step owner ID-file upload flow for a beneficial owner of a business-type customer. Issues a 5-minute presigned S3 URL for uploading the owner's `id_document_front` or `id_document_back`. Returns a `file_id` to pass to POST /api/external/customer/{customer}/owner/{owner}/files."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": { "customer:write": "Create and update customers and KYC data." }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/owner/{owner}/file/presigned-url": {
+            "post": {
+                "summary": "Get an owner ID-file upload URL",
+                "description": "Two-step upload, step one. Returns a `file_id`, a presigned `url`, and the headers required to PUT the file directly to S3. URL is valid for 5 minutes and accepts a single PUT.\n\nStep two: call `POST /api/external/customer/{customer}/owner/{owner}/files` with the same `file_id` to register the file against the owner.\n\nMax file size 25 MB. Allowed MIME: `application/pdf`, `image/jpeg`, `image/png`. Owner must not be locked (status `APPROVED` or `PROCESSING`). Required scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+                    { "name": "owner", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["file_category"],
+                                "properties": {
+                                    "file_category": {
+                                        "type": "string",
+                                        "enum": ["id_document_front", "id_document_back"],
+                                        "description": "Slot the upload will populate. Use `id_document_front` for the front of any ID, `id_document_back` for the back of two-sided IDs (e.g. driver's license)."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Presigned URL ready.",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Upload URL generated successfully",
+                                    "data": {
+                                        "file_id": "f6c04a3e-3cdb-4b07-87e5-7a7c0d8b1c10",
+                                        "url": "https://s3.amazonaws.com/...?X-Amz-Signature=...",
+                                        "headers": { "x-amz-acl": "private" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Owner is locked or customer is under review.",
+                        "content": { "application/json": { "example": { "message": "Cannot upload files for an owner that has been approved or is currently under review." } } }
+                    },
+                    "401": { "description": "Unauthorized." },
+                    "404": { "description": "Customer or owner not found." },
+                    "422": { "description": "Validation error." }
+                }
+            }
+        }
+    }
+}

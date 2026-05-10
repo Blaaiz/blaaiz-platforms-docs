@@ -1,0 +1,94 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Register Owner ID Files",
+        "version": "1.0.0",
+        "description": "Step two of the owner ID-file upload flow. Attach previously-uploaded ID file(s) to a beneficial owner."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": { "customer:write": "Create and update customers and KYC data." }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/owner/{owner}/files": {
+            "post": {
+                "summary": "Register owner ID files",
+                "description": "Register one or both of the owner's ID document slots (`id_document_front`, `id_document_back`). Each `file_id` must come from a fresh `POST /api/external/customer/{customer}/owner/{owner}/file/presigned-url` call. Send only the slots you want to set or replace.\n\n**Lock guards.**\n\n- The parent customer must be in `PENDING` or `REJECTED`. Calls against a `PROCESSING` or `VERIFIED` customer return `400`.\n- The owner itself must be in `PENDING` or `REJECTED`. Calls against an `APPROVED` or `PROCESSING` owner return `400`.\n- Replacing a file on a previously `REJECTED` owner automatically resets that owner's `status` to `PENDING` and clears its `admin_comments` — the corrected record is re-routed through review on the next `/submit`.\n\n**File checks.** The server verifies S3 existence, file size (max 25 MB), and MIME type (PDF, JPEG, or PNG) before persisting.\n\n**Slot vs. type consistency** is enforced at `/submit` time, not on this call. The eventual rule is:\n\n- `passport` → `id_document_front` only; `id_document_back` must be absent.\n- `drivers_license`, `id_card`, `resident_permit` → both `id_document_front` and `id_document_back` are required.\n\nIf you change the owner's `id_document_type` later, make sure the slot set still matches — otherwise `/submit` will reject the customer.\n\nAll uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts to submit false or invalid documents will result in the customer being **permanently blacklisted** from the platform. There are no exceptions or compromises.\n\nRequired scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+                    { "name": "owner", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id_document_front": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "`file_id` returned by the presigned-URL call for the front slot."
+                                    },
+                                    "id_document_back": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "`file_id` for the back slot. Optional — depends on the ID document type."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Files registered.",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Owner files uploaded successfully",
+                                    "data": {
+                                        "id": "019a6e22-8b4c-7c8d-9d12-c0c1ab3f1a90",
+                                        "first_name": "Jane",
+                                        "last_name": "Doe",
+                                        "id_document_path": "business-data/api-services/customer/.../owner/.../id_document_front_...",
+                                        "id_document_back_path": null,
+                                        "status": "PENDING",
+                                        "admin_comments": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Owner is locked or customer is under review.",
+                        "content": { "application/json": { "example": { "message": "Cannot upload files for an owner that has been approved or is currently under review." } } }
+                    },
+                    "401": { "description": "Unauthorized." },
+                    "404": { "description": "Customer or owner not found." },
+                    "422": { "description": "Validation error or uploaded file failed checks." }
+                }
+            }
+        }
+    }
+}

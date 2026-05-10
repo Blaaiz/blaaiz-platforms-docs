@@ -1,0 +1,120 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Submit Customer for Verification",
+        "version": "1.0.0",
+        "description": "Submit a finished customer for verification — the explicit \"I'm done editing, please review me\" signal.\n\nFor business-type customers, this is the only way to start verification. For individual customers, this is an alternative to the legacy `id_file`-on-/files trigger."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": { "customer:write": "Create and update customers and KYC data." }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/submit": {
+            "post": {
+                "summary": "Submit customer for verification",
+                "description": "Locks the customer for review and starts the verification flow. The customer's `verification_status` flips out of `PENDING` (or `REJECTED` on re-submission).\n\n**Readiness check.** This endpoint enforces a hard floor of data that must be present and consistent before review can begin. The same checks run on initial submission and on re-submission after a `REJECTED` verdict. If any check fails, the response is `422`, the customer stays editable, and you can fix the gap and call `/submit` again.\n\n*Individual customers*\n\n- `id_file` is uploaded (via the legacy `/files` flow).\n\n*Business-type customers — customer-level identity*\n\n- `business_name`, `registration_number`, and `incorporation_country` are all set.\n- `incorporation_country` is a valid ISO 3166-1 alpha-2 code.\n- `country` (registered-address country) equals `incorporation_country` — a company's registered office sits in its country of incorporation by company law.\n\n*Business-type customers — owners*\n\n- At least one owner is attached.\n- The sum of every owner's `ownership_percentage` equals exactly 100.\n- Owner emails are unique within the customer (case-insensitive).\n- For each owner: `id_document_front` is uploaded; `id_document_back` is uploaded for `drivers_license`, `id_card`, and `resident_permit` types and absent for `passport`.\n- For each owner that has the field set: `date_of_birth` is at least 18 years ago, `id_expiry_date` is strictly after today, and `nationality` / `country` / `id_document_country` are valid ISO alpha-2 codes.\n\n*Business-type customers — KYB documents*\n\n- At least one document of a formation type: `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.\n\n**What happens on success** depends on customer type and your business settings:\n\n- *Individual + external KYC enabled* → handed to the KYC provider for review.\n- *Individual + external KYC disabled* → marked `VERIFIED` immediately.\n- *Business + auto-verify enabled* → marked `VERIFIED` immediately. Every `PENDING` and `REJECTED` owner and document is also brought to `APPROVED` so the customer record is internally consistent.\n- *Business + auto-verify disabled* → moves to `PROCESSING` for manual compliance review.\n\nIn the manual-review flow, every `PENDING` owner and every `PENDING` KYB document flips to `PROCESSING` along with the customer so they're visibly under review and frozen from further edits. Owners and documents that were already `APPROVED` or `REJECTED` from a prior cycle are not touched.\n\nA `customer.status_changed` webhook fires for the customer-level transition. There are no per-owner or per-document webhooks.\n\n**Verification is not instant.** For individual customers, review typically completes within minutes (up to 2 hours under additional screening). For business-type customers, review typically takes 1–5 business days. Do not escalate before the standard window — listen for the `customer.status_changed` webhook.\n\nRequired scope: `customer:write`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:write"] }
+                ],
+                "parameters": [
+                    { "name": "customer", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Customer submitted.",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Customer submitted for verification successfully",
+                                    "data": {
+                                        "id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
+                                        "type": "business",
+                                        "verification_status": "PROCESSING",
+                                        "owners": [
+                                            { "id": "019a6e22-8b4c-7c8d-9d12-c0c1ab3f1a90", "first_name": "Jane", "status": "PROCESSING" }
+                                        ],
+                                        "documents": [
+                                            { "id": "019a6e10-1fb3-7b2f-8f8b-ad1e92c4017a", "type": "CERTIFICATE_OF_INCORPORATION", "status": "PROCESSING" }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Customer is already verified or under review.",
+                        "content": { "application/json": { "example": { "message": "Customer is already verified or under review." } } }
+                    },
+                    "401": { "description": "Unauthorized." },
+                    "404": { "description": "Customer not found." },
+                    "422": {
+                        "description": "Customer is not ready for verification. The message names the specific readiness gap.",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "missing_business_name": {
+                                        "value": { "message": "Cannot verify business customer: business_name is required." }
+                                    },
+                                    "invalid_incorporation_country": {
+                                        "value": { "message": "Cannot verify business customer: incorporation_country must be a valid ISO 3166-1 alpha-2 country code." }
+                                    },
+                                    "country_does_not_equal_incorporation_country": {
+                                        "value": { "message": "Cannot verify business customer: country must equal incorporation_country." }
+                                    },
+                                    "missing_owners": {
+                                        "value": { "message": "Cannot verify business customer: at least one owner is required." }
+                                    },
+                                    "ownership_sum_wrong": {
+                                        "value": { "message": "Cannot verify business customer: ownership_percentage of all owners must sum to 100%, but currently sums to 90%." }
+                                    },
+                                    "duplicate_owner_emails": {
+                                        "value": { "message": "Cannot verify business customer: owner emails must be unique within the customer." }
+                                    },
+                                    "owner_missing_id_front": {
+                                        "value": { "message": "Cannot verify business customer: owner Jane Doe is missing id_document_front." }
+                                    },
+                                    "drivers_license_missing_back": {
+                                        "value": { "message": "Cannot verify business customer: owner Jane Doe id_document_type=drivers_license requires id_document_back." }
+                                    },
+                                    "passport_with_back": {
+                                        "value": { "message": "Cannot verify business customer: owner Jane Doe id_document_type=passport must not have id_document_back." }
+                                    },
+                                    "owner_underage": {
+                                        "value": { "message": "Cannot verify business customer: owner Jane Doe date_of_birth must be at least 18 years ago." }
+                                    },
+                                    "owner_id_expired": {
+                                        "value": { "message": "Cannot verify business customer: owner Jane Doe id_expiry_date must be a future date." }
+                                    },
+                                    "no_formation_doc": {
+                                        "value": { "message": "Cannot verify business customer: at least one formation document is required." }
+                                    },
+                                    "individual_missing_id_file": {
+                                        "value": { "message": "Cannot verify individual customer: id_file is required." }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

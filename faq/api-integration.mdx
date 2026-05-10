@@ -54,11 +54,17 @@ The collection API requires the following parameters:
 
 - `method` - The collection method (e.g., `"card"`, `"bank_transfer"`)
 - `amount` - The total amount including all applicable fees
-- `customer_id` - The unique identifier created via the Customer API
+- `customer_id` - The unique identifier created via the Customer API. The customer must be `VERIFIED` — for `type=individual` via the legacy KYC flow, for `type=business` via the [KYB flow](/guides/kyb/overview).
 - `wallet_id` - Your business wallet ID for the specific currency
 - `phone_number` - Required for certain collection methods
 
 Always consult the API documentation for the specific requirements of each collection method, as they may vary.
+
+## How do I onboard a `type=business` customer?
+
+Business customers go through a different flow from individual customers. They require beneficial owners and a KYB document collection (incorporation certificate, etc.), and they use a different set of upload endpoints. The legacy `/files` endpoint and `id_file` trigger do not apply to business customers.
+
+See [Business customer KYB](/guides/kyb/overview) for the full lifecycle and [Onboarding a business customer](/guides/kyb/onboarding) for the step-by-step.
 
 ## Do we need to implement all collection methods?
 

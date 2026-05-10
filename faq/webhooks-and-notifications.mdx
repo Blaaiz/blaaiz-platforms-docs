@@ -9,7 +9,7 @@ We'll notify you via **webhooks** for all successful collections, regardless of 
 
 We'll also notify you when a transaction (payout) is initiated. This is very useful for CAD payouts where you need the Interac question and answer before the payment is completed.
 
-Customer KYC events (`customer.created`, `customer.verified`, and `customer.rejected`) are also sent to your `collection_url`.
+Customer-level transitions are also sent to your `collection_url`. The wire `event_type` is always `customer.status_changed` — inspect `new_status` (`VERIFIED`, `REJECTED`, `PROCESSING`, `PENDING`) to know which way the customer moved. The same single event covers both `type=individual` (KYC) and `type=business` (KYB) customers. There are **no** per-owner or per-KYB-document webhooks; the customer-level event is the only signal you need to track. See [Business customer KYB](/guides/kyb/overview) for the KYB-specific lifecycle.
 
 Always verify the `x-blaaiz-signature` header using your webhook `signing_secret` before processing a webhook.
 

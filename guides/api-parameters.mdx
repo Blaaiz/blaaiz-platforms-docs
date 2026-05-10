@@ -25,10 +25,14 @@ For the **Collection API**, the currently documented value is:
 
 ### File category
 
-The `file_category` parameter appears in the **File API** when requesting a pre-signed URL for upload. It represents the type of file you want to upload.
+The `file_category` parameter appears in the **File API** when requesting a pre-signed URL for upload. It represents the type of file you want to upload, **for individual customers only**.
 
-- `identity` – Identity document. **Required** to verify a customer. For individual customers, this must be a **Driver's License**, **Passport**, or **Resident Permit**. For business customers, this must be a **Certificate of Incorporation**. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
-- `identity_back` – Back side of the identity document. Use this when the identity document is two-sided (e.g. driver's license). Not required for single-sided documents (e.g. passport, certificate of incorporation).
+<Warning>
+The File API and `file_category` apply to **individual customers** (`type=individual`) only. For `type=business` customers, use the dedicated KYB upload endpoints — see [Business customer KYB](/guides/kyb/overview). Calling the File API for a business customer does not trigger verification.
+</Warning>
+
+- `identity` – Identity document. **Required** to verify an individual customer. Must be a **Driver's License**, **Passport**, or **Resident Permit**. **ID cards (National Identity Cards) are not accepted.** No other document types are supported at this category.
+- `identity_back` – Back side of the identity document. Use this when the identity document is two-sided (e.g. driver's license). Not required for single-sided documents (e.g. passport).
 - `proof_of_address` – Proof of address.
 - `liveness_check` – Liveness check.
 
@@ -38,20 +42,18 @@ All uploaded documents must be **clear, legible, and authentic**. Blurry, croppe
 
 ### Id type
 
-The `id_type` parameter appears in the **Customer API** when creating a new customer. It represents the type of identity document for the customer.
+The `id_type` parameter appears in the **Customer API** when creating or updating a customer.
 
-**For individual customers**, only the following are accepted:
+**For individual customers**, `id_type` is required at create time. Only the following are accepted:
 
 - `drivers_license` – Driver's License.
 - `passport` – Passport.
 - `resident_permit` – Resident Permit.
 
-**For business customers**, only the following is accepted:
-
-- `certificate_of_incorporation` – Certificate of Incorporation.
+**For business customers**, `id_type` is **no longer required** — businesses identify themselves via `registration_number` + `incorporation_country` instead. The legacy `id_type` and `id_number` fields remain accepted on the request shape for back-compat; if you do send `id_type` on a business customer, the only valid value is `certificate_of_incorporation`. The actual certificate file goes into the KYB document collection (`type=CERTIFICATE_OF_INCORPORATION`), not through the File API. See [Business customer KYB](/guides/kyb/overview).
 
 <Warning>
-No other identity document types are accepted. **ID cards (National Identity Cards) are not accepted.** Individual customers must provide a Driver's License, Passport, or Resident Permit. Business customers must provide a Certificate of Incorporation.
+No other identity document types are accepted at the customer level. **ID cards (National Identity Cards) are not accepted.** Individual customers must provide a Driver's License, Passport, or Resident Permit. Business customers do not need to provide a customer-level identity document.
 </Warning>
 
 <Warning>

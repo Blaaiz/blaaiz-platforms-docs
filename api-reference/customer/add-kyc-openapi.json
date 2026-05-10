@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Add Customer KYC",
         "version": "1.0.0",
-        "description": "Add KYC details for a customer. Verification remains PENDING until required documents are uploaded and reviewed. The customer's country must match the country on the identity document submitted for KYC. Accepted identity documents: Driver's License, Passport, or Resident Permit for individual customers, Certificate of Incorporation for business customers. ID cards (National Identity Cards) are not accepted. All uploaded documents must be clear, legible, and authentic — unclear images will be rejected. Fraudulent or falsified documents will result in the customer being permanently blacklisted from the platform."
+        "description": "Add KYC / KYB profile details for a customer. Applies to both individual and business-type customers; for businesses you can additionally pass operating-address fields (`operating_street`, `operating_city`, `operating_state`, `operating_zip_code`, `operating_country`). Verification does not start from this endpoint — the customer stays `PENDING` until you complete the type-specific upload + submit flow. See [Business customer KYB](/guides/kyb/overview) for businesses or [Creating your first payout](/guides/creating-first-payout) for individuals.\n\n**Type-specific fields.** Only fields that match the customer's `type` are accepted. The `operating_*` address fields are business-only; sending them on an `individual` customer fails the entire request. Send only what applies to the customer you're updating.\n\n**Postal-code validation per address.** `zip_code` is validated against the customer's persisted `country`. `operating_zip_code` is validated against `operating_country` — sent in this request, or, if absent, the persisted value. Each address is self-describing.\n\n**`operating_country` is required when any other `operating_*` field is sent** at create time (`POST /customer`); on this endpoint, sending an `operating_*` field without `operating_country` is allowed only if `operating_country` is already persisted on the KYC data row.\n\nThe customer's `country` itself is not edited here — it lives on the customer (top-level), not on KYC data. Use `PUT /customer/{id}` to change `country` or `incorporation_country`."
     },
     "tags": [
         {
@@ -58,7 +58,13 @@
                     "id_issue_date": {
                         "type": "string",
                         "format": "date"
-                    }
+                    },
+                    "state": { "type": "string" },
+                    "operating_street": { "type": "string", "description": "Business-only. Operating address street, when different from the registered address." },
+                    "operating_city": { "type": "string", "description": "Business-only. Operating address city." },
+                    "operating_state": { "type": "string", "description": "Business-only. Operating address state." },
+                    "operating_zip_code": { "type": "string", "description": "Business-only. Operating address postcode. Validated against `operating_country` (request value or persisted)." },
+                    "operating_country": { "type": "string", "description": "Business-only. Operating address country, ISO alpha-2. Anchors postal-code validation for `operating_zip_code`." }
                 }
             },
             "Customer": {
@@ -92,10 +98,14 @@
                         "type": "string"
                     },
                     "id_type": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers (which identify via `registration_number` + `incorporation_country` instead)."
                     },
                     "id_number": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Set for individual customers. May be null on business customers."
                     },
                     "verification_status": {
                         "type": "string"
@@ -110,8 +120,6 @@
                     "type",
                     "email",
                     "country",
-                    "id_type",
-                    "id_number",
                     "verification_status"
                 ]
             },

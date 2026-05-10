@@ -20,7 +20,7 @@ For **NGN**, the Virtual Bank Account is typically activated immediately and the
 For **GBP**, **EUR**, and **USD**, the account is created asynchronously. The response will return with a `PENDING` status. Once the account is fully activated, you will receive a `virtual_account.ready` webhook with the account details (account number, bank name, etc.). If the account creation fails or is rejected, you will receive a `virtual_account.failed` or `virtual_account.rejected` webhook instead.
 
 <Note>
-For GBP, EUR, and USD, Virtual Bank Account creation requires a verified customer of type `individual`. Business-type customers are not supported for these currencies.
+**Customer type restrictions by currency.** NGN Virtual Bank Accounts work for both `type=individual` and `type=business` customers — businesses must complete the [KYB flow](/guides/kyb/overview) (beneficial owners + KYB documents + `/submit`) before the customer is `VERIFIED`. **GBP, EUR, and USD currently support `type=individual` only.** `type=business` for those currencies is not yet available; KYB is the foundation for that future expansion.
 </Note>
 
 <Note>
@@ -59,11 +59,11 @@ Individual and business customers in the same country often require different id
 - **How long does customer verification take?** See the warning below.
 
 <Warning>
-**Verification is not instant.** After you upload identity documents for a customer, those documents go through a review process. The customer's status will remain `PENDING` until that review is complete.
+**Verification is not instant.** After you upload identity documents for a customer, those documents go through a review process. The customer's status will remain `PENDING` (or, for business customers after `/submit`, `PROCESSING`) until that review is complete.
 
-In most cases, the review finishes within **a few minutes**. However, if the documents require an additional level of checks and screening, the process can take **up to 2 hours**. This is completely normal and is not a sign that anything has gone wrong. Do not raise support tickets or enquiries for verifications that have been pending for less than 2 hours — such requests **will not be attended to**.
+For **individual customers**, the review finishes within a few minutes in most cases; up to 2 hours under additional screening. Do not raise support tickets within that window. Escalate to [support@blaaiz.com](mailto:support@blaaiz.com) only if verification has been pending for 5 hours or more.
 
-If verification has been pending for **5 hours or more**, something may have gone wrong. Only at that point should you contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to have the situation investigated and expedited.
+For **business customers**, business KYB review typically takes 1–5 business days. Do not raise tickets within that window. Escalate only if the customer has been `PROCESSING` for more than 5 business days. See [Business customer KYB](/guides/kyb/overview).
 
 Listen for the `customer.verified` or `customer.rejected` webhook to know when the review is complete.
 </Warning>
@@ -79,7 +79,7 @@ Before creating a Virtual Bank Account, ensure the following prerequisites are i
 
     **Customer is always required**
 
-    You must provide a `customer_id` for all currencies. The customer must belong to your business and must have `verification_status` of `VERIFIED` before you can create a Virtual Bank Account.
+    You must provide a `customer_id` for all currencies. The customer must belong to your business and must have `verification_status` of `VERIFIED` before you can create a Virtual Bank Account. For NGN, both `type=individual` (verified through KYC) and `type=business` (verified through the [KYB flow](/guides/kyb/overview)) are accepted. For GBP, USD, and EUR, only `type=individual` is supported.
 
     **No duplicate accounts**
 

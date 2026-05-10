@@ -1,0 +1,105 @@
+---
+title: Business customer KYB
+description: How to onboard a business-type customer through the Know Your Business (KYB) flow.
+---
+
+This guide is for any customer you create with `type=business`. The flow is fundamentally different from `type=individual` and the legacy `/files` endpoint does not work for it. Read this page first, then follow [Onboarding a business customer](/guides/kyb/onboarding) for the step-by-step.
+
+## Why a different flow
+
+A business customer is a company. Verifying it requires more than an ID document:
+
+- **Beneficial owners** — every owner / signatory / director that meets the threshold, with personal ID for each.
+- **A KYB document collection** — incorporation certificate, articles of incorporation, share register, bank statements, etc. The exact set depends on the jurisdiction and the business profile.
+
+The legacy `id_file` / `id_file_back` / `proof_of_address_file` / `liveness_check_file` slots that work for individual customers don't model this. So business customers use a separate set of endpoints.
+
+<Warning>
+**Do not call `POST /api/external/customer/{id}/files` for a `type=business` customer.** The file is stored, but `/submit` does not look at the legacy `id_file_path` for business customers — it requires beneficial owners and a formation document in the new collection. Calling `/files` on a business customer just orphans the upload. Read [Onboarding a business customer](/guides/kyb/onboarding) for the path that actually works.
+</Warning>
+
+## Lifecycle states
+
+Three records each carry their own state. They share the same four-state vocabulary, but the rules differ.
+
+### Customer (`verification_status`)
+
+| State | Customer fields | Owners / documents (any kind of edit) |
+| :--- | :--- | :--- |
+| `PENDING` | Editable | Editable |
+| `PROCESSING` | Locked | Locked |
+| `VERIFIED` | Locked | Locked |
+| `REJECTED` | Editable | Editable |
+
+`PROCESSING` is the active-review window — the persisted snapshot is frozen so compliance reviews a stable picture. Wait for the customer-level webhook before attempting edits. `VERIFIED` is final; corrections on a verified customer go through operations (see [Customer data corrections](/guides/customer-data-corrections)).
+
+### Owner and KYB document (`status`)
+
+Each owner and each document has its own status, even while the customer is `PENDING`.
+
+| State | Editable by you? |
+| :--- | :--- |
+| `PENDING` | Yes |
+| `PROCESSING` | No — under compliance review |
+| `APPROVED` | No — compliance has signed off |
+| `REJECTED` | Yes — fix and re-submit |
+
+"Editable" assumes the parent customer's state allows it: even a `PENDING` owner is locked while the customer is `PROCESSING` or `VERIFIED`. Locked edits return `400`. To correct an `APPROVED` owner or document, contact operations — see [Customer data corrections](/guides/customer-data-corrections).
+
+### Editing a `REJECTED` owner or document
+
+When you edit a previously rejected owner or document — change a field, replace a file, anything — its `status` automatically flips back to `PENDING` and its `admin_comments` are cleared. You don't need to manually reset state. Fix the data, then call `/submit` to re-route the corrected record through review.
+
+## What `/submit` does
+
+When you call `POST /api/external/customer/{customer}/submit`:
+
+1. The customer flips from `PENDING` (or `REJECTED` on re-submission) to `PROCESSING`.
+2. **Every** `PENDING` owner flips to `PROCESSING`.
+3. **Every** `PENDING` KYB document flips to `PROCESSING`.
+4. Owners and documents that were already `APPROVED` or `REJECTED` are not touched.
+5. A `customer.status_changed` webhook fires for the customer-level transition.
+
+There are no per-owner or per-document webhooks. The customer-level event is the only signal you need to track.
+
+## Readiness
+
+`/submit` enforces what must be present and consistent before review can begin. If any of the checks below fails, the response is `422` with a message naming the specific gap, the customer stays editable, and you can fix and call `/submit` again.
+
+**Customer-level**
+
+- `business_name`, `registration_number`, and `incorporation_country` are all set; `incorporation_country` is a valid ISO alpha-2 code.
+- `country` (registered-address country) is set and equals `incorporation_country` — a company's registered office sits in its country of incorporation by company law.
+- `operating_country` is set whenever any other `operating_*` address field is set, and is a valid ISO alpha-2 code (the operating address can be in a different country from the registered one).
+
+**Owners**
+
+- At least one owner attached.
+- The owners' `ownership_percentage` values sum to **exactly 100**.
+- Owner emails are unique within the customer (case-insensitive).
+- For each owner: `id_document_front` is uploaded; `id_document_back` is uploaded for `drivers_license`, `id_card`, and `resident_permit` types and absent for `passport`.
+- For each owner with the field set: `date_of_birth` is at least 18 years ago, `id_expiry_date` is strictly after today, and `nationality` / `country` / `id_document_country` are valid ISO alpha-2 codes.
+
+**KYB documents**
+
+- At least one document of a formation type: `CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`.
+
+## Verification timeline
+
+Business KYB review typically takes **1–5 business days**. Compliance reviews each owner and each document individually before issuing the customer-level verdict. This is longer than individual KYC because business verification involves additional checks against company registries, beneficial-ownership records, and risk databases.
+
+<Warning>
+Do not raise support tickets within the standard 1–5 business day window. Wait for the `customer.status_changed` webhook. Only escalate to [support@blaaiz.com](mailto:support@blaaiz.com) if a customer has been in `PROCESSING` for **more than 5 business days**.
+</Warning>
+
+## Re-submission
+
+If a customer comes back as `REJECTED`, look at the `admin_comments` on each owner and each KYB document. The rejected items are editable; the approved items stay locked. Fix the rejected ones (replace files, edit fields) and call `/submit` again. The customer flips back to `PROCESSING` for re-review.
+
+See [Handling KYB rejections](/guides/kyb/handling-rejections).
+
+## What this is the foundation for
+
+KYB unlocks NGN Virtual Bank Accounts and CAD payouts for business-type customers today. USD, GBP, and EUR Virtual Bank Accounts and direct payouts in those currencies for business-type customers are **not yet available** — those are future expansions building on top of KYB.
+
+For verified individual customers, USD/GBP/EUR Virtual Bank Accounts and payouts already work — see [Virtual Bank Accounts](/guides/virtual-bank-accounts).

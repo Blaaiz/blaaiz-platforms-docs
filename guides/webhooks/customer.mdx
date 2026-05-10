@@ -20,27 +20,26 @@ All customer webhooks are sent to your `collection_url`.
 | `event_id`       | Unique identifier for this webhook event.                            |
 | `type`           | Always `customer` for customer events.                               |
 
-## Event types
+## The event
 
-### customer.created
+Customer-level transitions all fire a **single** event on the wire: `event_type = customer.status_changed`. The `old_status` and `new_status` fields tell you which way the customer just moved — for example `PENDING → VERIFIED`, `PROCESSING → REJECTED`, or `REJECTED → PROCESSING` (after a re-submission).
 
-Sent when a new customer is created for your business.
+You will commonly hear about these as "the verified webhook" or "the rejected webhook" — that's shorthand for the same `customer.status_changed` event with `new_status=VERIFIED` or `new_status=REJECTED`. There are no separate `event_type` values for them on the wire.
 
-### customer.verified
+### When the event fires
 
-Sent when a customer's KYC verification is approved. The customer can now be used for Virtual Bank Account creation and other operations that require a verified customer.
+- **Verification approved** — `new_status=VERIFIED`. The customer can now be used for Virtual Bank Account creation, payouts, and any other operation that requires a verified customer.
+- **Verification rejected** — `new_status=REJECTED`. Check the `comment` field for the customer-level reason. For business customers, also fetch `GET /api/external/customer/{id}` to read per-owner and per-document `admin_comments` arrays — the actionable per-record feedback lives there.
+- **Submitted for review (business customers)** — `new_status=PROCESSING`, fired right after `POST /api/external/customer/{id}/submit`. Indicates the customer is now locked and under compliance review.
+- **Reverted by admin** — `new_status=PENDING` after a previously-VERIFIED or REJECTED customer is moved back to PENDING by our operations team. Rare.
 
 <Warning>
-**Verification is not instant.** After documents are uploaded for a customer, they enter a review process. You will not receive this webhook immediately — it arrives once the review is complete.
+**Verification is not instant.** After documents are uploaded (individual) or `/submit` is called (business), the customer enters a review process. You will not receive this webhook immediately — it arrives once the review is complete.
 
-In most cases, the review finishes within **a few minutes**. However, if the documents require an additional level of checks and screening, the process can take **up to 2 hours**. This is normal and expected. Do not raise support tickets or enquiries during this period — requests about verifications that have been pending for less than 2 hours **will not be attended to**.
+For **individual customers**, the review finishes within a few minutes in most cases; up to 2 hours under additional screening. Do not raise support tickets within that window. Escalate only if pending for 5 hours or more.
 
-If verification has been pending for **5 hours or more**, something may have gone wrong. Only at that point should you contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to investigate and expedite.
+For **business customers**, KYB review typically takes **1–5 business days**. Do not raise tickets within that window. Escalate only if `PROCESSING` for more than 5 business days. See [Business customer KYB](/guides/kyb/overview).
 </Warning>
-
-### customer.rejected
-
-Sent when a customer's KYC verification is rejected. Check the `comment` field for the rejection reason. Common rejection reasons include unclear or illegible document images, unsupported document types (such as national ID cards), expired documents, or fraudulent submissions.
 
 ## Example payload
 
@@ -80,6 +79,16 @@ Sent when a customer's KYC verification is rejected. Check the `comment` field f
 
 | Status     | Description                                    |
 | :--------- | :--------------------------------------------- |
-| `PENDING`  | Customer documents are under review. Verification is not instant — it typically completes within a few minutes, but can take up to 2 hours if additional screening is required. Do not escalate before 2 hours. Contact the operations team only if pending for 5 hours or more. |
-| `VERIFIED` | Customer KYC has been approved. The customer can now be used for payouts and Virtual Bank Account creation. |
-| `REJECTED` | Customer KYC has been rejected. Check the `comment` field for the reason. |
+| `PENDING`  | Customer is editable; verification has not started yet. For individuals, this is the state right after creation. For businesses, this is the state until you call `POST /api/external/customer/{id}/submit`. |
+| `PROCESSING` | **Business customers only.** Customer is locked and under compliance review. Typically lasts 1–5 business days. Owner and KYB-document state changes during this window are not separately webhooked — wait for the customer-level transition. |
+| `VERIFIED` | Customer KYC/KYB has been approved. The customer can now be used for payouts and (where supported) Virtual Bank Account creation. |
+| `REJECTED` | Customer was rejected. Check the `comment` field for the customer-level reason. For business customers, also fetch `GET /api/external/customer/{id}` to read per-owner and per-KYB-document `admin_comments` arrays — the per-record detail is where the actionable feedback lives. See [Handling KYB rejections](/guides/kyb/handling-rejections). |
+
+<Note>
+**No per-owner or per-KYB-document webhooks.** For business customers, individual owner and document state changes during review do not emit webhooks. The customer-level `customer.status_changed` event is the only signal — when it fires with `new_status=VERIFIED` or `new_status=REJECTED`, fetch the customer to read the per-record state.
+</Note>
+
+## Verification timing
+
+- **Individual customers**: typically a few minutes; up to 2 hours under additional screening. Do not escalate before 2 hours; contact operations only if pending for 5 hours or more.
+- **Business customers**: typically 1–5 business days. Compliance reviews each owner and each KYB document individually. Do not escalate within the 5-business-day window. See [Business customer KYB](/guides/kyb/overview) for the full lifecycle.

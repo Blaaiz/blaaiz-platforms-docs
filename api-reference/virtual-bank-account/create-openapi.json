@@ -36,7 +36,7 @@
         "schemas": {
             "CreateVBARequest": {
                 "type": "object",
-                "description": "Supports NGN, GBP, USD, EUR. A verified customer is required for all currencies. For GBP/USD/EUR, the customer must have type=individual (business type is not supported).",
+                "description": "Supports NGN, GBP, USD, EUR. A verified customer is required for all currencies. NGN supports both `type=individual` and `type=business` customers — businesses must have completed the KYB flow ([Business customer KYB](/guides/kyb/overview)). GBP, USD, and EUR currently support `type=individual` only; `type=business` for those currencies is not yet available.",
                 "properties": {
                     "wallet_id": {
                         "type": "string",
@@ -44,7 +44,7 @@
                     },
                     "customer_id": {
                         "type": "string",
-                        "description": "ID of the verified customer the VBA should be created for. The customer must belong to your business and have verification_status=VERIFIED. For GBP/USD/EUR, the customer must have type=individual (business type is not supported)."
+                        "description": "ID of the verified customer the VBA should be created for. The customer must belong to your business and have `verification_status=VERIFIED`. NGN accepts both `type=individual` and `type=business`. GBP, USD, and EUR accept `type=individual` only — `type=business` for those currencies is not yet available."
                     }
                 },
                 "required": [

@@ -13,31 +13,36 @@ Before you can make any payouts, you need to associate them with a customer. Eve
 
 - **Endpoint**: `/customer`
 - **Purpose**: This endpoint bootstraps the customer record in our system.
-- **Status**: When a customer is first created, their status will be marked as `"pending"`.
+- **Status**: When a customer is first created, their `verification_status` is `PENDING`.
 
 Make sure to save the `customer_id` returned from this endpoint as you'll need it in future steps.
 
 <Note>
-  The customer's `country` must match the identity document provided for KYC. Also note that only `NON-VERIFIED` customers can be fully updated. If a customer is already `VERIFIED`, only fields that are currently `null` can be updated. If you need to correct a mistake on a verified customer, see [Customer data corrections](/guides/customer-data-corrections).
+  The customer's `country` must match the identity document provided for KYC / KYB. Only `NON-VERIFIED` customers can be fully updated; once a customer is `VERIFIED`, only fields that are currently `null` can be updated. If you need to correct a mistake on a verified customer, see [Customer data corrections](/guides/customer-data-corrections).
 </Note>
 
 <Warning>
-  Only **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`) are accepted as identity documents for individual customers. For business customers, only **Certificate of Incorporation** (`certificate_of_incorporation`) is accepted. **ID cards (National Identity Cards) are not accepted.** No other document types are supported.
+  For **individual customers**, the customer-level `id_type` is required and must be **Driver's License** (`drivers_license`), **Passport** (`passport`), or **Resident Permit** (`resident_permit`). **ID cards (National Identity Cards) are not accepted.** For **business customers**, the canonical identifier is `registration_number` + `incorporation_country` — the legacy `id_type` / `id_number` fields are no longer required (still accepted for back-compat; if sent, `id_type` must be `certificate_of_incorporation`). The actual incorporation document file goes into the KYB document collection (see Step 2 below), not through `/files`.
 </Warning>
 
 <Warning>
   All uploaded documents must be **clear, legible, and authentic**. Blurry, cropped, obscured, or otherwise unclear images will not be reviewed and will be rejected. Fraudulent or falsified documents will not be tolerated — repeated attempts to submit false or invalid documents will result in the customer being **permanently blacklisted** from the platform. There are no exceptions or compromises.
 </Warning>
 
-### Step 2: Upload documents for the customer
+### Step 2: Verify the customer
 
-Once you have created the customer, the next step is to upload documents to verify their identity. The customer will remain in a `"pending"` state until their documents (especially `id_file`) are uploaded and verified. The identity document must be a **Driver's License**, **Passport**, or **Resident Permit** for individual customers, or a **Certificate of Incorporation** for business customers. **ID cards (National Identity Cards) are not accepted.** All uploaded images must be clear and legible — unclear or illegible images will be rejected. Fraudulent documents will result in the customer being permanently blacklisted from the platform.
+The verification flow depends on the customer's `type`. **Pick the path that matches your customer.** Mixing the two paths does not work.
+
+<Tabs>
+  <Tab title="Individual customer">
+
+The legacy KYC flow. Upload identity files, then verification triggers automatically when `id_file` is included.
 
 #### 2.1 Request pre-signed URLs for document upload
 
 - **Endpoint**: `/file`
 - **Purpose**: Provides a pre-signed URL that allows you to upload documents for the customer.
-- **Request**: Specify the `customer_id` and the `file_category` (e.g. `identity`, `identity_back`, `proof_of_address`, `liveness_check`).
+- **Request**: Specify the `customer_id` and the `file_category` (`identity`, `identity_back`, `proof_of_address`, or `liveness_check`).
 - **Response**: You'll receive a URL, a set of headers, and a `file_id`. The URL is where you will upload the actual document.
 
 #### 2.2 Upload the document
@@ -49,25 +54,104 @@ Repeat this process for each required document.
 
 #### 2.3 Add files to the customer
 
-After uploading the documents, you'll need to associate the uploaded documents with the customer using the `file_id` returned in the previous step.
+After uploading the documents, associate them with the customer using the `file_id` returned in the previous step.
 
-- **Endpoint**: `/customer`
+- **Endpoint**: `POST /api/external/customer/{id}/files`
 - **Request**: Pass the `customer_id` as a URL parameter, then include the `file_id` for each document in the request body.
-- **Purpose**: Updates the customer by attaching the uploaded files to their profile. The customer status will remain `"PENDING"` while the documents are reviewed.
+- **Purpose**: Updates the customer by attaching the uploaded files to their profile. The customer status will remain `PENDING` while the documents are reviewed.
 
 <Info>
 **`id_file` triggers verification.** Including `id_file` (the front identity document) in the request signals that document upload is complete and triggers the verification process. Other files (`id_file_back`, `proof_of_address_file`, `liveness_check_file`) can be uploaded before or alongside `id_file`, but verification will only begin once `id_file` is included in the request. If the identity document is two-sided (e.g. driver's license), upload the back side using `identity_back` as the file category and include `id_file_back` in the request.
 </Info>
 
 <Warning>
-**Verification is not instant.** After you upload documents for a customer, those documents go through a review process before the customer can be verified. This means you should not expect the customer's status to change to `"VERIFIED"` immediately after uploading files.
+**Verification is not instant.** Review typically completes within a few minutes; under additional screening it can take up to 2 hours. Do not raise support tickets within that window — they will not be attended to. Only escalate to [support@blaaiz.com](mailto:support@blaaiz.com) if a customer has been `PENDING` for 5 hours or more.
 
-In most cases, the review completes within **a few minutes**. However, some documents may require an additional level of checks and screening. When this happens, verification can take **up to 2 hours**, and this is completely normal. You should not escalate or raise a support ticket during this window — enquiries about verifications that have been pending for less than 2 hours **will not be attended to**.
-
-If verification has been pending for **5 hours or more**, that indicates something may have gone wrong. At that point — and only at that point — you should contact the operations team at [support@blaaiz.com](mailto:support@blaaiz.com) to request that the situation be expedited.
-
-To track the outcome of the review, listen for the [`customer.verified`](/guides/webhooks/customer) or [`customer.rejected`](/guides/webhooks/customer) webhook. Do not poll the API or assume a timeline — let the webhook tell you when the review is complete.
+Listen for the [`customer.verified`](/guides/webhooks/customer) or [`customer.rejected`](/guides/webhooks/customer) webhook. Do not poll.
 </Warning>
+
+  </Tab>
+  <Tab title="Business customer">
+
+Business-type customers go through the **KYB flow** — beneficial owners, KYB document collection, and an explicit `/submit`. The legacy `/files` endpoint is **not used** for business customers.
+
+#### 2.1 Add beneficial owners
+
+Add owners by sending an `owners` array on `POST /customer` (at create time) or `PUT /customer/{id}` later. Up to 5 owners; their `ownership_percentage` values must sum to exactly 100 before submit.
+
+```bash
+curl -X PUT https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "owners": [
+      { "first_name": "Jane", "last_name": "Doe", "ownership_percentage": 60, "is_beneficial_owner": true },
+      { "first_name": "John", "last_name": "Smith", "ownership_percentage": 40, "is_beneficial_owner": true }
+    ]
+  }'
+```
+
+#### 2.2 Upload each owner's ID files
+
+For each owner, two-step upload:
+
+```bash
+# Step 1: get a presigned URL
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/owner/OWNER_ID/file/presigned-url \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "file_category": "id_document_front" }'
+
+# Step 2: PUT the file to the returned url, then register
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/owner/OWNER_ID/files \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "id_document_front": "FILE_ID" }'
+```
+
+#### 2.3 Register KYB documents
+
+The certificate of incorporation and any other corporate paperwork (articles, share register, bank statements, proof of address) go into the KYB document collection. Same two-step pattern: presigned URL → PUT to S3 → register.
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/document/presigned-url \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+
+# After PUTting the file...
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/document \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "CERTIFICATE_OF_INCORPORATION",
+    "name": "Acme Corp — Certificate of Incorporation.pdf",
+    "file_id": "FILE_ID"
+  }'
+```
+
+You must register at least one document of a formation type (`CERTIFICATE_OF_INCORPORATION`, `ARTICLES_OF_INCORPORATION`, `BENEFICIAL_OWNERSHIP_CERTIFICATE`, `INCORPORATION_DOCUMENTS`, or `CAC_STATUS_REPORT`) before submit will accept the customer.
+
+#### 2.4 Submit for verification
+
+```bash
+curl -X POST \
+  https://api-prod.blaaiz.com/api/external/customer/CUSTOMER_ID/submit \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+The customer flips to `PROCESSING`. All `PENDING` owners and documents flip to `PROCESSING` along with it.
+
+<Warning>
+**Business KYB review typically takes 1–5 business days** — significantly longer than individual KYC. Wait for the `customer.status_changed` webhook. Do not poll. Only escalate to [support@blaaiz.com](mailto:support@blaaiz.com) if a customer has been in `PROCESSING` for more than 5 business days.
+</Warning>
+
+For the full walkthrough including the readiness rules, see [Onboarding a business customer](/guides/kyb/onboarding). Don't skip it — patterns like calling `/files` for a business customer fail silently and leave the customer stuck.
+
+  </Tab>
+</Tabs>
 
 ### Step 3: Create a payout
 
@@ -84,7 +168,7 @@ Before initiating a payout, ensure the following prerequisites are in place for 
 
     **Customer must be verified**
 
-    Every payout must be linked to a verified customer. If your customer's identity documents have not been uploaded and approved, the payout will be rejected. Make sure you have completed Step 1 and Step 2 above before attempting a payout. Remember: only a **Driver's License**, **Passport**, or **Resident Permit** is accepted for individual customers, and only a **Certificate of Incorporation** for business customers.
+    Every payout must be linked to a verified customer. If the customer's identity has not been verified, the payout will be rejected. Make sure you have completed Step 1 and Step 2 above before attempting a payout — for `type=individual`, that means the legacy KYC flow with an accepted document type (Driver's License, Passport, or Resident Permit); for `type=business`, that means the [KYB flow](/guides/kyb/overview) with owners and a formation document.
 
     **Wallet must exist**
 

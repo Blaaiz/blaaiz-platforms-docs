@@ -17,7 +17,7 @@ Once a collection transaction is confirmed, you'll need to associate it with a c
 
 - **Endpoint**: `/collection/attach-customer`
 - **Request**: Provide the `customer_id` and `transaction_id` to associate a customer with the collection transaction.
-- **Customer requirement**: The customer must belong to your business and must be `VERIFIED`.
+- **Customer requirement**: The customer must belong to your business and must be `VERIFIED`. Both `type=individual` (verified through KYC) and `type=business` (verified through the [KYB flow](/guides/kyb/overview)) are accepted.
 - **Purpose**: This links the collection to a customer for attribution and downstream processing.
 
 <Warning>

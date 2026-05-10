@@ -45,6 +45,14 @@
             "group": "Guides",
             "pages": [
               "guides/creating-first-payout",
+              {
+                "group": "Business customer KYB",
+                "pages": [
+                  "guides/kyb/overview",
+                  "guides/kyb/onboarding",
+                  "guides/kyb/handling-rejections"
+                ]
+              },
               "guides/customer-data-corrections",
               "guides/collections-overview",
               "guides/virtual-bank-accounts",
@@ -110,7 +118,8 @@
               "faq/fees-and-processing",
               "faq/webhooks-and-notifications",
               "faq/payment-links",
-              "faq/api-integration"
+              "faq/api-integration",
+              "faq/kyb"
             ]
           }
         ]
@@ -223,6 +232,26 @@
               "/api-reference/customer/update-openapi.json PUT /api/external/customer/{id}",
               "/api-reference/customer/add-kyc-openapi.json POST /api/external/customer/{id}/kyc-data",
               "/api-reference/customer/upload-files-openapi.json POST /api/external/customer/{id}/files",
+              "/api-reference/customer/submit-openapi.json POST /api/external/customer/{customer}/submit",
+              {
+                "group": "KYB documents (business customers)",
+                "pages": [
+                  "/api-reference/customer/list-documents-openapi.json GET /api/external/customer/{customer}/document",
+                  "/api-reference/customer/show-document-openapi.json GET /api/external/customer/{customer}/document/{document}",
+                  "/api-reference/customer/get-document-presigned-url-openapi.json POST /api/external/customer/{customer}/document/presigned-url",
+                  "/api-reference/customer/register-document-openapi.json POST /api/external/customer/{customer}/document",
+                  "/api-reference/customer/update-document-openapi.json PUT /api/external/customer/{customer}/document/{document}",
+                  "/api-reference/customer/delete-document-openapi.json DELETE /api/external/customer/{customer}/document/{document}"
+                ]
+              },
+              {
+                "group": "Owners (business customers)",
+                "pages": [
+                  "/api-reference/customer/get-owner-file-presigned-url-openapi.json POST /api/external/customer/{customer}/owner/{owner}/file/presigned-url",
+                  "/api-reference/customer/upload-owner-files-openapi.json POST /api/external/customer/{customer}/owner/{owner}/files",
+                  "/api-reference/customer/delete-owner-openapi.json DELETE /api/external/customer/{customer}/owner/{owner}"
+                ]
+              },
               "/api-reference/customer/list-beneficiaries-openapi.json GET /api/external/customer/{customer_id}/beneficiary",
               "/api-reference/customer/get-beneficiary-openapi.json GET /api/external/customer/{customer_id}/beneficiary/{beneficiary}"
             ]

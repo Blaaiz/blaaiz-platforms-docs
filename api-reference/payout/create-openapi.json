@@ -43,7 +43,7 @@
                     },
                     "customer_id": {
                         "type": "string",
-                        "description": "Customer receiving the payout"
+                        "description": "Customer receiving the payout. The customer must belong to your business and have `verification_status=VERIFIED`. Both `type=individual` (verified through the legacy KYC flow) and `type=business` (verified through the KYB flow) are accepted."
                     },
                     "method": {
                         "type": "string",

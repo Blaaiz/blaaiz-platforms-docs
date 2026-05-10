@@ -1,0 +1,142 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - List Customer KYB Documents",
+        "version": "1.0.0",
+        "description": "List the KYB document collection attached to a business-type customer (incorporation certificates, beneficial-ownership certificates, bank statements, proof of address, etc.). Each row carries a 2-minute presigned download URL. This endpoint applies to business-type customers only — individual customers continue to use the legacy file slots via POST /api/external/customer/{id}/files."
+    },
+    "tags": [
+        { "name": "Customer" }
+    ],
+    "servers": [
+        { "url": "https://api-prod.blaaiz.com" },
+        { "url": "https://api-dev.blaaiz.com" }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "customer:read": "Read customers."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "CustomerDocument": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "business_customer_id": { "type": "string", "format": "uuid" },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "CERTIFICATE_OF_INCORPORATION",
+                            "ARTICLES_OF_INCORPORATION",
+                            "BENEFICIAL_OWNERSHIP_CERTIFICATE",
+                            "INCORPORATION_DOCUMENTS",
+                            "CAC_STATUS_REPORT",
+                            "ACCOUNT_AGREEMENT",
+                            "PROOF_OF_ADDRESS",
+                            "BANK_STATEMENT",
+                            "LICENSE",
+                            "SHARE_REGISTRATION",
+                            "COMPANY_OWNERSHIP_STRUCTURE",
+                            "DIRECTORS_REGISTER",
+                            "OTHER"
+                        ]
+                    },
+                    "name": { "type": "string" },
+                    "extension": { "type": "string", "example": "pdf" },
+                    "description": { "type": "string", "nullable": true },
+                    "status": {
+                        "type": "string",
+                        "description": "Review state. PENDING means the business is still preparing it. PROCESSING means it is under compliance review. APPROVED and REJECTED are terminal. APPROVED and PROCESSING are locked from further edits by the business; REJECTED is editable so the business can fix and re-submit.",
+                        "enum": ["PENDING", "PROCESSING", "APPROVED", "REJECTED"]
+                    },
+                    "admin_comments": {
+                        "type": "array",
+                        "nullable": true,
+                        "description": "Reviewer feedback attached to this document. Each entry should be displayed as a separate bullet to the end customer.",
+                        "items": { "type": "string" }
+                    },
+                    "url": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "2-minute presigned download URL for the underlying file."
+                    },
+                    "created_at": { "type": "string", "format": "date-time" },
+                    "updated_at": { "type": "string", "format": "date-time" }
+                },
+                "required": ["id", "business_customer_id", "type", "name", "status", "created_at", "updated_at"]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "status": { "type": "boolean" },
+                    "message": { "type": "string" }
+                },
+                "required": ["status", "message"]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/customer/{customer}/document": {
+            "get": {
+                "summary": "List customer KYB documents",
+                "description": "Returns every KYB document the business has registered for this customer. Each row's `url` is a 2-minute presigned link to the underlying file. The customer must be of type `business`. Required scope: `customer:read`.",
+                "tags": ["Customer"],
+                "security": [
+                    { "oauth2ClientCredentials": ["customer:read"] }
+                ],
+                "parameters": [
+                    {
+                        "name": "customer",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string", "format": "uuid" },
+                        "description": "Customer ID."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of customer KYB documents.",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": "019a6e10-1fb3-7b2f-8f8b-ad1e92c4017a",
+                                            "business_customer_id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
+                                            "type": "CERTIFICATE_OF_INCORPORATION",
+                                            "name": "Acme Inc — Certificate of Incorporation.pdf",
+                                            "extension": "pdf",
+                                            "description": "Filed 2019-03-12, Companies House",
+                                            "status": "PROCESSING",
+                                            "admin_comments": null,
+                                            "url": "https://s3.amazonaws.com/...?X-Amz-Signature=...",
+                                            "created_at": "2026-04-20T10:14:31.000000Z",
+                                            "updated_at": "2026-04-20T10:14:31.000000Z"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized.",
+                        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+                    },
+                    "404": {
+                        "description": "Customer not found or does not belong to your business."
+                    }
+                }
+            }
+        }
+    }
+}
