@@ -5,7 +5,7 @@ description: End-to-end walkthrough for creating, populating, and submitting a b
 
 This guide walks through onboarding a `type=business` customer from creation to verification. Read [Business customer KYB](/guides/kyb/overview) first if you haven't — it explains the lifecycle, the `kyb_scope` model (Standard / FULL vs Minimal), and the rules that this walkthrough assumes.
 
-The **first six steps cover Standard (FULL) onboarding** — the default flow, which produces a customer that can hold an NGN, USD, GBP, or EUR Virtual Bank Account. The [Minimal KYB onboarding](#minimal-kyb-onboarding-whitelisted-merchants) section at the end is the abbreviated NGN-only flow for whitelisted merchants. If you're not sure which one applies to you: you almost certainly want Standard.
+The **first six steps cover Standard (FULL) onboarding** — the default flow, which produces a customer that can hold an NGN, USD, GBP, or EUR Virtual Bank Account. The [Minimal KYB onboarding](#minimal-kyb-onboarding) section at the end is the abbreviated NGN-only flow for whitelisted merchants. If you're not sure which one applies to you: you almost certainly want Standard.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ The **first six steps cover Standard (FULL) onboarding** — the default flow, w
 
 ## Step 1: Create the customer
 
-Create the customer with `type=business`. Beneficial owners are required for verification (see [Readiness](/guides/kyb/overview#readiness)) but you don't have to include them on this initial call — you can attach them now via the `owners` array (up to 5 entries) or add them later via `PUT /api/external/customer/{id}`. Either way, every owner that exists at `/submit` time must satisfy the readiness checks.
+Create the customer with `type=business`. Beneficial owners are required for verification (see [Readiness](/guides/kyb/overview#what-we-check-before-accepting-a-submit)) but you don't have to include them on this initial call — you can attach them now via the `owners` array (up to 5 entries) or add them later via `PUT /api/external/customer/{id}`. Either way, every owner that exists at `/submit` time must satisfy the readiness checks.
 
 ```bash
 curl -X POST https://api-prod.blaaiz.com/api/external/customer \
@@ -185,7 +185,7 @@ curl -X POST \
 
 The customer flips to `PROCESSING`. All `PENDING` owners and documents flip to `PROCESSING` along with it. The customer-level fields, every owner, and every document are now locked from your edits until the customer-level webhook arrives.
 
-If the readiness check fails, the response is `422` with a message naming the specific gap. The full list of preconditions is in [Readiness](/guides/kyb/overview#readiness). Common cases you'll hit:
+If the readiness check fails, the response is `422` with a message naming the specific gap. The full list of preconditions is in [Readiness](/guides/kyb/overview#what-we-check-before-accepting-a-submit). Common cases you'll hit:
 
 | Symptom | Where to fix it |
 | :--- | :--- |
@@ -204,7 +204,7 @@ If the readiness check fails, the response is `422` with a message naming the sp
 
 ## Step 6: Wait for the webhook
 
-You will receive a `customer.status_changed` webhook on your `collection_url` when the customer transitions to `VERIFIED` or `REJECTED`. Business KYB review typically takes 1–5 business days. **Do not poll, do not raise tickets within that window** — see [General guidelines](/guides/general-guidelines#verification-timing).
+You will receive a `customer.status_changed` webhook on your `collection_url` when the customer transitions to `VERIFIED` or `REJECTED`. Business KYB review typically takes 1–5 business days. **Do not poll, do not raise tickets within that window** — see [General guidelines](/guides/general-guidelines#verification-timeline).
 
 If `VERIFIED`, the customer is ready to use — for an NGN Virtual Bank Account, an NGN payout, or any other operation that requires a verified customer.
 
