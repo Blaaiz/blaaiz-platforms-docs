@@ -6,6 +6,37 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">21/05/2026</div>
+      <div className="changelog-card">
+        <h3>List customers: filters and opt-in pagination</h3>
+        <p>
+          <a href="/api-reference/customer/list">GET /customer</a> now accepts
+          optional exact-match filters and opt-in pagination so you can recover
+          a single customer by identifier or page through large result sets.
+        </p>
+        <ul>
+          <li>
+            New filters: <code>email</code>, <code>id_number</code>,{" "}
+            <code>registration_number</code>, <code>verification_status</code>{" "}
+            (<code>PENDING</code> / <code>PROCESSING</code> /{" "}
+            <code>VERIFIED</code> / <code>REJECTED</code>), and{" "}
+            <code>type</code> (<code>individual</code> / <code>business</code>).
+            All are scoped to your business and combine with each other.
+          </li>
+          <li>
+            Pass <code>?paginate=true</code> to receive a paginated envelope
+            (<code>data</code>, <code>links</code>, <code>meta</code>) with 15
+            items per page. The paginated path returns results newest-first.
+          </li>
+          <li>
+            <strong>Backwards compatible.</strong> Omitting{" "}
+            <code>paginate</code> returns the existing{" "}
+            <code>{"{message, data: [...]}"}</code> shape unchanged.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">06/05/2026</div>
       <div className="changelog-card">
         <h3>New: <code>kyb_scope</code> on business customers — Standard and Minimal KYB</h3>
