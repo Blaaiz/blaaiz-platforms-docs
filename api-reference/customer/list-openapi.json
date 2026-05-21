@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - List Customers",
         "version": "1.0.0",
-        "description": "Retrieve all customers with optional filters and pagination."
+        "description": "Retrieve customers for your business with optional exact-match filters and opt-in pagination. By default the response shape is unchanged (`{message, data: [...]}`); pass `paginate=true` to receive a paginated envelope with `data`, `links`, and `meta`."
     },
     "tags": [
         {
@@ -36,28 +36,62 @@
         "schemas": {
             "CustomerSummary": {
                 "type": "object",
-                "description": "Customer summary returned by list endpoints. Lighter than the full Customer object — relations like `kyc_data`, `owners`, and `documents` are not included on list. Use `GET /customer/{id}` for the full record.",
                 "properties": {
-                    "id": { "type": "string", "format": "uuid" },
-                    "business_id": { "type": "string", "format": "uuid" },
-                    "type": { "type": "string", "enum": ["individual", "business"] },
-                    "first_name": { "type": "string", "nullable": true },
-                    "last_name": { "type": "string", "nullable": true },
-                    "business_name": { "type": "string", "nullable": true },
-                    "email": { "type": "string", "format": "email" },
-                    "phone": { "type": "string", "nullable": true },
-                    "country": { "type": "string", "nullable": true },
-                    "id_type": { "type": "string", "nullable": true, "description": "Set for individual customers. May be null on business customers." },
-                    "id_number": { "type": "string", "nullable": true, "description": "Set for individual customers. May be null on business customers." },
-                    "registration_number": { "type": "string", "nullable": true, "description": "Set for business customers." },
-                    "incorporation_country": { "type": "string", "nullable": true, "description": "Set for business customers." },
-                    "verification_status": { "type": "string", "enum": ["PENDING", "PROCESSING", "VERIFIED", "REJECTED"] },
-                    "created_at": { "type": "string", "format": "date-time" },
-                    "updated_at": { "type": "string", "format": "date-time" }
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "individual",
+                            "business"
+                        ]
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "business_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "registration_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Business registration / incorporation number. Always null for individuals."
+                    },
+                    "id_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Government-issued ID number on file. Set for individual customers; typically null for business customers, which identify via `registration_number` + `incorporation_country`."
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "verification_status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "VERIFIED",
+                            "REJECTED"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
                 },
                 "required": [
                     "id",
-                    "business_id",
                     "type",
                     "email",
                     "verification_status",
@@ -66,6 +100,7 @@
             },
             "CustomerListResponse": {
                 "type": "object",
+                "description": "Default (unpaginated) response shape returned when `paginate` is omitted or not truthy.",
                 "properties": {
                     "message": {
                         "type": "string"
@@ -82,6 +117,95 @@
                     "data"
                 ]
             },
+            "PaginationLinks": {
+                "type": "object",
+                "properties": {
+                    "first": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "last": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "prev": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "next": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "PaginationMeta": {
+                "type": "object",
+                "properties": {
+                    "current_page": {
+                        "type": "integer"
+                    },
+                    "from": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "last_page": {
+                        "type": "integer"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "description": "Page size. Fixed at 15."
+                    },
+                    "to": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "total": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "PaginatedCustomerListResponse": {
+                "type": "object",
+                "description": "Paginated response shape returned when `paginate=true` is sent. Page size is fixed at 15.",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CustomerSummary"
+                        }
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data",
+                    "links",
+                    "meta"
+                ]
+            },
             "Error": {
                 "type": "object",
                 "properties": {
@@ -96,6 +220,27 @@
                     "status",
                     "message"
                 ]
+            },
+            "ValidationError": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "errors"
+                ]
             }
         }
     },
@@ -103,7 +248,7 @@
         "/api/external/customer": {
             "get": {
                 "summary": "List all customers",
-                "description": "Retrieve all customers with optional filters and pagination. Required scope: `customer:read`.",
+                "description": "Retrieve customers for your business. Supports optional exact-match filters on `email`, `id_number`, `registration_number`, `verification_status`, and `type`, and opt-in pagination via `paginate=true`. Filters and pagination compose.\n\nWhen `paginate` is omitted or not truthy, the response shape is unchanged (`{message, data: [...]}`). When `paginate=true`, the response is a paginated envelope (`{message, data: [...], links: {...}, meta: {...}}`) with 15 items per page. Use the `?page=N` query string (in addition to `paginate=true`) to fetch subsequent pages.\n\n**Ordering:** the paginated path returns results newest-first (by `created_at` descending). The default unpaginated path preserves the legacy database-order semantics for backwards compatibility — if you need a guaranteed order, opt in to `paginate=true`.\n\nRequired scope: `customer:read`.",
                 "tags": [
                     "Customer"
                 ],
@@ -114,55 +259,190 @@
                         ]
                     }
                 ],
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": false,
+                        "description": "Exact-match filter on customer email. Validated as a plain string (not the `email` rule) so any value you successfully created the customer with is recoverable.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id_number",
+                        "in": "query",
+                        "required": false,
+                        "description": "Exact-match filter on the customer's government-issued ID number.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "registration_number",
+                        "in": "query",
+                        "required": false,
+                        "description": "Exact-match filter on the business customer's registration / incorporation number.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "verification_status",
+                        "in": "query",
+                        "required": false,
+                        "description": "Filter by verification status. Lowercase input is normalized to upper-case.",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PENDING",
+                                "PROCESSING",
+                                "VERIFIED",
+                                "REJECTED"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Filter by customer type. Upper-case input is normalized to lower-case.",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "individual",
+                                "business"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "paginate",
+                        "in": "query",
+                        "required": false,
+                        "description": "Opt in to the paginated response shape. Pass `true` (or any truthy value, e.g. `1`) to receive `{message, data, links, meta}` with 15 items per page. Any other value — or omitting the parameter — returns the legacy `{message, data}` shape unchanged.",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": true
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Page number to fetch when `paginate=true`. Defaults to `1`. Ignored when pagination is not enabled.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Customers retrieved successfully",
+                        "description": "Customers retrieved successfully. The response body is the legacy `CustomerListResponse` shape by default, and the `PaginatedCustomerListResponse` shape when `paginate=true` was sent.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CustomerListResponse"
-                                },
-                                "example": {
-                                    "message": "Customers retrieved successfully",
-                                    "data": [
+                                    "oneOf": [
                                         {
-                                            "id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
-                                            "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
-                                            "type": "individual",
-                                            "first_name": "John",
-                                            "last_name": "Doe",
-                                            "business_name": null,
-                                            "email": "john.doe@example.com",
-                                            "phone": "+2348012345678",
-                                            "country": "NG",
-                                            "id_type": "passport",
-                                            "id_number": "A12345678",
-                                            "registration_number": null,
-                                            "incorporation_country": null,
-                                            "verification_status": "VERIFIED",
-                                            "created_at": "2024-01-15T10:30:00.000000Z",
-                                            "updated_at": "2024-01-15T10:35:00.000000Z"
+                                            "$ref": "#/components/schemas/CustomerListResponse"
                                         },
                                         {
-                                            "id": "019a6da3-4a9a-7033-81b9-12489eff13ee",
-                                            "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
-                                            "type": "business",
-                                            "first_name": null,
-                                            "last_name": null,
-                                            "business_name": "Acme Corp",
-                                            "email": "contact@acme.example.com",
-                                            "phone": "+2348012345679",
-                                            "country": "NG",
-                                            "id_type": null,
-                                            "id_number": null,
-                                            "registration_number": "RC123456",
-                                            "incorporation_country": "NG",
-                                            "verification_status": "VERIFIED",
-                                            "created_at": "2024-01-14T09:20:00.000000Z",
-                                            "updated_at": "2024-01-14T09:25:00.000000Z"
+                                            "$ref": "#/components/schemas/PaginatedCustomerListResponse"
                                         }
                                     ]
+                                },
+                                "examples": {
+                                    "default_unpaginated": {
+                                        "summary": "Default response (no `paginate` query param)",
+                                        "value": {
+                                            "message": "Customers retrieved successfully.",
+                                            "data": [
+                                                {
+                                                    "id": "customer_123",
+                                                    "type": "individual",
+                                                    "first_name": "John",
+                                                    "last_name": "Doe",
+                                                    "business_name": null,
+                                                    "registration_number": null,
+                                                    "id_number": "A01234567",
+                                                    "email": "john@example.com",
+                                                    "phone": "+2348012345678",
+                                                    "verification_status": "VERIFIED",
+                                                    "created_at": "2026-01-15T10:30:00Z"
+                                                },
+                                                {
+                                                    "id": "customer_456",
+                                                    "type": "business",
+                                                    "first_name": null,
+                                                    "last_name": null,
+                                                    "business_name": "Acme Corp",
+                                                    "registration_number": "RC1234567",
+                                                    "id_number": null,
+                                                    "email": "contact@acme.com",
+                                                    "phone": "+2348012345679",
+                                                    "verification_status": "VERIFIED",
+                                                    "created_at": "2026-01-14T09:20:00Z"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "filtered_by_id_number": {
+                                        "summary": "Filtered by `id_number` (default shape)",
+                                        "value": {
+                                            "message": "Customers retrieved successfully.",
+                                            "data": [
+                                                {
+                                                    "id": "customer_123",
+                                                    "type": "individual",
+                                                    "first_name": "John",
+                                                    "last_name": "Doe",
+                                                    "business_name": null,
+                                                    "registration_number": null,
+                                                    "id_number": "A01234567",
+                                                    "email": "john@example.com",
+                                                    "phone": "+2348012345678",
+                                                    "verification_status": "VERIFIED",
+                                                    "created_at": "2026-01-15T10:30:00Z"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "paginated": {
+                                        "summary": "Paginated response (`paginate=true`)",
+                                        "value": {
+                                            "message": "Customers retrieved successfully.",
+                                            "data": [
+                                                {
+                                                    "id": "customer_123",
+                                                    "type": "individual",
+                                                    "first_name": "John",
+                                                    "last_name": "Doe",
+                                                    "business_name": null,
+                                                    "registration_number": null,
+                                                    "id_number": "A01234567",
+                                                    "email": "john@example.com",
+                                                    "phone": "+2348012345678",
+                                                    "verification_status": "VERIFIED",
+                                                    "created_at": "2026-01-15T10:30:00Z"
+                                                }
+                                            ],
+                                            "links": {
+                                                "first": "https://api-prod.blaaiz.com/api/external/customer?page=1",
+                                                "last": "https://api-prod.blaaiz.com/api/external/customer?page=4",
+                                                "prev": null,
+                                                "next": "https://api-prod.blaaiz.com/api/external/customer?page=2"
+                                            },
+                                            "meta": {
+                                                "current_page": 1,
+                                                "from": 1,
+                                                "last_page": 4,
+                                                "path": "https://api-prod.blaaiz.com/api/external/customer",
+                                                "per_page": 15,
+                                                "to": 15,
+                                                "total": 53
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -177,6 +457,27 @@
                                 "example": {
                                     "status": false,
                                     "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed. Returned when `verification_status` or `type` is set to a value outside the allowed enum.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                },
+                                "example": {
+                                    "message": "The given data was invalid.",
+                                    "errors": {
+                                        "verification_status": [
+                                            "The selected verification status is invalid."
+                                        ],
+                                        "type": [
+                                            "The selected type is invalid."
+                                        ]
+                                    }
                                 }
                             }
                         }
