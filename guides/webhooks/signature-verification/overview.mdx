@@ -14,13 +14,3 @@ By implementing this verification, you can protect your application from malicio
   Use the OAuth `client_secret` only for `/oauth/token`, and use the webhook
   `signing_secret` only for verifying `x-blaaiz-signature`.
 </Note>
-
-## Blaaiz webhook IP address
-
-All webhooks from Blaaiz are sent from the following IP address:
-
-```
-34.248.16.185
-```
-
-You can whitelist this IP address in your firewall or server configuration to add an additional layer of security by ensuring webhook requests only come from Blaaiz.
