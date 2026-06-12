@@ -64,7 +64,7 @@ The `scope` parameter must be a **space-separated list of individual scopes** th
   individual scopes as shown below:
 
   ```
-  scope=wallet:read currency:read bank:read customer:read customer:write beneficiary:read virtual-account:read virtual-account:create virtual-account:close collection:create collection:crypto:create collection:interac:accept payout:create swap:create transaction:read fees:read rates:read file:upload webhook:read webhook:write webhook:replay mock:webhook:trigger
+  scope=wallet:read currency:read bank:read customer:read customer:write beneficiary:read virtual-account:read virtual-account:create virtual-account:close collection:create collection:crypto:create collection:interac:accept collection:interac:create payout:create swap:create transaction:read fees:read rates:read file:upload webhook:read webhook:write webhook:replay mock:webhook:trigger
   ```
 </Warning>
 
@@ -107,6 +107,7 @@ You can also select scopes individually for fine-grained control:
 | `collection:create` | Initiate fiat collections and attach customers |
 | `collection:crypto:create` | Read crypto networks and initiate crypto collections |
 | `collection:interac:accept` | Accept Interac money requests |
+| `collection:interac:create` | Initiate Interac money requests |
 | `payout:create` | Initiate payouts |
 | `swap:create` | Initiate swaps |
 | `transaction:read` | Read business transactions |
