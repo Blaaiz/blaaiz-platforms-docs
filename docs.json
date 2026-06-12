@@ -57,6 +57,7 @@
               "guides/collections-overview",
               "guides/virtual-bank-accounts",
               "guides/interac-auto-deposits",
+              "guides/interac-money-requests",
               {
                 "group": "Common use cases",
                 "pages": [
