@@ -5,13 +5,22 @@ description: Learn how to collect payments in different currencies
 
 ## How do we collect CAD (Canadian Dollars)?
 
-For CAD, we use **Interac**, which is a push mechanism:
+For CAD, we use **Interac**, with two options:
 
-- No collection API integration is needed
+**1. Auto Deposit (push)** — no collection API integration is needed:
+
 - We provide you with an Interac email address
 - You share this email with your customers
 - When they send money via Interac to this email, we'll notify you via webhook
 - The webhook contains the sender's email and name for your reference
+
+**2. Money request (pull)** — initiate the collection via the API:
+
+- You call [Initiate Interac money request](/api-reference/collection/initiate-interac) with the amount and the payer's email
+- Blaaiz sends an Interac money request to that email; the payer approves it from their bank app
+- The funds settle into your CAD wallet and we notify you via the same collection webhook
+
+See [Interac money requests](/guides/use-cases/interac-money-requests) and [Interac CAD collections](/guides/use-cases/interac-collections) for the full flows.
 
 ## How do we collect NGN (Nigerian Naira)?
 

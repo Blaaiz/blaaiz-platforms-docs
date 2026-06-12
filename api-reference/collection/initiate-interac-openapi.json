@@ -1,0 +1,237 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Initiate Interac Money Request",
+        "version": "1.0.0",
+        "description": "Send an Interac money request to a payer's email to collect CAD into your business wallet."
+    },
+    "tags": [
+        {
+            "name": "Collection"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "collection:interac:create": "Initiate Interac money requests."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "InitiateInteracMoneyRequest": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "minimum": 0.1,
+                        "description": "Amount of CAD to request, in major units (e.g. 100.00)."
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "The payer's email address. Blaaiz sends the Interac money request to this address; the payer approves it from their bank app."
+                    },
+                    "customer_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "Optional display name for the payer shown on the Interac request. Defaults to your business name when omitted."
+                    },
+                    "customer_id": {
+                        "type": "string",
+                        "description": "Optional ID of a VERIFIED customer belonging to your business, to attribute the collection to."
+                    },
+                    "expiry_hours": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 120,
+                        "description": "Optional. Hours until the money request expires if the payer doesn't approve it. Defaults to 48; capped at 120."
+                    }
+                },
+                "required": [
+                    "amount",
+                    "email"
+                ]
+            },
+            "InitiateInteracResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "Blaaiz transaction ID for the pending collection."
+                    },
+                    "reference": {
+                        "type": "string",
+                        "description": "Interac reference number returned by the provider for this money request."
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the money request expires if the payer does not approve it (48 hours from creation)."
+                    }
+                },
+                "required": [
+                    "message",
+                    "transaction_id",
+                    "reference",
+                    "expires_at"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/collection/interac-money-request": {
+            "post": {
+                "summary": "Initiate Interac money request",
+                "description": "Send an Interac money request to a payer's email to collect CAD into your business wallet. Blaaiz creates a pending collection and sends the request to the payer; when they approve it from their bank app, the funds settle into your CAD wallet and a collection webhook is emitted. Required scope: `collection:interac:create`.\n\nYour business must have an active CAD wallet and Interac enabled for CAD.",
+                "tags": [
+                    "Collection"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "collection:interac:create"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        },
+                        "required": false,
+                        "description": "Content type header."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InitiateInteracMoneyRequest"
+                            },
+                            "examples": {
+                                "basic": {
+                                    "summary": "Request CAD from a payer",
+                                    "value": {
+                                        "amount": 100,
+                                        "email": "payer@example.com"
+                                    }
+                                },
+                                "with_customer": {
+                                    "summary": "Attribute the collection to a verified customer",
+                                    "value": {
+                                        "amount": 100,
+                                        "email": "payer@example.com",
+                                        "customer_name": "Jane Payer",
+                                        "customer_id": "a1b2c3d4-0000-0000-0000-000000000000"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Interac money request sent. The collection is pending until the payer approves it.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InitiateInteracResponse"
+                                },
+                                "example": {
+                                    "message": "Interac money request sent successfully.",
+                                    "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+                                    "reference": "CA1MR6ahQBCJ",
+                                    "expires_at": "2026-06-14T10:00:00+00:00"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Request could not be processed (e.g. no active CAD wallet, Interac not enabled for CAD, unverified customer, or a provider error).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "no_cad_wallet": {
+                                        "summary": "No active CAD wallet",
+                                        "value": {
+                                            "message": "No active CAD wallet found. Please create a CAD wallet to receive Interac transfers."
+                                        }
+                                    },
+                                    "provider_error": {
+                                        "summary": "Provider could not process the request",
+                                        "value": {
+                                            "message": "Sorry! cant perform that action right now."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The amount field is required."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
