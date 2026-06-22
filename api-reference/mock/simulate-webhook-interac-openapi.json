@@ -42,6 +42,10 @@
                         "format": "email",
                         "description": "Sender email to include in source_information.collection_email."
                     },
+                    "collection_name": {
+                        "type": "string",
+                        "description": "Sender name to include in source_information.collection_name."
+                    },
                     "amount": {
                         "type": "number",
                         "description": "Optional amount for the simulated Interac transaction."
@@ -96,6 +100,7 @@
                             },
                             "example": {
                                 "interac_email": "customer@example.com",
+                                "collection_name": "John Doe",
                                 "amount": 100.5
                             }
                         }
