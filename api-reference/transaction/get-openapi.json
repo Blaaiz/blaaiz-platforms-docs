@@ -43,6 +43,13 @@
                             "null"
                         ],
                         "description": "Collection email used for Interac collections, when applicable."
+                    },
+                    "collection_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Name of the sender for Interac collections, when available."
                     }
                 }
             },
@@ -350,7 +357,8 @@
                                                 "date": "2026-03-13T10:30:00.000000Z",
                                                 "payee_collection_email": null,
                                                 "source_information": {
-                                                    "collection_email": null
+                                                    "collection_email": null,
+                                                    "collection_name": null
                                                 },
                                                 "swap_details": null,
                                                 "recipient": {
@@ -387,7 +395,8 @@
                                                 "date": "2026-03-13T09:10:00.000000Z",
                                                 "payee_collection_email": "customer@company.com",
                                                 "source_information": {
-                                                    "collection_email": "collections@blaaiz.com"
+                                                    "collection_email": "collections@blaaiz.com",
+                                                    "collection_name": "John Doe"
                                                 },
                                                 "swap_details": null,
                                                 "recipient": null
@@ -413,7 +422,8 @@
                                                 "date": "2026-03-13T11:45:00.000000Z",
                                                 "payee_collection_email": null,
                                                 "source_information": {
-                                                    "collection_email": null
+                                                    "collection_email": null,
+                                                    "collection_name": null
                                                 },
                                                 "swap_details": {
                                                     "from_business_wallet_id": "wallet_usd_001",

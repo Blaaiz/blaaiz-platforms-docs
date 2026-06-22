@@ -26,6 +26,7 @@ These are sent to your `collection_url` when your business receives funds.
 | `payee_collection_email`              | The Email of the recipient                                                            |
 | `source_information`                  | An object containing details about the source of the funds.                           |
 | `source_information.collection_email` | The email address of the sender who initiated the collection.                         |
+| `source_information.collection_name`  | The name of the sender who initiated the collection. May be `null` if unavailable.    |
 | `event_id`                            | A unique identifier for the event associated with the transaction.                    |
 | `type`                                | The type of transaction, indicating it as a collection (e.g., "collection").          |
 
@@ -43,7 +44,8 @@ These are sent to your `collection_url` when your business receives funds.
   "transaction_currency": "CAD",
   "payee_collection_email":"yourbusinss@example.com",
   "source_information": {
-    "collection_email": "test@test.com"
+    "collection_email": "test@test.com",
+    "collection_name": "John Doe"
   },
   "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
   "type": "collection"

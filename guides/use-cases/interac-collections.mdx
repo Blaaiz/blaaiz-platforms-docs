@@ -95,7 +95,8 @@ When the payment arrives, Blaaiz credits your CAD wallet and sends a `collection
   "transaction_currency": "CAD",
   "payee_collection_email": "payments@yourbusiness.com",
   "source_information": {
-    "collection_email": "alice@gmail.com"
+    "collection_email": "alice@gmail.com",
+    "collection_name": "Alice Smith"
   },
   "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
   "type": "collection"
@@ -108,6 +109,7 @@ The critical fields:
 |-------|-------------------|
 | `payee_collection_email` | Your business Auto Deposit email (the destination) |
 | `source_information.collection_email` | The **sender's** Interac email — use this to identify which customer sent the payment |
+| `source_information.collection_name` | The **sender's** name, when available (may be `null`) |
 | `transaction_amount` | How much CAD was received |
 | `transaction_status` | Must be `SUCCESSFUL` before you allocate funds |
 
