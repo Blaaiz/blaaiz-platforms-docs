@@ -95,6 +95,18 @@
                         "type": "string",
                         "description": "Required for interac"
                     },
+                    "security_question": {
+                        "type": "string",
+                        "maxLength": 40,
+                        "description": "Optional. Custom Interac e-Transfer security question, used only when method=interac (CAD). Max 40 characters. Supply together with `security_answer` (both or neither); if omitted, Blaaiz auto-generates a secure question and answer as before."
+                    },
+                    "security_answer": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 23,
+                        "pattern": "^[a-zA-Z0-9]+$",
+                        "description": "Optional. The answer the recipient must give to claim the e-Transfer, used only when method=interac (CAD). 3–23 characters, letters and digits only (no spaces or special characters), and must not appear within the question — Interac's network rejects answers with spaces/special characters or answers contained in the question. Supply together with `security_question` (both or neither); if omitted, Blaaiz auto-generates the pair. When supplied, you are responsible for communicating the answer to the recipient out-of-band. Some receiving banks (e.g. CIBC) enforce a stricter minimum answer length (6), so a 6+ character answer is safest across banks."
+                    },
                     "bank_id": {
                         "type": "string",
                         "description": "Required when method=bank_transfer and currency=NGN"
@@ -314,7 +326,9 @@
                                 "to_currency_id": "CAD",
                                 "interac_first_name": "Jane",
                                 "interac_last_name": "Doe",
-                                "email": "jane.doe@example.com"
+                                "email": "jane.doe@example.com",
+                                "security_question": "What city was our first meeting in?",
+                                "security_answer": "Toronto2024"
                             }
                         ]
                     },
@@ -597,7 +611,9 @@
                                         "to_currency_id": "CAD",
                                         "interac_first_name": "Jane",
                                         "interac_last_name": "Doe",
-                                        "email": "jane.doe@example.com"
+                                        "email": "jane.doe@example.com",
+                                        "security_question": "What city was our first meeting in?",
+                                        "security_answer": "Toronto2024"
                                     }
                                 },
                                 "crypto": {
