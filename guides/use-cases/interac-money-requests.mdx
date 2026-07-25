@@ -106,6 +106,8 @@ When the payer approves the request, Blaaiz credits your CAD wallet and sends a 
 
 Only credit the customer in your system once `transaction_status` is `SUCCESSFUL`. See the [CAD collection webhook payload](/guides/webhooks/collection/cad) for the full schema.
 
+If the payer does not approve before `expires_at`, Blaaiz sends a collection webhook with `transaction_status` set to `EXPIRED` and `message` set to `Transaction Expired`. No funds move. Use this webhook to close the pending request in your system. See [Expired transactions](/guides/webhooks/collection/cad#expired-transactions).
+
 ## Fees
 
 The standard **INTERAC collection fee** applies, the same as Auto Deposit collections. Your wallet is credited the **net** amount (`transaction_amount_without_fee`); `transaction_fee` shows the fee deducted.
@@ -124,7 +126,7 @@ The standard **INTERAC collection fee** applies, the same as Auto Deposit collec
 
 **Treating the 200 response as settlement.** The initiate call only confirms the request was sent. The collection is `PENDING` until the payer approves it — always wait for the `SUCCESSFUL` collection webhook before releasing value.
 
-**Payer doesn't approve in time.** Money requests expire at `expires_at` — 48 hours after creation by default, or sooner if you set `expiry_hours` (max 120). If the payer never approves, no funds move and no success webhook is sent.
+**Payer doesn't approve in time.** Money requests expire at `expires_at` — 48 hours after creation by default, or sooner if you set `expiry_hours` (max 120). If the payer never approves, no funds move. Blaaiz then sends a collection webhook with `transaction_status` set to `EXPIRED`, so you can stop waiting and close the request in your system.
 
 **No active CAD wallet.** The endpoint returns `400` with `No active CAD wallet found...` if your business has no CAD wallet. Create one first.
 
