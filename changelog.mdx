@@ -6,6 +6,32 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">24/07/2026</div>
+      <div className="changelog-card">
+        <h3>New: expired collection webhook</h3>
+        <p>
+          Blaaiz now tells you when a collection expires. A collection expires
+          when it is not completed before its expiry time — for example, when a
+          payer does not approve an{" "}
+          <a href="/guides/use-cases/interac-money-requests">Interac money request</a>{" "}
+          within 48 hours.
+        </p>
+        <ul>
+          <li>
+            Blaaiz sends a webhook to your <code>collection_url</code> with{" "}
+            <code>transaction_status</code> set to <code>EXPIRED</code> and{" "}
+            <code>message</code> set to <code>Transaction Expired</code>. No funds
+            move. See <a href="/guides/webhooks/collection/cad#expired-transactions">Expired transactions</a>.
+          </li>
+          <li>
+            <a href="/api-reference/transaction/list">List transactions</a> now
+            accepts <code>status: EXPIRED</code> so you can find expired
+            collections.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">21/05/2026</div>
       <div className="changelog-card">
         <h3>List customers: filters and opt-in pagination</h3>

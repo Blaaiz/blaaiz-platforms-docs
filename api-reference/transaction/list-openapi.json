@@ -62,10 +62,11 @@
                     },
                     "status": {
                         "type": "string",
-                        "description": "Filter by transaction status.",
+                        "description": "Filter by transaction status. `EXPIRED` returns collections that were not completed before their expiry time.",
                         "enum": [
                             "FAILED",
-                            "SUCCESSFUL"
+                            "SUCCESSFUL",
+                            "EXPIRED"
                         ]
                     },
                     "customer_id": {
