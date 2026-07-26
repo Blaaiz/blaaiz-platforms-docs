@@ -18,7 +18,7 @@ These are sent to your `collection_url` when your business receives funds.
 | `message`                             | A message indicating the status of the transaction.                                   |
 | `transaction_id`                      | A unique identifier for the transaction used for tracking and reference.              |
 | `transaction_reference`               | A unique identifier for the transaction used for tracking and reference.              |
-| `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL, FAILED).                             |
+| `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL, FAILED, EXPIRED).                    |
 | `transaction_fee`                     | The fee charged for the transaction.                                                  |
 | `transaction_amount_without_fee`      | The amount that was transferred, excluding any fees.                                  |
 | `transaction_amount`                  | The total amount of the transaction, including fees.                                  |
@@ -87,6 +87,40 @@ On a failed collection, the amount fields are `0.00` and the `source_information
     "collection_name": null
   },
   "failure_reason": "GetIncomingTransfers Error : Interac Response Description : 320 - Operation cannot be performed due to current transfer status",
+  "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
+  "type": "collection"
+}
+```
+
+## Expired transactions
+
+Blaaiz sends a collection webhook when a CAD collection expires. A collection expires when the payer does not approve an Interac money request before its expiry time. The default expiry time is 48 hours after you create the request.
+
+The webhook goes to the same `collection_url`. Blaaiz sets `transaction_status` to `EXPIRED` and `message` to `Transaction Expired`.
+
+<Warning>
+Do not release goods or value for an `EXPIRED` collection. No funds move, and Blaaiz does not credit your CAD wallet.
+</Warning>
+
+The amount fields show the amount you requested. The `source_information` fields and `payee_collection_email` are `null`, because the payer never approved the request.
+
+### Expired example payload
+
+```json
+{
+  "message": "Transaction Expired",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "CA1MR6ahQBCJ",
+  "transaction_status": "EXPIRED",
+  "transaction_fee": 2.0,
+  "transaction_amount_without_fee": 98.0,
+  "transaction_amount": 100.0,
+  "transaction_currency": "CAD",
+  "payee_collection_email": null,
+  "source_information": {
+    "collection_email": null,
+    "collection_name": null
+  },
   "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
   "type": "collection"
 }

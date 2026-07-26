@@ -15,6 +15,7 @@ Your business has two webhook URLs: `collection_url` and `payout_url`. The table
 | `collection.pending` | Awaiting customer payment | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
 | `collection.completed` | Payment received successfully | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
 | `collection.failed` | Payment failed | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
+| `collection.expired` | Interac money request expired before the payer approved it | `collection_url` | [Collection](/guides/webhooks/collection/cad#expired-transactions) |
 | `payout.initiated` | Payout has been created | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
 | `payout.processing` | Payout is being processed | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
 | `payout.completed` | Payout completed successfully | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |

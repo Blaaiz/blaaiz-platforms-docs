@@ -23,6 +23,14 @@ Do not release goods or value for a `FAILED` collection. No funds move, and Blaa
 
 See [CAD collection webhook](/guides/webhooks/collection/cad#failed-transactions) for the full failed payload.
 
+## What happens when an Interac money request expires?
+
+An Interac money request expires when the payer does not approve it before its expiry time. The default expiry time is 48 hours after you create the request. You can set a shorter time with `expiry_hours`.
+
+When a money request expires, Blaaiz sends a collection webhook with `transaction_status` set to `EXPIRED` and `message` set to `Transaction Expired`. No funds move. Do not release goods or value. Use the webhook to close the pending request in your system.
+
+To find these transactions later, pass `status: EXPIRED` to the [List transactions](/api-reference/transaction/list) endpoint.
+
 ## What information is included in the webhook?
 
 The webhook payload includes transaction details such as:
