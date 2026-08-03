@@ -1,0 +1,81 @@
+---
+title: Refunding a collection
+description: Refund a collection back to its original sender, and track the refund lifecycle
+---
+
+Use the Refund API to return a collection to the person who paid it. Blaaiz sends the funds back through the same provider that received the payment.
+
+## What you can refund
+
+Blaaiz refunds a collection only when all of these conditions are true:
+
+- The collection belongs to one of your business customers.
+- You created the collection through the API.
+- The collection is a successful EUR or GBP ClearJunction collection.
+- The refund starts within 7 days of the collection.
+- No refund exists for the collection yet.
+
+<Note>
+Collections that you create on the Blaaiz dashboard (your own treasury collections)
+cannot be refunded through this API. A Blaaiz admin handles those refunds.
+</Note>
+
+## Rules
+
+- **Full amount only.** Blaaiz always refunds the full original collection amount. There is no `amount` field on the request.
+- **One attempt per collection.** After a refund starts, the collection cannot be refunded again through the API.
+- **7-day window.** The refund must start within 7 days of the collection.
+- **EUR and GBP only.** Refunds to source are supported for EUR and GBP ClearJunction collections. Card collections use the card refund flow instead.
+
+## Idempotency
+
+Send an optional `reference` on the request as your idempotency key.
+
+- The same `reference` on the same `transaction_id` returns the same refund. Blaaiz does not create a second refund.
+- The same `reference` on a different `transaction_id` returns a 400 error. Use a new `reference`.
+
+This makes it safe to retry a refund request after a network timeout.
+
+## Authentication and scopes
+
+The Refund API uses OAuth client-credentials tokens. Request the scopes you need:
+
+- `refund:create` — to start a refund with `POST /refund`.
+- `refund:read` — to read a refund with `GET /refund/{id}`.
+
+Both scopes belong to the `collections` bundle. `refund:read` also belongs to the `read-only` bundle. See [Authentication](/guides/authentication).
+
+## Refund lifecycle
+
+1. Call [`POST /refund`](/api-reference/refund/create) with the `transaction_id`.
+2. Blaaiz creates the refund with `status` set to `PROCESSING` and sends a `refund_initiated` webhook.
+3. Blaaiz delivers a final webhook when the refund settles:
+   - `status` set to `successful` when the provider returns the funds.
+   - `status` set to `failed` when the refund fails.
+
+Track the status through the [Refund webhook](/guides/webhooks/refund) or by polling [`GET /refund/{id}`](/api-reference/refund/get).
+
+<Note>
+The refund `status` on the API response is uppercase (`PENDING`, `PROCESSING`,
+`SUCCESSFUL`, `FAILED`). The webhook `status` field is lowercase (`processing`,
+`successful`, `failed`).
+</Note>
+
+## Failed refunds
+
+A failed refund returns a webhook with `status` set to `failed` and a `failure_reason`. Blaaiz handles the funds. You do not need to retry the refund.
+
+## Refund status on transactions
+
+The Transaction API shows the refund state of each collection:
+
+- [List transactions](/api-reference/transaction/list) returns `refund_status` on every item.
+- [Get transaction](/api-reference/transaction/get) returns `refund_status` and a nested `refund` object.
+
+The nested `refund` object needs a credential that can read refunds. An OAuth token must carry `refund:read`; a token with only `transaction:read` still sees `refund_status` but not the nested `refund` object.
+
+## Related pages
+
+- [Initiate a refund](/api-reference/refund/create) — start a refund.
+- [Get a refund](/api-reference/refund/get) — read a refund status.
+- [Refund webhook](/guides/webhooks/refund) — payload and lifecycle.

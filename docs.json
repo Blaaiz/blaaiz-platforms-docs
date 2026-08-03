@@ -55,6 +55,7 @@
               },
               "guides/customer-data-corrections",
               "guides/collections-overview",
+              "guides/refunding-a-collection",
               "guides/virtual-bank-accounts",
               "guides/interac-auto-deposits",
               "guides/interac-money-requests",
@@ -99,6 +100,7 @@
                   "guides/webhooks/payout/gbp"
                 ]
               },
+              "guides/webhooks/refund",
               {
                 "group": "Signature verification",
                 "pages": [
@@ -205,6 +207,13 @@
                   "/api-reference/collection/get-crypto-networks-openapi.json GET /api/external/collection/crypto/networks"
                 ]
               }
+            ]
+          },
+          {
+            "group": "Refund",
+            "pages": [
+              "/api-reference/refund/create-openapi.json POST /api/external/refund",
+              "/api-reference/refund/get-openapi.json GET /api/external/refund/{id}"
             ]
           },
           {
