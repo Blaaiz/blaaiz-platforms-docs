@@ -6,6 +6,58 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">03/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: refund a collection to source</h3>
+        <p>
+          You can now refund a collection back to its original sender through the
+          API. Blaaiz refunds the full collection amount only.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/refund/create">POST /refund</a> starts a
+            refund. Send the <code>transaction_id</code>, plus an optional{" "}
+            <code>reason</code> and an optional <code>reference</code> as an
+            idempotency key. Reusing the same <code>reference</code> on the same
+            transaction returns the same refund; reusing it on a different
+            transaction returns <code>400</code>.
+          </li>
+          <li>
+            <a href="/api-reference/refund/get">GET /refund/{"{id}"}</a> returns a
+            refund by ID.
+          </li>
+          <li>
+            Refunds apply to successful EUR and GBP ClearJunction collections that
+            you created through the API for one of your business customers. The
+            refund must start within 7 days of the collection, and each
+            collection can be refunded once. See{" "}
+            <a href="/guides/refunding-a-collection">Refunding a collection</a>.
+          </li>
+          <li>
+            New OAuth scopes <code>refund:create</code> and{" "}
+            <code>refund:read</code>. Both belong to the{" "}
+            <code>collections</code> bundle; <code>refund:read</code> also belongs
+            to the <code>read-only</code> bundle.
+          </li>
+          <li>
+            A <a href="/guides/webhooks/refund">refund webhook</a> is delivered to
+            your <code>collection_url</code> at initiation (<code>type: refund_initiated</code>,{" "}
+            <code>status: processing</code>) and again at the final stage
+            (<code>type: refund</code>, <code>status: successful</code> or{" "}
+            <code>failed</code>). A declined refund returns a <code>failed</code>{" "}
+            webhook; Blaaiz handles the funds and you do not need to retry.
+          </li>
+          <li>
+            The transaction responses now include <code>refund_status</code>.{" "}
+            <a href="/api-reference/transaction/get">GET /transaction/{"{id}"}</a>{" "}
+            also returns a nested <code>refund</code> object when the credential
+            can read refunds (a legacy API key, or an OAuth token with{" "}
+            <code>refund:read</code>).
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">24/07/2026</div>
       <div className="changelog-card">
         <h3>New: expired collection webhook</h3>
