@@ -1,0 +1,221 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Verify GBP Payee",
+        "version": "1.0.0",
+        "description": "Confirmation-of-Payee check for a GBP bank account"
+    },
+    "tags": [
+        {
+            "name": "Bank"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "bank:read": "Read bank and bank account data."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "PayeeVerificationRequest": {
+                "type": "object",
+                "description": "This endpoint runs a UK Confirmation-of-Payee (CoP) check on a GBP bank account. You send the sort code, the account number, and the name that you expect for the account. Blaaiz returns a match or no-match result. It does not return the real account holder name. \n Use this endpoint to confirm payee details before you send a GBP payout. \n **Example Use Cases:** \n - Confirm that a payee name matches the account before a GBP transfer. \n - Detect a close name match and show the suggested name to the user. \n - Reduce misdirected payments and payment fraud.",
+                "properties": {
+                    "sort_code": {
+                        "type": "string",
+                        "maxLength": 20,
+                        "description": "UK sort code of the account to check"
+                    },
+                    "account_number": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "UK account number to check"
+                    },
+                    "account_name": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "Name that you expect for the account"
+                    }
+                },
+                "required": [
+                    "sort_code",
+                    "account_number",
+                    "account_name"
+                ]
+            },
+            "PayeeVerificationResponse": {
+                "type": "object",
+                "properties": {
+                    "matched": {
+                        "type": "boolean",
+                        "description": "True if the account name is a full match. False for a close match or a no-match."
+                    },
+                    "match_confidence_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "MBAM",
+                            "ANNM",
+                            "BANM",
+                            "PANM",
+                            null
+                        ],
+                        "description": "Close-match confidence code. Blaaiz returns a code only for a close match. It returns null for a full match and for a hard no-match. `PANM` means a close name match on an account that is registered to an individual, not a company."
+                    },
+                    "suggested_account_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Suggested account name for a close match. Blaaiz returns null for a full match and for a hard no-match."
+                    }
+                },
+                "required": [
+                    "matched",
+                    "match_confidence_code",
+                    "suggested_account_name"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/bank/payee-verification": {
+            "post": {
+                "summary": "Verify GBP payee",
+                "description": "Run a Confirmation-of-Payee check on a GBP account. Blaaiz returns a match or no-match result and never returns the real account name. Required scope: `bank:read`.",
+                "tags": [
+                    "Bank"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "bank:read"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PayeeVerificationRequest"
+                            },
+                            "example": {
+                                "sort_code": "20-00-00",
+                                "account_number": "12345678",
+                                "account_name": "Jane Doe"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verification completed. The status code is 200 for a full match, a close match, and a hard no-match.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PayeeVerificationResponse"
+                                },
+                                "examples": {
+                                    "fullMatch": {
+                                        "summary": "Full match",
+                                        "value": {
+                                            "matched": true,
+                                            "match_confidence_code": null,
+                                            "suggested_account_name": null
+                                        }
+                                    },
+                                    "closeMatch": {
+                                        "summary": "Close match",
+                                        "value": {
+                                            "matched": false,
+                                            "match_confidence_code": "MBAM",
+                                            "suggested_account_name": "Jane M Doe"
+                                        }
+                                    },
+                                    "noMatch": {
+                                        "summary": "Hard no-match",
+                                        "value": {
+                                            "matched": false,
+                                            "match_confidence_code": null,
+                                            "suggested_account_name": null
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The provider rejected the account and sort code combination as invalid. This is different from a no-match result.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid account details. Please check the account number and sort code and try again."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request payload failed validation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The sort code field is required."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
