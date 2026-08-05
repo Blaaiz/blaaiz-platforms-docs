@@ -6,6 +6,40 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">05/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: verify GBP and EUR payee details</h3>
+        <p>
+          You can now verify a payee's account details before you send a GBP or
+          EUR payout. Both endpoints need the <code>bank:read</code> scope.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/bank/payee-verification">POST /bank/payee-verification</a>{" "}
+            runs a UK Confirmation-of-Payee check on a GBP account. Send the{" "}
+            <code>sort_code</code>, <code>account_number</code>, and the{" "}
+            <code>account_name</code> that you expect. The response returns{" "}
+            <code>matched</code>, <code>match_confidence_code</code>, and{" "}
+            <code>suggested_account_name</code>. It never returns the real
+            account name.
+          </li>
+          <li>
+            <a href="/api-reference/bank/iban-verification">POST /bank/iban-verification</a>{" "}
+            checks if a EUR <code>iban</code> is reachable on SEPA and SEPA
+            Instant. The response returns <code>sepa_reachable</code> and{" "}
+            <code>sepa_inst_reachable</code>. This is a reachability check, not a
+            name-match check.
+          </li>
+          <li>
+            A full match, a close match, and a hard no-match all return{" "}
+            <code>200</code>. For GBP, an account and sort code that the provider
+            rejects as invalid returns <code>400</code>. An invalid request
+            payload returns <code>422</code>.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">03/08/2026</div>
       <div className="changelog-card">
         <h3>New: refund a collection to source</h3>
