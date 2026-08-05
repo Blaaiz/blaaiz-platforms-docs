@@ -159,7 +159,9 @@
             "group": "Bank",
             "pages": [
               "/api-reference/bank/list-openapi.json GET /api/external/bank",
-              "/api-reference/bank/account-lookup-openapi.json POST /api/external/bank/account-lookup"
+              "/api-reference/bank/account-lookup-openapi.json POST /api/external/bank/account-lookup",
+              "/api-reference/bank/payee-verification-openapi.json POST /api/external/bank/payee-verification",
+              "/api-reference/bank/iban-verification-openapi.json POST /api/external/bank/iban-verification"
             ]
           },
           {
