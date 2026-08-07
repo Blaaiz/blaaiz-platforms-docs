@@ -7,6 +7,10 @@ description: Common parameters used across Blaaiz API endpoints
 
 While interacting with our API, you may encounter specific parameters in the request body for various endpoints. Below are key parameters and their possible values.
 
+<Warning>
+**Fiat-to-crypto payouts are discontinued.** Do not use `method: "crypto"` with the Payout API. Crypto collections remain available for eligible, crypto-enabled businesses, and we are building a dedicated, full-featured Crypto module for future crypto functionality. More soon.
+</Warning>
+
 ### Method
 
 The `method` parameter appears in the **Payout API** when initiating a payout. It represents the channel through which the money will be sent.
