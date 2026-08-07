@@ -473,7 +473,7 @@
         "/api/external/payout": {
             "post": {
                 "summary": "Create a payout",
-                "description": "This endpoint is used to initiate a payout from a business wallet to a recipient using the specified payout method. \n \n We advise to call the `fees breakdown` endpoint to get up-to-date fees before proceeding with transaction. \n \n For payouts in all currencies, we deliver a webhook when the payment is completed. However, for some currencies (i.e., CAD), we deliver a webhook when the payment is initiated, and also when it is completed. Required scope: `payout:create`.",
+                "description": "> **Fiat-to-crypto payouts are discontinued.** Do not use `method: \"crypto\"` with this endpoint. Crypto collections remain available for eligible, crypto-enabled businesses, and we are building a dedicated, full-featured Crypto module for future crypto functionality. More soon.\n\nThis endpoint is used to initiate a payout from a business wallet to a recipient using the specified payout method. \n \n We advise to call the `fees breakdown` endpoint to get up-to-date fees before proceeding with transaction. \n \n For payouts in all currencies, we deliver a webhook when the payment is completed. However, for some currencies (i.e., CAD), we deliver a webhook when the payment is initiated, and also when it is completed. Required scope: `payout:create`.",
                 "tags": [
                     "Payout"
                 ],
