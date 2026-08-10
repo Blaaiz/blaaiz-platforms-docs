@@ -6,6 +6,28 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">10/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: add a note to an Interac money request</h3>
+        <p>
+          You can now set a custom note when you initiate an Interac money
+          request. Blaaiz shows this note as the description on the request that
+          the payer approves.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/collection/initiate-interac">POST /collection/interac-money-request</a>{" "}
+            now accepts an optional <code>note</code>. The note is limited to 50
+            characters. URLs and code-like content are not allowed.
+          </li>
+          <li>
+            When you omit the <code>note</code>, Blaaiz uses the standard CAD
+            funding description as before.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">05/08/2026</div>
       <div className="changelog-card">
         <h3>New: verify GBP and EUR payee details</h3>
