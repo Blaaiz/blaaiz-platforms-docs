@@ -61,6 +61,11 @@
                         "minimum": 1,
                         "maximum": 120,
                         "description": "Optional. Hours until the money request expires if the payer doesn't approve it. Defaults to 48; capped at 120."
+                    },
+                    "note": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "description": "Optional note shown as the description on the Interac money request. Defaults to a standard Blaaiz CAD funding description when omitted. Limited to 50 characters. URLs and code-like content are not allowed."
                     }
                 },
                 "required": [
@@ -157,6 +162,14 @@
                                         "email": "payer@example.com",
                                         "customer_name": "Jane Payer",
                                         "customer_id": "a1b2c3d4-0000-0000-0000-000000000000"
+                                    }
+                                },
+                                "with_note": {
+                                    "summary": "Set a custom note on the money request",
+                                    "value": {
+                                        "amount": 100,
+                                        "email": "payer@example.com",
+                                        "note": "Invoice 4821 - March retainer"
                                     }
                                 }
                             }
