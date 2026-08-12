@@ -1,0 +1,19 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Blaaiz Platform API - Get Webhook Log", "version": "1.0.0", "description": "Get one webhook delivery log and its delivery history."},
+  "tags": [{"name": "Webhook"}],
+  "servers": [{"url": "https://api-prod.blaaiz.com"}, {"url": "https://api-dev.blaaiz.com"}],
+  "components": {"securitySchemes": {"oauth2ClientCredentials": {"type": "oauth2", "flows": {"clientCredentials": {"tokenUrl": "/oauth/token", "scopes": {"webhook:read": "Read webhook configuration and logs."}}}}}},
+  "paths": {
+    "/api/external/webhook-logs/{id}": {
+      "get": {
+        "summary": "Get a webhook log",
+        "description": "Get one webhook delivery log. The response includes the related crypto transaction when the log is for a crypto payout. Required scope: `webhook:read`.",
+        "tags": ["Webhook"],
+        "security": [{"oauth2ClientCredentials": ["webhook:read"]}],
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string"}, "description": "The webhook log ID."}],
+        "responses": {"200": {"description": "Webhook log retrieved successfully.", "content": {"application/json": {"example": {"message": "Webhook log retrieved successfully", "data": {"id": "log-id", "business_transaction_id": null, "business_crypto_wallet_transaction_id": "crypto-transaction-id", "type": "crypto.payout.failed", "webhook_url": "https://example.com/webhooks/payout", "payload": {"event": "crypto.payout.failed", "transaction_id": "crypto-transaction-id", "transaction_status": "FAILED"}, "response": {"status": 500}, "status": "FAILED", "business_crypto_wallet_transaction": {"id": "crypto-transaction-id", "reference": "CRYPTO-REF", "status": "FAILED", "currency": "USDC", "network": "ETHEREUM_MAINNET", "transaction_hash": null}, "webhook_log_histories": [{"id": "history-id", "metadata": {"attempt": 1}, "headers": {"x-blaaiz-signature": "signature"}}]}}}}}, "404": {"description": "The webhook log does not belong to your business or does not exist."}}
+      }
+    }
+  }
+}
