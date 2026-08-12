@@ -6,6 +6,52 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">12/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: Crypto API for business wallets</h3>
+        <p>
+          You can now manage business crypto wallets through API Services.
+          You can create crypto wallets and get their addresses and transactions.
+          You can swap wallet balances and send on-chain crypto payouts.
+        </p>
+        <ul>
+          <li>
+            The new <a href="/guides/crypto-api">Crypto API guide</a> shows the
+            supported wallet, asset, transaction, swap, and payout endpoints.
+          </li>
+          <li>
+            New OAuth scopes control access to crypto assets, wallets,
+            transactions, swaps, and payouts. The <code>crypto</code> bundle
+            includes all Crypto API scopes.
+          </li>
+          <li>
+            Crypto swaps and crypto payouts need an <code>Idempotency-Key</code>.
+            A repeated request with the same key and data returns the first
+            result.
+          </li>
+          <li>
+            Send each swap or payout amount as a decimal string with no more
+            than 18 decimal places. Swap amount fields also return as decimal
+            strings.
+          </li>
+          <li>
+            Crypto payouts send <code>crypto.payout.processing</code>,
+            <code>crypto.payout.successful</code>, and
+            <code>crypto.payout.failed</code> to your <code>payout_url</code>.
+            The failed event identifies a final failed payout.
+          </li>
+          <li>
+            Use the webhook log endpoints to inspect deliveries. You can replay
+            an eligible failed crypto payout webhook by its log ID.
+          </li>
+          <li>
+            The Payout API no longer supports crypto payouts.
+            Use a Crypto API swap before you create an on-chain crypto payout.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">10/08/2026</div>
       <div className="changelog-card">
         <h3>New: add a note to an Interac money request</h3>
@@ -769,7 +815,12 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
         </p>
         <p>Other updates:</p>
         <Warning>
-          **Fiat-to-crypto payouts are discontinued.** The Crypto payout example below is retained as part of this historical release note only. The Payout API no longer sends fiat balances to crypto wallets. Crypto collections remain available for eligible, crypto-enabled businesses, and we are building a dedicated, full-featured Crypto module for future crypto functionality. More soon.
+          **The Payout API no longer supports crypto payouts.**
+          The Crypto payout example below is part of this historical release
+          note only. Use the <a href="/guides/crypto-api">Crypto API</a> to
+          swap a business wallet balance and send an on-chain crypto payout.
+          Crypto collections remain available for eligible, crypto-enabled
+          businesses.
         </Warning>
         <ul>
           <li>
