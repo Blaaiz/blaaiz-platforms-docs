@@ -1,0 +1,24 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Blaaiz Platform API - List Crypto Assets", "version": "1.0.0", "description": "Get the active crypto assets and their active networks."},
+  "tags": [{"name": "Crypto"}],
+  "servers": [{"url": "https://api-prod.blaaiz.com"}, {"url": "https://api-dev.blaaiz.com"}],
+  "components": {
+    "securitySchemes": {"oauth2ClientCredentials": {"type": "oauth2", "flows": {"clientCredentials": {"tokenUrl": "/oauth/token", "scopes": {"crypto-asset:read": "Read active crypto assets and networks."}}}}},
+    "schemas": {
+      "CryptoNetwork": {"type": "object", "required": ["network", "decimals"], "properties": {"network": {"type": "string", "enum": ["BITCOIN_MAINNET", "ETHEREUM_MAINNET", "MATIC_MAINNET", "BSC_MAINNET", "TRON_MAINNET"]}, "decimals": {"type": "integer"}, "contract_address": {"type": ["string", "null"]}}},
+      "CryptoAsset": {"type": "object", "required": ["id", "symbol", "name", "decimals", "networks"], "properties": {"id": {"type": "integer"}, "symbol": {"type": "string"}, "name": {"type": "string"}, "decimals": {"type": "integer"}, "networks": {"type": "array", "items": {"$ref": "#/components/schemas/CryptoNetwork"}}}}
+    }
+  },
+  "paths": {
+    "/api/external/crypto/assets": {
+      "get": {
+        "summary": "List crypto assets",
+        "description": "Get active crypto assets and active networks. Required scope: `crypto-asset:read`.",
+        "tags": ["Crypto"],
+        "security": [{"oauth2ClientCredentials": ["crypto-asset:read"]}],
+        "responses": {"200": {"description": "Crypto assets retrieved successfully.", "content": {"application/json": {"schema": {"type": "object", "properties": {"message": {"type": "string"}, "data": {"type": "array", "items": {"$ref": "#/components/schemas/CryptoAsset"}}}}, "example": {"message": "Crypto assets retrieved successfully.", "data": [{"id": 1, "symbol": "USDC", "name": "USD Coin", "decimals": 6, "networks": [{"network": "ETHEREUM_MAINNET", "decimals": 6, "contract_address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"}]}]}}}}, "403": {"description": "Crypto access is not available for the business."}}
+      }
+    }
+  }
+}

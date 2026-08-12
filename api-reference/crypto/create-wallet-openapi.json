@@ -1,0 +1,32 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Blaaiz Platform API - Create Crypto Wallet", "version": "1.0.0", "description": "Create a crypto wallet for your business."},
+  "tags": [{"name": "Crypto"}],
+  "servers": [{"url": "https://api-prod.blaaiz.com"}, {"url": "https://api-dev.blaaiz.com"}],
+  "components": {
+    "securitySchemes": {"oauth2ClientCredentials": {"type": "oauth2", "flows": {"clientCredentials": {"tokenUrl": "/oauth/token", "scopes": {"crypto-wallet:create": "Create crypto wallets."}}}}},
+    "schemas": {
+      "CreateCryptoWalletRequest": {
+        "type": "object",
+        "description": "Send exactly one asset selector.",
+        "properties": {"crypto_currency_id": {"type": "integer", "description": "The crypto asset ID."}, "crypto_currency_symbol": {"type": "string", "description": "The crypto asset symbol."}},
+        "oneOf": [{"required": ["crypto_currency_id"]}, {"required": ["crypto_currency_symbol"]}]
+      }
+    }
+  },
+  "paths": {
+    "/api/external/crypto/wallets": {
+      "post": {
+        "summary": "Create a crypto wallet",
+        "description": "Create a crypto wallet for your business. Your business must have approved KYB. Required scope: `crypto-wallet:create`.",
+        "tags": ["Crypto"],
+        "security": [{"oauth2ClientCredentials": ["crypto-wallet:create"]}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateCryptoWalletRequest"}, "example": {"crypto_currency_symbol": "USDC"}}}},
+        "responses": {
+          "201": {"description": "Crypto wallet created successfully.", "content": {"application/json": {"example": {"message": "Crypto wallet created successfully.", "data": {"id": "wallet-id", "asset": {"id": 1, "symbol": "USDC", "name": "USD Coin", "decimals": 6}, "balance": "0.000000", "is_active": true, "created_at": "2026-08-12T20:00:00.000000Z", "updated_at": "2026-08-12T20:00:00.000000Z"}}}}}},
+          "400": {"description": "KYB is not approved or the wallet already exists."},
+          "422": {"description": "Both asset selectors were sent or neither asset selector was sent."}
+        }
+      }
+    }
+  }
