@@ -4,7 +4,7 @@ description: Step-by-step guide to creating your first payout
 ---
 
 <Warning>
-**Fiat-to-crypto payouts are discontinued.** The Payout API no longer sends fiat balances to crypto wallets. Crypto collections remain available for eligible, crypto-enabled businesses, and we are building a dedicated, full-featured Crypto module for future crypto functionality. More soon.
+**The Payout API no longer supports crypto payouts.** Use the [Crypto API](/guides/crypto-api) for wallet swaps and on-chain crypto payouts. Crypto collections remain available for eligible, crypto-enabled businesses.
 </Warning>
 
 ## Payout process
@@ -192,7 +192,7 @@ Before initiating a payout, ensure the following prerequisites are in place for 
 
     **Payout method must be valid for the currency**
 
-    Each currency supports specific payout methods (e.g. `bank_transfer`, `interac`, `crypto`, `ach`, `wire`). If you use a method that is not available for the destination currency, the request will be rejected.
+    Each currency supports specific fiat payout methods, such as `bank_transfer`, `interac`, `ach`, and `wire`. The API rejects unsupported methods.
 
     **Business must not be under Enhanced Due Diligence**
 

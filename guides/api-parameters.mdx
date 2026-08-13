@@ -8,7 +8,7 @@ description: Common parameters used across Blaaiz API endpoints
 While interacting with our API, you may encounter specific parameters in the request body for various endpoints. Below are key parameters and their possible values.
 
 <Warning>
-**Fiat-to-crypto payouts are discontinued.** Do not use `method: "crypto"` with the Payout API. Crypto collections remain available for eligible, crypto-enabled businesses, and we are building a dedicated, full-featured Crypto module for future crypto functionality. More soon.
+**Do not use `method: "crypto"` with the Payout API.** Use the [Crypto API](/guides/crypto-api) for wallet swaps and on-chain crypto payouts. Crypto collections remain available for eligible, crypto-enabled businesses.
 </Warning>
 
 ### Method
@@ -19,9 +19,7 @@ The `method` parameter appears in the **Payout API** when initiating a payout. I
 - `interac` – Sends the payout using Interac (available for CAD transactions).
 - `ach` - Sends the payout using ACH (available for USD transactions).
 - `wire` - Sends the payout using Wire (available for USD transactions).
-- `crypto` - Sends the payout using Crypto (available for USD transactions).
-
-Use either of these values depending on which provider you want to use for the payout process.
+Use the value that matches the payout method and the payout currency.
 
 For the **Collection API**, the currently documented value is:
 

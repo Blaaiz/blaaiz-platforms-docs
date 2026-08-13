@@ -1,0 +1,24 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Blaaiz Platform API - List Crypto Wallets", "version": "1.0.0", "description": "Get the crypto wallets for your business."},
+  "tags": [{"name": "Crypto"}],
+  "servers": [{"url": "https://api-prod.blaaiz.com"}, {"url": "https://api-dev.blaaiz.com"}],
+  "components": {
+    "securitySchemes": {"oauth2ClientCredentials": {"type": "oauth2", "flows": {"clientCredentials": {"tokenUrl": "/oauth/token", "scopes": {"crypto-wallet:read": "Read crypto wallets and deposit addresses."}}}}},
+    "schemas": {
+      "CryptoWalletAsset": {"type": "object", "required": ["id", "symbol", "name", "decimals"], "properties": {"id": {"type": "integer"}, "symbol": {"type": "string"}, "name": {"type": "string"}, "decimals": {"type": "integer"}}},
+      "CryptoWallet": {"type": "object", "required": ["id", "asset", "balance", "is_active", "created_at", "updated_at"], "properties": {"id": {"type": "string"}, "asset": {"$ref": "#/components/schemas/CryptoWalletAsset"}, "balance": {"type": "string", "description": "The available balance as a decimal string."}, "is_active": {"type": "boolean"}, "created_at": {"type": "string", "format": "date-time"}, "updated_at": {"type": "string", "format": "date-time"}}}
+    }
+  },
+  "paths": {
+    "/api/external/crypto/wallets": {
+      "get": {
+        "summary": "List crypto wallets",
+        "description": "Get crypto wallets that belong to your business. Required scope: `crypto-wallet:read`.",
+        "tags": ["Crypto"],
+        "security": [{"oauth2ClientCredentials": ["crypto-wallet:read"]}],
+        "responses": {"200": {"description": "Crypto wallets retrieved successfully.", "content": {"application/json": {"schema": {"type": "object", "properties": {"message": {"type": "string"}, "data": {"type": "array", "items": {"$ref": "#/components/schemas/CryptoWallet"}}}}, "example": {"message": "Crypto wallets retrieved successfully.", "data": [{"id": "wallet-id", "asset": {"id": 1, "symbol": "USDC", "name": "USD Coin", "decimals": 6}, "balance": "250.000000", "is_active": true, "created_at": "2026-08-12T20:00:00.000000Z", "updated_at": "2026-08-12T20:00:00.000000Z"}]}}}}}
+      }
+    }
+  }
+}

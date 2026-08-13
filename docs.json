@@ -45,6 +45,7 @@
             "group": "Guides",
             "pages": [
               "guides/creating-first-payout",
+              "guides/crypto-api",
               {
                 "group": "Business customer KYB",
                 "pages": [
@@ -225,6 +226,21 @@
             ]
           },
           {
+            "group": "Crypto",
+            "pages": [
+              "/api-reference/crypto/list-assets-openapi.json GET /api/external/crypto/assets",
+              "/api-reference/crypto/list-wallets-openapi.json GET /api/external/crypto/wallets",
+              "/api-reference/crypto/create-wallet-openapi.json POST /api/external/crypto/wallets",
+              "/api-reference/crypto/get-wallet-openapi.json GET /api/external/crypto/wallets/{walletId}",
+              "/api-reference/crypto/list-wallet-addresses-openapi.json GET /api/external/crypto/wallets/{walletId}/addresses",
+              "/api-reference/crypto/list-wallet-transactions-openapi.json GET /api/external/crypto/wallets/{walletId}/transactions",
+              "/api-reference/crypto/list-transactions-openapi.json GET /api/external/crypto/transactions",
+              "/api-reference/crypto/get-transaction-openapi.json GET /api/external/crypto/transactions/{transactionId}",
+              "/api-reference/crypto/create-payout-openapi.json POST /api/external/crypto/payouts",
+              "/api-reference/crypto/create-swap-openapi.json POST /api/external/crypto/swaps"
+            ]
+          },
+          {
             "group": "File",
             "pages": [
               "/api-reference/file/create-openapi.json POST /api/external/file/get-presigned-url"
@@ -277,6 +293,8 @@
               "/api-reference/webhook/register-openapi.json POST /api/external/webhook",
               "/api-reference/webhook/get-openapi.json GET /api/external/webhook",
               "/api-reference/webhook/update-openapi.json PUT /api/external/webhook/{businessWebhook}",
+              "/api-reference/webhook/list-logs-openapi.json GET /api/external/webhook-logs",
+              "/api-reference/webhook/get-log-openapi.json GET /api/external/webhook-logs/{id}",
               "/api-reference/webhook/replay-openapi.json POST /api/external/webhook-replay",
               "/api-reference/mock/simulate-webhook-interac-openapi.json POST /api/external/mock/simulate-webhook/interac"
             ]
