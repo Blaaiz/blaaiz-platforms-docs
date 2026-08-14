@@ -25,6 +25,7 @@ Your business has two webhook URLs: `collection_url` and `payout_url`. The table
 | `crypto.payout.processing` | Crypto payout accepted for processing | `payout_url` | [Crypto API](/guides/crypto-api) |
 | `crypto.payout.successful` | Crypto payout completed successfully | `payout_url` | [Crypto API](/guides/crypto-api) |
 | `crypto.payout.failed` | Crypto payout reached a final failed state | `payout_url` | [Crypto API](/guides/crypto-api) |
+| `crypto.deposit.successful` | Crypto deposit credited to a business crypto wallet | `collection_url` | [Crypto API](/guides/crypto-api) |
 | `customer.status_changed` | Customer's `verification_status` transitioned. The single event covers all customer-level transitions for both KYC (individual) and KYB (business): inspect `old_status` and `new_status` on the payload to know which way it moved. The legacy event labels `customer.verified` and `customer.rejected` are still mentioned in this guide for clarity, but the wire `event_type` value is always `customer.status_changed`. | `collection_url` | [Customer](/guides/webhooks/customer) |
 | `virtual_account.created` | Virtual account created | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 | `virtual_account.ready` | Virtual account ready to receive funds | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
@@ -33,7 +34,7 @@ Your business has two webhook URLs: `collection_url` and `payout_url`. The table
 | `virtual_account.credited` | Funds received in virtual account | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 
 <Note>
-All events except payout and crypto payout events are delivered to your `collection_url`. Register both URLs through the [Webhook API](/api-reference/webhook/register).
+Payout and crypto payout events use your `payout_url`. Crypto deposit events and all other events use your `collection_url`.
 </Note>
 
 ## Payload structure
@@ -70,6 +71,30 @@ Crypto payout webhooks use a flat JSON object. They do not use the `data` wrappe
 ```
 
 The `crypto.payout.failed` event includes `failure_reason`. Blaaiz sends this event only for a final failed state.
+
+## Crypto deposit payload
+
+Crypto deposit webhooks use the same flat JSON structure. Blaaiz sends the event after it credits the business crypto wallet.
+
+```json
+{
+  "event": "crypto.deposit.successful",
+  "transaction_id": "crypto-transaction-id",
+  "transaction_reference": "CRYPTO-REF",
+  "transaction_status": "SUCCESSFUL",
+  "wallet_id": "crypto-wallet-id",
+  "currency": "USDC",
+  "amount": "100.000000",
+  "fee": "1.000000",
+  "net_amount": "99.000000",
+  "network": "ETHEREUM_MAINNET",
+  "token": "USDC",
+  "source_address": "0x742d35Cc6634C0532925a3b844Bc9e7595f6E123",
+  "transaction_hash": "0xabc123",
+  "event_id": "webhook-log-id",
+  "type": "crypto.deposit.successful"
+}
+```
 
 ## Webhook retries
 

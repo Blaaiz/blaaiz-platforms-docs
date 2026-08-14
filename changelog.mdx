@@ -6,6 +6,33 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">13/08/2026</div>
+      <div className="changelog-card">
+        <h3>Crypto API: customer payouts and deposit webhooks</h3>
+        <p>
+          Crypto payouts now identify the business customer that the payout is for.
+          Blaaiz also sends a webhook when it credits a business crypto wallet from an on-chain deposit.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/crypto/create-a-crypto-payout">POST /crypto/payouts</a>{" "}
+            now needs a <code>customer_id</code>. The customer must belong to
+            your business and have a <code>VERIFIED</code> status.
+          </li>
+          <li>
+            Crypto transaction responses now include <code>customer_id</code>.
+            Use the optional <code>customer_id</code> filter to list that
+            customer’s crypto transactions.
+          </li>
+          <li>
+            Blaaiz sends <code>crypto.deposit.successful</code> to your
+            <code>collection_url</code> after it credits a business crypto wallet
+            from an on-chain deposit.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">12/08/2026</div>
       <div className="changelog-card">
         <h3>New: Crypto API for business wallets</h3>

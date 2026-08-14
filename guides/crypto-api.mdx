@@ -92,6 +92,8 @@ A crypto payout sends crypto from a business crypto wallet to an external blockc
 
 The source wallet must be a crypto wallet that belongs to your business. The destination address must not belong to a Blaaiz user or business wallet.
 
+Each crypto payout needs a `customer_id`. The customer must belong to your business and have a `VERIFIED` status.
+
 1. Call [List crypto assets](/api-reference/crypto/list-crypto-assets).
 2. Choose an active token and network.
 3. Check the destination address and network.
@@ -134,6 +136,7 @@ The list endpoint accepts these optional filters:
 | `type` | `payout`, `swap` |
 | `direction` | `in`, `out` for a swap |
 | `wallet_id` | A wallet ID. Use this filter only with the account-wide list endpoint. |
+| `customer_id` | A customer ID. This filter returns transactions for that customer. |
 | `start_date` | A date in `YYYY-MM-DD` format. |
 | `end_date` | A date in `YYYY-MM-DD` format. |
 | `search_term` | A transaction reference or another searchable transaction value. |
@@ -151,13 +154,15 @@ For a fiat-linked swap, use `GET /api/external/transaction/{fiat_transaction_id}
 
 A crypto-to-crypto swap includes `counterparty_transaction_id` and a compact `counterparty_transaction` object. The object contains its ID, wallet ID, type, direction, status, currency, and amount.
 
-## Receive payout webhooks
+## Receive crypto webhooks
 
 Blaaiz sends crypto payout webhooks to your configured `payout_url`.
 
 The event values are `crypto.payout.processing`, `crypto.payout.successful`, and `crypto.payout.failed`.
 
 Blaaiz sends `crypto.payout.failed` only when the payout reaches a final failed state.
+
+Blaaiz sends `crypto.deposit.successful` to your configured `collection_url` after it credits a business crypto wallet from an on-chain deposit.
 
 Use [Webhook events](/guides/webhooks/events) for the payload details.
 
