@@ -53,6 +53,11 @@
                     "to_amount": {
                         "type": "number",
                         "description": "Exact amount the recipient should receive"
+                    },
+                    "customer_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "UUID of the customer for the transaction. If the customer type is individual, the fees that target individual customers apply. If you omit this field, the standard business fees apply. If the customer does not belong to your business, the API returns a 400 error."
                     }
                 },
                 "required": [
@@ -149,7 +154,7 @@
         "/api/external/fees/breakdown": {
             "post": {
                 "summary": "Get fees breakdown",
-                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both). Required scope: `fees:read`.",
+                "description": "Calculate fees for a transaction between two currencies. Provide either from_amount or to_amount (not both). Send customer_id to get the fees that apply to that customer. Required scope: `fees:read`.",
                 "tags": [
                     "Fees"
                 ],
