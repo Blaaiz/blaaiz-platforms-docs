@@ -268,6 +268,11 @@
                         "type": "string",
                         "description": "Transaction reference."
                     },
+                    "merchant_reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The reference that you supplied. It is null if you supplied no reference."
+                    },
                     "currency": {
                         "type": [
                             "string",
@@ -403,7 +408,7 @@
         "/api/external/transaction/{id}": {
             "get": {
                 "summary": "Get transaction",
-                "description": "Retrieve a completed API transaction by its transaction ID or reference. Required scope: `transaction:read`.",
+                "description": "Retrieve a completed API transaction by its transaction ID, its reference, or the merchant_reference that you supplied. Required scope: `transaction:read`.",
                 "tags": [
                     "Transaction"
                 ],
@@ -419,7 +424,7 @@
                         "name": "id",
                         "in": "path",
                         "required": true,
-                        "description": "Unique transaction ID or transaction reference.",
+                        "description": "Transaction ID, transaction reference, or the merchant_reference that you supplied. Blaaiz reads the identifiers in that order.",
                         "schema": {
                             "type": "string"
                         }
