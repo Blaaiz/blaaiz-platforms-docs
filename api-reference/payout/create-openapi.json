@@ -165,6 +165,11 @@
                     "note": {
                         "type": "string",
                         "description": "Narration; defaults to business name if empty"
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "Your own reference for this payout. Blaaiz stores the value and returns it on the transaction endpoints and the webhooks. Each value must be unique for your business. Maximum 255 characters."
                     }
                 },
                 "required": [
@@ -365,6 +370,11 @@
                     },
                     "reference": {
                         "type": "string"
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The reference that you supplied. It is null if you supplied no reference."
                     },
                     "currency": {
                         "type": "string"
