@@ -12,6 +12,7 @@ When your EUR wallet is funded, details about the transaction are sent in a payl
 | `message`                             | A message indicating the status of the transaction.                          |
 | `transaction_id`                      | A unique identifier for the transaction used for tracking and reference.     |
 | `transaction_reference`               | A unique identifier for the transaction used for tracking and reference.     |
+| `merchant_reference`                  | Always `null`. A virtual account deposit has no reference from you.          |
 | `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL, FAILED).                    |
 | `transaction_fee`                     | The fee charged for the transaction.                                         |
 | `transaction_amount_without_fee`      | The amount that was transferred, excluding any fees.                         |
@@ -35,6 +36,7 @@ When your EUR wallet is funded, details about the transaction are sent in a payl
   "message": "Transaction Completed",
   "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
   "transaction_reference": "CA1MR6ahQBCJ",
+  "merchant_reference": null,
   "transaction_status": "SUCCESSFUL",
   "transaction_fee": 0.0,
   "transaction_amount_without_fee": 20.0,
