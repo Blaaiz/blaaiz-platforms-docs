@@ -25,6 +25,21 @@ For the **Collection API**, the currently documented value is:
 
 - `card` - Creates a card collection request for a business wallet.
 
+### Merchant reference
+
+The optional `merchant_reference` parameter appears in the **Payout API** and the **Collection API**. Send your own identifier for the transaction, for example an order ID or an invoice number. You then do not have to keep a map between your identifier and the Blaaiz transaction ID.
+
+- Blaaiz accepts any string up to 255 characters. No format is enforced.
+- Each value must be unique for your business. If an earlier payout or collection already uses the value, the request fails with `422` and this message: `Could not proceed. Kindly check your merchant reference and try again`.
+- Two different businesses can use the same value.
+- Blaaiz returns the value on the transaction endpoints. It also sends the value on the collection, payout and payout-initiated webhooks.
+- [Get transaction](/api-reference/transaction/get-transaction) accepts the value in place of the transaction ID. Blaaiz reads the transaction ID first, then the transaction reference, then your `merchant_reference`.
+- [List transactions](/api-reference/transaction/list-transactions) accepts the value as a filter.
+
+<Warning>
+Blaaiz keeps the reference after it creates the transaction, whatever the final status. If a payout or a collection fails, use a new `merchant_reference` for the retry.
+</Warning>
+
 ### File category
 
 The `file_category` parameter appears in the **File API** when requesting a pre-signed URL for upload. It represents the type of file you want to upload, **for individual customers only**.
