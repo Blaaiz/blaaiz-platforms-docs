@@ -6,6 +6,47 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">27/08/2026</div>
+      <div className="changelog-card">
+        <h3>Send your own reference on payouts and collections</h3>
+        <p>
+          You can now send your own reference on a payout or a collection. Blaaiz
+          stores the value, returns it, and lets you find the transaction by it.
+          You no longer have to keep a map between your order or invoice ID and the
+          Blaaiz transaction ID.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/payout/create-a-payout">POST /payout</a> and{" "}
+            <a href="/api-reference/collection/initiate-a-collection">POST /collection</a>{" "}
+            accept an optional <code>merchant_reference</code>. Any string up to 255
+            characters is valid.
+          </li>
+          <li>
+            Each <code>merchant_reference</code> must be unique for your business. A
+            value that one of your earlier transactions already uses returns{" "}
+            <code>422</code>. Two different businesses can use the same value.
+          </li>
+          <li>
+            Transaction responses now include <code>merchant_reference</code>. Use the
+            new filter on{" "}
+            <a href="/api-reference/transaction/list-transactions">POST /transaction</a>{" "}
+            to list the transaction with that value.
+          </li>
+          <li>
+            <a href="/api-reference/transaction/get-transaction">GET /transaction/{"{id}"}</a>{" "}
+            now accepts your <code>merchant_reference</code> in place of the transaction
+            ID.
+          </li>
+          <li>
+            The collection, payout and payout-initiated webhooks now carry{" "}
+            <code>merchant_reference</code>. The value is <code>null</code> when you
+            supplied no reference.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">13/08/2026</div>
       <div className="changelog-card">
         <h3>Crypto API: customer payouts and deposit webhooks</h3>

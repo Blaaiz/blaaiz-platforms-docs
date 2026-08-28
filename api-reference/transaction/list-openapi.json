@@ -72,6 +72,10 @@
                     "customer_id": {
                         "type": "string",
                         "description": "Filter by business customer ID."
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "description": "Filter by the reference that you supplied on the payout or the collection."
                     }
                 }
             },
@@ -246,6 +250,11 @@
                     "reference": {
                         "type": "string",
                         "description": "Transaction reference."
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The reference that you supplied. It is null if you supplied no reference."
                     },
                     "currency": {
                         "type": [
