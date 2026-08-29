@@ -50,7 +50,7 @@ The `requirements` array says what the session must prove. The order does not ma
 | `DOCUMENTS` | The identity document is genuine. |
 | `SELFIE` | A live person is present at capture time. |
 | `FACE_MATCH` | The face on the selfie and the face on the document are the same person. |
-| `PROOF_OF_ADDRESS` | A recent document confirms where the person lives. |
+| `PROOF_OF_ADDRESS` | A recent utility bill or bank statement confirms where the person lives. |
 
 `FACE_MATCH` is a separate requirement, not a side effect of `SELFIE`. A genuine document and a live person prove nothing on their own until a check confirms that they belong together. Because that check needs both faces, `FACE_MATCH` needs `DOCUMENTS` and `SELFIE` in the same set.
 

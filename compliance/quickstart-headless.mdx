@@ -154,7 +154,7 @@ curl -X POST https://api-prod.blaaiz.com/api/external/compliance/kyc/sessions/9f
 | --- | --- |
 | `filename` | The name Blaaiz stores the document under. |
 | `content_type` | One of `image/jpeg`, `image/png`, `image/webp`, `application/pdf`. |
-| `id_doc_type` | One of `PASSPORT`, `ID_CARD`, `DRIVERS`, `RESIDENCE_PERMIT`, `UTILITY_BILL`, `SELFIE`. `UTILITY_BILL` satisfies the proof-of-address step. Every other type satisfies the documents step. |
+| `id_doc_type` | One of `PASSPORT`, `ID_CARD`, `DRIVERS`, `RESIDENCE_PERMIT`, `UTILITY_BILL`, `BANK_STATEMENT`, `SELFIE`. `UTILITY_BILL` and `BANK_STATEMENT` satisfy the proof-of-address step. Every other type satisfies the documents step. |
 | `country` | The country of the document, as an ISO 3166-1 alpha-3 code. |
 | `file_name` | The `data.file_name` value from step 2. |
 
@@ -187,19 +187,26 @@ To send more than one document, repeat steps 2 to 4 for each file. Give each fil
 
 ### Proof of address
 
-When the requirement set includes `PROOF_OF_ADDRESS`, upload the proof of address the same way. Repeat steps 2 to 4 with `id_doc_type` set to `UTILITY_BILL`. A photo and a PDF are both accepted, so send `image/jpeg`, `image/png`, `image/webp`, or `application/pdf`.
+When the requirement set includes `PROOF_OF_ADDRESS`, upload the proof of address the same way. Repeat steps 2 to 4, and set `id_doc_type` to the type of document you hold.
+
+| `id_doc_type` | The document |
+| --- | --- |
+| `UTILITY_BILL` | A utility bill. |
+| `BANK_STATEMENT` | A bank statement. |
+
+A photo and a PDF are both accepted, so send `image/jpeg`, `image/png`, `image/webp`, or `application/pdf`.
 
 ```json
 {
-  "filename": "utility-bill.pdf",
+  "filename": "bank-statement.pdf",
   "content_type": "application/pdf",
-  "id_doc_type": "UTILITY_BILL",
+  "id_doc_type": "BANK_STATEMENT",
   "country": "NGA",
-  "file_name": "b1e8d3f704_utility bill.pdf"
+  "file_name": "b1e8d3f704_bank statement.pdf"
 }
 ```
 
-On a proof of address, `country` means the country of the address **on the document**. It is not the nationality of the person, and it is not the country of the identity document. A person can hold a passport of one country and a utility bill of another.
+On a proof of address, `country` means the country of the address **on the document**. It is not the nationality of the person, and it is not the country of the identity document. A person can hold a passport of one country and a bank statement of another.
 
 The upload sets `steps.proof_of_address` to `SUBMITTED`:
 

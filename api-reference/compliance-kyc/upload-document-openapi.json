@@ -60,9 +60,10 @@
                             "DRIVERS",
                             "RESIDENCE_PERMIT",
                             "UTILITY_BILL",
+                            "BANK_STATEMENT",
                             "SELFIE"
                         ],
-                        "description": "What the document is. UTILITY_BILL satisfies the proof-of-address step. Every other type except SELFIE satisfies the documents step. Which types a session accepts depends on its requirement set. A session that includes SELFIE rejects a SELFIE upload, because Blaaiz captures the selfie."
+                        "description": "What the document is. UTILITY_BILL and BANK_STATEMENT satisfy the proof-of-address step. Every other type except SELFIE satisfies the documents step. Which types a session accepts depends on its requirement set. A session that includes SELFIE rejects a SELFIE upload, because Blaaiz captures the selfie."
                     },
                     "country": {
                         "type": "string",
@@ -328,6 +329,16 @@
                                         "id_doc_type": "PASSPORT",
                                         "country": "NGA",
                                         "content_base64": "/9j/4AAQSkZJRgABAQAAAQABAAD..."
+                                    }
+                                },
+                                "proof_of_address": {
+                                    "summary": "A bank statement as proof of address",
+                                    "value": {
+                                        "filename": "bank-statement.pdf",
+                                        "content_type": "application/pdf",
+                                        "id_doc_type": "BANK_STATEMENT",
+                                        "country": "NGA",
+                                        "file_name": "b1e8d3f704_bank statement.pdf"
                                     }
                                 }
                             }
