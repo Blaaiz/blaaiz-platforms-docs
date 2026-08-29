@@ -1,0 +1,328 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Submit Verification Session",
+        "version": "1.0.0",
+        "description": "Send a merchant KYC verification session for review. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+    },
+    "tags": [
+        {
+            "name": "Merchant KYC"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Session": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The verification session id."
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Your business id."
+                    },
+                    "customer_reference": {
+                        "type": "string",
+                        "description": "Your own reference for the person being verified."
+                    },
+                    "requirements": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "DOCUMENTS",
+                                "SELFIE",
+                                "FACE_MATCH",
+                                "PROOF_OF_ADDRESS"
+                            ]
+                        },
+                        "description": "What the session must prove, in canonical order."
+                    },
+                    "fulfilment_mode": {
+                        "type": "string",
+                        "enum": [
+                            "SUMSUB_HOSTED",
+                            "BLAAIZ_HOSTED",
+                            "HEADLESS"
+                        ],
+                        "description": "Who collects the input from the person."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "CREATED",
+                            "AWAITING_INPUT",
+                            "IN_REVIEW",
+                            "APPROVED",
+                            "REJECTED",
+                            "EXPIRED",
+                            "CANCELLED"
+                        ],
+                        "description": "The session status."
+                    },
+                    "steps": {
+                        "type": "object",
+                        "properties": {
+                            "documents": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ]
+                            },
+                            "selfie": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no SELFIE."
+                            }
+                        },
+                        "required": [
+                            "documents",
+                            "selfie"
+                        ]
+                    },
+                    "rejection": {
+                        "type": "object",
+                        "nullable": true,
+                        "description": "Set only when status is REJECTED. null for every other status.",
+                        "properties": {
+                            "reason": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Text you can show to the person."
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "FINAL",
+                                    "RETRYABLE"
+                                ],
+                                "nullable": true,
+                                "description": "RETRYABLE means the person can try again in a new session. FINAL means do not retry."
+                            }
+                        },
+                        "required": [
+                            "reason",
+                            "type"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When Blaaiz expires the session if it is still open."
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "description": "When the review completed."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "customer_reference",
+                    "requirements",
+                    "fulfilment_mode",
+                    "status",
+                    "steps",
+                    "rejection",
+                    "expires_at",
+                    "completed_at",
+                    "created_at"
+                ]
+            },
+            "SubmitSessionResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Session"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Field-level validation messages. Present on a 422 caused by request validation.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/submit": {
+            "post": {
+                "summary": "Submit a verification session for review",
+                "description": "Send the session for review. The session moves to IN_REVIEW, stops accepting documents, and no longer expires. The request takes no body. Blaaiz refuses the submit when the documents step is still PENDING, when the session already left AWAITING_INPUT, when a required selfie is missing, and when the session is SUMSUB_HOSTED. A SUMSUB_HOSTED session is submitted by the person on the verification link. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "tags": [
+                    "Merchant KYC"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:create"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification session submitted successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubmitSessionResponse"
+                                },
+                                "example": {
+                                    "message": "Verification session submitted successfully.",
+                                    "data": {
+                                        "id": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33",
+                                        "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                        "customer_reference": "user_10482",
+                                        "requirements": [
+                                            "DOCUMENTS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS",
+                                        "status": "IN_REVIEW",
+                                        "steps": {
+                                            "documents": "SUBMITTED",
+                                            "selfie": null
+                                        },
+                                        "rejection": null,
+                                        "expires_at": "2026-08-30T09:14:22.000Z",
+                                        "completed_at": null,
+                                        "created_at": "2026-08-29T09:14:22.000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "status": 403
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The session cannot be submitted in its current state.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Upload the documents before submitting this session for review."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

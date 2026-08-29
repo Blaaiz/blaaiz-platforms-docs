@@ -1,0 +1,198 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Issue Capture Link",
+        "version": "1.0.0",
+        "description": "Issue the capture link a person opens to finish a Blaaiz-hosted verification session. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+    },
+    "tags": [
+        {
+            "name": "Merchant KYC"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "IssueCaptureLinkResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "capture_url": {
+                                "type": "string",
+                                "description": "The link the person opens. Use it exactly as returned; the host differs between environments."
+                            },
+                            "expires_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "When the link stops working."
+                            }
+                        },
+                        "required": [
+                            "capture_url",
+                            "expires_at"
+                        ]
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Field-level validation messages. Present on a 422 caused by request validation.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/capture-link": {
+            "post": {
+                "summary": "Issue a capture link",
+                "description": "Issue the link the person opens to upload the documents and do the selfie. The link is valid for 30 minutes. Every call issues a new link and the previous link stops working at that moment, so use this endpoint to replace a link that expired or leaked. The link is a live credential for one session: send it over a private channel and keep it out of your logs. The request takes no body. Blaaiz refuses the call when the session is terminal, and when the requirement set has no SELFIE. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "tags": [
+                    "Merchant KYC"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:create"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Capture link issued successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IssueCaptureLinkResponse"
+                                },
+                                "example": {
+                                    "message": "Capture link issued successfully.",
+                                    "data": {
+                                        "capture_url": "https://verify.blaaiz.com/c/8Kq2rV5wZs1tYb7NfPjX0aLmC4hD6gEuR9oT3nQiWxs",
+                                        "expires_at": "2026-08-29T09:44:22.000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "status": 403
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The session is finished, or it has no selfie step.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "This session has no selfie step to capture."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

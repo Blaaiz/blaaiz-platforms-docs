@@ -7,7 +7,7 @@ Use this page to quickly see which events Blaaiz emits and what every webhook pa
 
 ## Event types
 
-Your business has two webhook URLs: `collection_url` and `payout_url`. The table below shows every event and which URL it is delivered to.
+Your business has three webhook URLs: `collection_url`, `payout_url`, and `kyc_url`. The table below shows every event and which URL it is delivered to.
 
 | Event | Description | Delivered to | Guide |
 |-------|-------------|-------------|-------|
@@ -32,9 +32,15 @@ Your business has two webhook URLs: `collection_url` and `payout_url`. The table
 | `virtual_account.rejected` | Virtual account verification rejected | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 | `virtual_account.failed` | Virtual account creation failed | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 | `virtual_account.credited` | Funds received in virtual account | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
+| `merchant.kyc.session.completed` | A Merchant KYC verification session finished review. `data.result` is `APPROVED` or `REJECTED` | `kyc_url` | [Merchant KYC](/compliance/webhooks) |
+| `merchant.kyc.session.expired` | A Merchant KYC verification session passed its deadline before it completed | `kyc_url` | [Merchant KYC](/compliance/webhooks) |
 
 <Note>
-Payout and crypto payout events use your `payout_url`. Crypto deposit events and all other events use your `collection_url`.
+Payout and crypto payout events use your `payout_url`. Merchant KYC events use your `kyc_url`. Crypto deposit events and all other events use your `collection_url`.
+</Note>
+
+<Note>
+Merchant KYC events use their own payload shape and their own retry schedule. See [Merchant KYC webhooks](/compliance/webhooks).
 </Note>
 
 ## Payload structure

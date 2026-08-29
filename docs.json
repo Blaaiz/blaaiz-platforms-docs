@@ -302,6 +302,35 @@
         ]
       },
       {
+        "tab": "Compliance",
+        "icon": "shield-check",
+        "iconType": "duotone",
+        "groups": [
+          {
+            "group": "Merchant KYC",
+            "pages": [
+              "compliance/overview",
+              "compliance/quickstart-hosted",
+              "compliance/quickstart-headless",
+              "compliance/webhooks"
+            ]
+          },
+          {
+            "group": "Verification sessions",
+            "pages": [
+              "/api-reference/compliance-kyc/create-session-openapi.json POST /api/external/compliance/kyc/sessions",
+              "/api-reference/compliance-kyc/list-sessions-openapi.json GET /api/external/compliance/kyc/sessions",
+              "/api-reference/compliance-kyc/get-session-openapi.json GET /api/external/compliance/kyc/sessions/{sessionId}",
+              "/api-reference/compliance-kyc/create-document-upload-url-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/documents/upload-url",
+              "/api-reference/compliance-kyc/upload-document-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/documents",
+              "/api-reference/compliance-kyc/submit-session-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/submit",
+              "/api-reference/compliance-kyc/issue-capture-link-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/capture-link",
+              "/api-reference/compliance-kyc/cancel-session-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/cancel"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Changelog",
         "icon": "clock-rotate-left",
         "iconType": "duotone",

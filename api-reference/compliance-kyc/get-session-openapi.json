@@ -1,0 +1,317 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Verification Session",
+        "version": "1.0.0",
+        "description": "Get one merchant KYC verification session by id. Requires the compliance-kyc:read scope."
+    },
+    "tags": [
+        {
+            "name": "Merchant KYC"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:read": "Read merchant KYC verification sessions."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Session": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The verification session id."
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Your business id."
+                    },
+                    "customer_reference": {
+                        "type": "string",
+                        "description": "Your own reference for the person being verified."
+                    },
+                    "requirements": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "DOCUMENTS",
+                                "SELFIE",
+                                "FACE_MATCH",
+                                "PROOF_OF_ADDRESS"
+                            ]
+                        },
+                        "description": "What the session must prove, in canonical order."
+                    },
+                    "fulfilment_mode": {
+                        "type": "string",
+                        "enum": [
+                            "SUMSUB_HOSTED",
+                            "BLAAIZ_HOSTED",
+                            "HEADLESS"
+                        ],
+                        "description": "Who collects the input from the person."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "CREATED",
+                            "AWAITING_INPUT",
+                            "IN_REVIEW",
+                            "APPROVED",
+                            "REJECTED",
+                            "EXPIRED",
+                            "CANCELLED"
+                        ],
+                        "description": "The session status."
+                    },
+                    "steps": {
+                        "type": "object",
+                        "properties": {
+                            "documents": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ]
+                            },
+                            "selfie": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no SELFIE."
+                            }
+                        },
+                        "required": [
+                            "documents",
+                            "selfie"
+                        ]
+                    },
+                    "rejection": {
+                        "type": "object",
+                        "nullable": true,
+                        "description": "Set only when status is REJECTED. null for every other status.",
+                        "properties": {
+                            "reason": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Text you can show to the person."
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "FINAL",
+                                    "RETRYABLE"
+                                ],
+                                "nullable": true,
+                                "description": "RETRYABLE means the person can try again in a new session. FINAL means do not retry."
+                            }
+                        },
+                        "required": [
+                            "reason",
+                            "type"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When Blaaiz expires the session if it is still open."
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "description": "When the review completed."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "customer_reference",
+                    "requirements",
+                    "fulfilment_mode",
+                    "status",
+                    "steps",
+                    "rejection",
+                    "expires_at",
+                    "completed_at",
+                    "created_at"
+                ]
+            },
+            "GetSessionResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Session"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Field-level validation messages. Present on a 422 caused by request validation.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}": {
+            "get": {
+                "summary": "Get a verification session",
+                "description": "Get the current state of one verification session. Use it to poll a session, and to recover a result after a webhook delivery fails. A session that belongs to another business answers exactly like a session that does not exist. This endpoint stays available even when Merchant KYC is disabled for your business. Required scope: `compliance-kyc:read`.",
+                "tags": [
+                    "Merchant KYC"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification session retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetSessionResponse"
+                                },
+                                "example": {
+                                    "message": "Verification session retrieved successfully.",
+                                    "data": {
+                                        "id": "3b81f0d5-9c47-42ae-b6e1-7d2a5c9f4801",
+                                        "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                        "customer_reference": "user_10513",
+                                        "requirements": [
+                                            "DOCUMENTS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS",
+                                        "status": "REJECTED",
+                                        "steps": {
+                                            "documents": "SUBMITTED",
+                                            "selfie": null
+                                        },
+                                        "rejection": {
+                                            "reason": "The document image is too blurred to read.",
+                                            "type": "RETRYABLE"
+                                        },
+                                        "expires_at": "2026-08-30T09:14:22.000Z",
+                                        "completed_at": "2026-08-29T11:02:44.000Z",
+                                        "created_at": "2026-08-29T09:14:22.000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid scope(s) provided."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

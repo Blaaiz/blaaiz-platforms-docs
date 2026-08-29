@@ -1,0 +1,414 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Upload Verification Document",
+        "version": "1.0.0",
+        "description": "Add one document to a merchant KYC verification session. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+    },
+    "tags": [
+        {
+            "name": "Merchant KYC"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "UploadDocumentRequest": {
+                "type": "object",
+                "properties": {
+                    "filename": {
+                        "type": "string",
+                        "maxLength": 191,
+                        "description": "The name Blaaiz stores the document under."
+                    },
+                    "content_type": {
+                        "type": "string",
+                        "enum": [
+                            "image/jpeg",
+                            "image/png",
+                            "image/webp",
+                            "application/pdf"
+                        ],
+                        "description": "The media type of the file."
+                    },
+                    "id_doc_type": {
+                        "type": "string",
+                        "enum": [
+                            "PASSPORT",
+                            "ID_CARD",
+                            "DRIVERS",
+                            "RESIDENCE_PERMIT",
+                            "UTILITY_BILL",
+                            "SELFIE"
+                        ],
+                        "description": "What the document is. A session that includes SELFIE rejects a SELFIE upload, because Blaaiz captures the selfie."
+                    },
+                    "country": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3,
+                        "description": "The country of the document, as an ISO 3166-1 alpha-3 code."
+                    },
+                    "file_name": {
+                        "type": "string",
+                        "maxLength": 150,
+                        "pattern": "^[a-zA-Z0-9_ -]+\\.(jpg|jpeg|png|webp|pdf)$",
+                        "description": "The data.file_name value the upload-url endpoint returned. Send this or content_base64, never both."
+                    },
+                    "content_base64": {
+                        "type": "string",
+                        "description": "The file, base64 encoded. The decoded file must be 700 KB or smaller. Send this or file_name, never both."
+                    }
+                },
+                "required": [
+                    "filename",
+                    "content_type",
+                    "id_doc_type",
+                    "country"
+                ]
+            },
+            "Session": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The verification session id."
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Your business id."
+                    },
+                    "customer_reference": {
+                        "type": "string",
+                        "description": "Your own reference for the person being verified."
+                    },
+                    "requirements": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "DOCUMENTS",
+                                "SELFIE",
+                                "FACE_MATCH",
+                                "PROOF_OF_ADDRESS"
+                            ]
+                        },
+                        "description": "What the session must prove, in canonical order."
+                    },
+                    "fulfilment_mode": {
+                        "type": "string",
+                        "enum": [
+                            "SUMSUB_HOSTED",
+                            "BLAAIZ_HOSTED",
+                            "HEADLESS"
+                        ],
+                        "description": "Who collects the input from the person."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "CREATED",
+                            "AWAITING_INPUT",
+                            "IN_REVIEW",
+                            "APPROVED",
+                            "REJECTED",
+                            "EXPIRED",
+                            "CANCELLED"
+                        ],
+                        "description": "The session status."
+                    },
+                    "steps": {
+                        "type": "object",
+                        "properties": {
+                            "documents": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ]
+                            },
+                            "selfie": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no SELFIE."
+                            }
+                        },
+                        "required": [
+                            "documents",
+                            "selfie"
+                        ]
+                    },
+                    "rejection": {
+                        "type": "object",
+                        "nullable": true,
+                        "description": "Set only when status is REJECTED. null for every other status.",
+                        "properties": {
+                            "reason": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Text you can show to the person."
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "FINAL",
+                                    "RETRYABLE"
+                                ],
+                                "nullable": true,
+                                "description": "RETRYABLE means the person can try again in a new session. FINAL means do not retry."
+                            }
+                        },
+                        "required": [
+                            "reason",
+                            "type"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When Blaaiz expires the session if it is still open."
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "description": "When the review completed."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "customer_reference",
+                    "requirements",
+                    "fulfilment_mode",
+                    "status",
+                    "steps",
+                    "rejection",
+                    "expires_at",
+                    "completed_at",
+                    "created_at"
+                ]
+            },
+            "UploadDocumentResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Session"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Field-level validation messages. Present on a 422 caused by request validation.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/documents": {
+            "post": {
+                "summary": "Upload a verification document",
+                "description": "Add one document to a session. Send the bytes one of two ways, never both: file_name names a file you already staged through the upload-url endpoint, and content_base64 carries the bytes inline. Use file_name for every real document, because a request body larger than about 8 KB is rejected at the network edge. An inline document must be 700 KB or smaller after decoding, and a staged file must be 5 MB or smaller. The session must be AWAITING_INPUT. The response is the session, with steps.documents set to SUBMITTED. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "tags": [
+                    "Merchant KYC"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:create"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UploadDocumentRequest"
+                            },
+                            "examples": {
+                                "staged": {
+                                    "summary": "A file staged through the upload-url endpoint",
+                                    "value": {
+                                        "filename": "passport-front.jpg",
+                                        "content_type": "image/jpeg",
+                                        "id_doc_type": "PASSPORT",
+                                        "country": "NGA",
+                                        "file_name": "4a7f1c92e0_passport front.jpg"
+                                    }
+                                },
+                                "inline": {
+                                    "summary": "A small file sent inline",
+                                    "value": {
+                                        "filename": "passport-front.jpg",
+                                        "content_type": "image/jpeg",
+                                        "id_doc_type": "PASSPORT",
+                                        "country": "NGA",
+                                        "content_base64": "/9j/4AAQSkZJRgABAQAAAQABAAD..."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verification session document uploaded successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UploadDocumentResponse"
+                                },
+                                "example": {
+                                    "message": "Verification session document uploaded successfully.",
+                                    "data": {
+                                        "id": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33",
+                                        "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                        "customer_reference": "user_10482",
+                                        "requirements": [
+                                            "DOCUMENTS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS",
+                                        "status": "AWAITING_INPUT",
+                                        "steps": {
+                                            "documents": "SUBMITTED",
+                                            "selfie": null
+                                        },
+                                        "rejection": null,
+                                        "expires_at": "2026-08-30T09:14:22.000Z",
+                                        "completed_at": null,
+                                        "created_at": "2026-08-29T09:14:22.000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "status": 403
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request is invalid, the document is too large, the staged file was not found, or the session no longer accepts documents.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "No uploaded file was found under that name; upload to the presigned URL before confirming."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
