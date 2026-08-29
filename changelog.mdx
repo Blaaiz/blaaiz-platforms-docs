@@ -6,6 +6,32 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">29/08/2026</div>
+      <div className="changelog-card">
+        <h3>Customer crypto wallet addresses</h3>
+        <p>
+          Create static crypto wallet addresses for your business customers through API Services.
+          Blaaiz credits the business wallet when an address receives funds.
+        </p>
+        <ul>
+          <li>
+            Create business crypto wallets in the Blaaiz dashboard. Use{" "}
+            <a href="/api-reference/crypto/create-customer-wallet-addresses">
+              POST /crypto/wallets/{"{walletId}"}/addresses
+            </a>{" "}
+            to create customer wallet addresses.
+          </li>
+          <li>
+            The request needs a <code>customer_id</code>. The customer must belong to your business, have a <code>VERIFIED</code> status, and not be under Enhanced Due Diligence.
+          </li>
+          <li>
+            The <code>crypto.deposit.successful</code> webhook now includes <code>customer_id</code>
+            when it credits a customer wallet address.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">27/08/2026</div>
       <div className="changelog-card">
         <h3>Send your own reference on payouts and collections</h3>
@@ -68,7 +94,8 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
           <li>
             Blaaiz sends <code>crypto.deposit.successful</code> to your
             <code>collection_url</code> after it credits a business crypto wallet
-            from an on-chain deposit.
+            from an on-chain deposit. The payload includes <code>customer_id</code>
+            when the address belongs to a business customer.
           </li>
         </ul>
       </div>
@@ -78,8 +105,8 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
       <div className="changelog-card">
         <h3>New: Crypto API for business wallets</h3>
         <p>
-          You can now manage business crypto wallets through API Services.
-          You can create crypto wallets and get their addresses and transactions.
+          You can manage business crypto wallets through API Services.
+          Create crypto wallets in the Blaaiz dashboard and get their addresses and transactions through API Services.
           You can swap wallet balances and send on-chain crypto payouts.
         </p>
         <ul>
