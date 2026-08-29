@@ -60,7 +60,7 @@
                                 "PROOF_OF_ADDRESS"
                             ]
                         },
-                        "description": "What the session must prove. Order does not matter, and a value may appear once. Supported sets: [DOCUMENTS, SELFIE, FACE_MATCH] and [DOCUMENTS]. FACE_MATCH needs DOCUMENTS and SELFIE in the same set."
+                        "description": "What the session must prove. Order does not matter, and a value may appear once. Supported sets: [DOCUMENTS, SELFIE, FACE_MATCH], [DOCUMENTS], [DOCUMENTS, SELFIE, FACE_MATCH, PROOF_OF_ADDRESS], [DOCUMENTS, PROOF_OF_ADDRESS], and [PROOF_OF_ADDRESS]. FACE_MATCH needs DOCUMENTS and SELFIE in the same set. Any other combination fails with 422, and the message names the supported sets."
                     },
                     "fulfilment_mode": {
                         "type": "string",
@@ -69,7 +69,7 @@
                             "BLAAIZ_HOSTED",
                             "HEADLESS"
                         ],
-                        "description": "Who collects the input. Omit it to take the default for the requirement set: SUMSUB_HOSTED for [DOCUMENTS, SELFIE, FACE_MATCH], HEADLESS for [DOCUMENTS]. BLAAIZ_HOSTED is available for [DOCUMENTS, SELFIE, FACE_MATCH]."
+                        "description": "Who collects the input. Omit it to take the default for the requirement set: SUMSUB_HOSTED for [DOCUMENTS, SELFIE, FACE_MATCH], HEADLESS for [DOCUMENTS], and SUMSUB_HOSTED for every set that includes PROOF_OF_ADDRESS. BLAAIZ_HOSTED is available for [DOCUMENTS, SELFIE, FACE_MATCH] and for every set that includes PROOF_OF_ADDRESS. HEADLESS is available for [DOCUMENTS, PROOF_OF_ADDRESS] and [PROOF_OF_ADDRESS], but never for a set that includes SELFIE."
                     },
                     "applicant": {
                         "type": "object",
@@ -162,7 +162,9 @@
                                 "enum": [
                                     "PENDING",
                                     "SUBMITTED"
-                                ]
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no DOCUMENTS."
                             },
                             "selfie": {
                                 "type": "string",
@@ -172,11 +174,21 @@
                                 ],
                                 "nullable": true,
                                 "description": "null when the requirement set has no SELFIE."
+                            },
+                            "proof_of_address": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no PROOF_OF_ADDRESS."
                             }
                         },
                         "required": [
                             "documents",
-                            "selfie"
+                            "selfie",
+                            "proof_of_address"
                         ]
                     },
                     "rejection": {
@@ -342,6 +354,29 @@
                                         ],
                                         "fulfilment_mode": "HEADLESS"
                                     }
+                                },
+                                "headless_documents_and_proof_of_address": {
+                                    "summary": "Documents and proof of address, uploaded from your server",
+                                    "value": {
+                                        "customer_reference": "user_10574",
+                                        "idempotency_key": "kyc-user_10574-2026-08-29",
+                                        "requirements": [
+                                            "DOCUMENTS",
+                                            "PROOF_OF_ADDRESS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS"
+                                    }
+                                },
+                                "headless_proof_of_address": {
+                                    "summary": "Proof of address only, uploaded from your server",
+                                    "value": {
+                                        "customer_reference": "user_10596",
+                                        "idempotency_key": "kyc-user_10596-2026-08-29",
+                                        "requirements": [
+                                            "PROOF_OF_ADDRESS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS"
+                                    }
                                 }
                             }
                         }
@@ -370,7 +405,8 @@
                                         "status": "AWAITING_INPUT",
                                         "steps": {
                                             "documents": "PENDING",
-                                            "selfie": "PENDING"
+                                            "selfie": "PENDING",
+                                            "proof_of_address": null
                                         },
                                         "rejection": null,
                                         "expires_at": "2026-08-30T09:14:22.000Z",

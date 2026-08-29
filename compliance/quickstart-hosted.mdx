@@ -5,6 +5,8 @@ description: Create a verification session, send a capture link to your customer
 
 This quickstart uses the `BLAAIZ_HOSTED` fulfilment mode. Your customer opens a Blaaiz page, uploads the identity document, and does the selfie there. You write no capture code.
 
+The capture page also collects the proof of address when the session asks for it. The page shows one step for each requirement in the set, and nothing more.
+
 Read [Merchant KYC overview](/compliance/overview) first for the session model.
 
 ## Before you start
@@ -46,7 +48,7 @@ curl -X POST https://api-prod.blaaiz.com/oauth/token \
 
 ## Step 2: Create the session
 
-Ask for the full set — `DOCUMENTS`, `SELFIE`, and `FACE_MATCH` — and set `fulfilment_mode` to `BLAAIZ_HOSTED`.
+Ask for the full set — `DOCUMENTS`, `SELFIE`, and `FACE_MATCH` — and set `fulfilment_mode` to `BLAAIZ_HOSTED`. To collect the proof of address on the same page, add `PROOF_OF_ADDRESS` to `requirements`.
 
 The `applicant` object is optional. Send the details you already hold so that the person types less on the capture page.
 
@@ -82,7 +84,8 @@ The response returns the session:
     "status": "AWAITING_INPUT",
     "steps": {
       "documents": "PENDING",
-      "selfie": "PENDING"
+      "selfie": "PENDING",
+      "proof_of_address": null
     },
     "rejection": null,
     "expires_at": "2026-08-30T09:14:22.000Z",
@@ -130,11 +133,17 @@ The link is valid for 30 minutes. Use the `capture_url` value exactly as it is r
 
 ## Step 4: Send the link to your customer
 
-Send the `capture_url` to the person by email, SMS, or in your own app. The page asks the person to upload the identity document and to do the selfie.
+Send the `capture_url` to the person by email, SMS, or in your own app. The page asks the person for each step of the set in turn.
+
+| Step | What the page asks for |
+| --- | --- |
+| Documents | A photo of the identity document. |
+| Proof of address | The document type, the country of the address on the document, and a photo or a PDF. |
+| Selfie | A live face capture. |
 
 If the link expires before the person opens it, call the capture-link endpoint again. Blaaiz issues a new link and the old link stops working at that moment. Use the same call when a link leaks.
 
-The capture-link endpoint fails when the session is terminal, and when the requirement set has no `SELFIE`.
+The capture-link endpoint fails when the session is terminal, and when `fulfilment_mode` is not `BLAAIZ_HOSTED`. Every `BLAAIZ_HOSTED` session can take a capture link, including a session with no selfie step.
 
 ## Step 5: Wait for the webhook
 

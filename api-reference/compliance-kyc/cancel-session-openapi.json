@@ -93,7 +93,9 @@
                                 "enum": [
                                     "PENDING",
                                     "SUBMITTED"
-                                ]
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no DOCUMENTS."
                             },
                             "selfie": {
                                 "type": "string",
@@ -103,11 +105,21 @@
                                 ],
                                 "nullable": true,
                                 "description": "null when the requirement set has no SELFIE."
+                            },
+                            "proof_of_address": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no PROOF_OF_ADDRESS."
                             }
                         },
                         "required": [
                             "documents",
-                            "selfie"
+                            "selfie",
+                            "proof_of_address"
                         ]
                     },
                     "rejection": {
@@ -259,7 +271,8 @@
                                         "status": "CANCELLED",
                                         "steps": {
                                             "documents": "PENDING",
-                                            "selfie": "PENDING"
+                                            "selfie": "PENDING",
+                                            "proof_of_address": null
                                         },
                                         "rejection": null,
                                         "expires_at": "2026-08-30T09:14:22.000Z",

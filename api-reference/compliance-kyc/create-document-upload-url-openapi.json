@@ -53,7 +53,7 @@
                             "UTILITY_BILL",
                             "SELFIE"
                         ],
-                        "description": "What the document is. A session that includes SELFIE rejects a SELFIE upload, because Blaaiz captures the selfie."
+                        "description": "What the document is. UTILITY_BILL satisfies the proof-of-address step. Every other type except SELFIE satisfies the documents step. Which types a session accepts depends on its requirement set. A session that includes SELFIE rejects a SELFIE upload, because Blaaiz captures the selfie."
                     }
                 },
                 "required": [

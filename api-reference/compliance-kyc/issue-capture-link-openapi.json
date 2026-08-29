@@ -96,7 +96,7 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/capture-link": {
             "post": {
                 "summary": "Issue a capture link",
-                "description": "Issue the link the person opens to upload the documents and do the selfie. The link is valid for 30 minutes. Every call issues a new link and the previous link stops working at that moment, so use this endpoint to replace a link that expired or leaked. The link is a live credential for one session: send it over a private channel and keep it out of your logs. The request takes no body. Blaaiz refuses the call when the session is terminal, and when the requirement set has no SELFIE. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Issue the link the person opens to complete the steps of the session: the documents, the proof of address, and the selfie. The link is valid for 30 minutes. Every call issues a new link and the previous link stops working at that moment, so use this endpoint to replace a link that expired or leaked. The link is a live credential for one session: send it over a private channel and keep it out of your logs. The request takes no body. Blaaiz refuses the call when the session is terminal, and when fulfilment_mode is not BLAAIZ_HOSTED. Every BLAAIZ_HOSTED session can take a capture link, including a session with no selfie step. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
                     "Merchant KYC"
                 ],
@@ -179,14 +179,14 @@
                         }
                     },
                     "422": {
-                        "description": "The session is finished, or it has no selfie step.",
+                        "description": "The session is finished, or it is not a BLAAIZ_HOSTED session.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "This session has no selfie step to capture."
+                                    "message": "This session is not hosted on the Blaaiz capture page."
                                 }
                             }
                         }

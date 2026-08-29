@@ -35,9 +35,9 @@ Every session has a `fulfilment_mode`. The mode says who collects the input from
 
 | `fulfilment_mode` | Who collects the input | How you start it |
 | --- | --- | --- |
-| `BLAAIZ_HOSTED` | A Blaaiz capture page, at `verify.blaaiz.com` in production. The person uploads the documents and does the selfie there. | Issue a capture link and send it to the person. |
+| `BLAAIZ_HOSTED` | A Blaaiz capture page, at `verify.blaaiz.com` in production. The page shows one step for each requirement in the set: the documents, the proof of address, and the selfie. | Issue a capture link and send it to the person. |
 | `SUMSUB_HOSTED` | A verification page hosted by the Blaaiz verification partner. | Send the person the `verification_link` that the create response returns. |
-| `HEADLESS` | Your own server. You upload the document images through the API. | Upload the documents, then submit the session. |
+| `HEADLESS` | Your own server. You upload the document images and the proof of address through the API. | Upload what the set asks for, then submit the session. |
 
 If you omit `fulfilment_mode` on create, Blaaiz uses the default mode for the requirement set you asked for.
 
@@ -50,6 +50,7 @@ The `requirements` array says what the session must prove. The order does not ma
 | `DOCUMENTS` | The identity document is genuine. |
 | `SELFIE` | A live person is present at capture time. |
 | `FACE_MATCH` | The face on the selfie and the face on the document are the same person. |
+| `PROOF_OF_ADDRESS` | A recent document confirms where the person lives. |
 
 `FACE_MATCH` is a separate requirement, not a side effect of `SELFIE`. A genuine document and a live person prove nothing on their own until a check confirms that they belong together. Because that check needs both faces, `FACE_MATCH` needs `DOCUMENTS` and `SELFIE` in the same set.
 
@@ -62,8 +63,16 @@ Blaaiz supports the combinations in the table below. If you ask for any other co
 | `["DOCUMENTS", "SELFIE", "FACE_MATCH"]` | `SUMSUB_HOSTED` | Yes |
 | `["DOCUMENTS", "SELFIE", "FACE_MATCH"]` | `BLAAIZ_HOSTED` | No |
 | `["DOCUMENTS"]` | `HEADLESS` | Yes |
+| `["DOCUMENTS", "SELFIE", "FACE_MATCH", "PROOF_OF_ADDRESS"]` | `SUMSUB_HOSTED` | Yes |
+| `["DOCUMENTS", "SELFIE", "FACE_MATCH", "PROOF_OF_ADDRESS"]` | `BLAAIZ_HOSTED` | No |
+| `["DOCUMENTS", "PROOF_OF_ADDRESS"]` | `SUMSUB_HOSTED` | Yes |
+| `["DOCUMENTS", "PROOF_OF_ADDRESS"]` | `BLAAIZ_HOSTED` | No |
+| `["DOCUMENTS", "PROOF_OF_ADDRESS"]` | `HEADLESS` | No |
+| `["PROOF_OF_ADDRESS"]` | `SUMSUB_HOSTED` | Yes |
+| `["PROOF_OF_ADDRESS"]` | `BLAAIZ_HOSTED` | No |
+| `["PROOF_OF_ADDRESS"]` | `HEADLESS` | No |
 
-The API reference lists `PROOF_OF_ADDRESS` as a fourth accepted value of `requirements`. No supported combination includes it today, so a session that asks for it fails with `422`.
+Every set that includes `PROOF_OF_ADDRESS` is available in all three modes, except the set that also includes `SELFIE`. That set needs Blaaiz or the verification partner to capture the selfie, so it is never headless.
 
 <Note>
   A documents-only set is never hosted, and a set with `SELFIE` is never
@@ -108,8 +117,19 @@ The `steps` object shows what is still outstanding while the session is `AWAITIN
 
 | Field | Values | Notes |
 | --- | --- | --- |
-| `steps.documents` | `PENDING`, `SUBMITTED` | Always present. |
+| `steps.documents` | `PENDING`, `SUBMITTED`, `null` | `null` when the requirement set has no `DOCUMENTS`. |
 | `steps.selfie` | `PENDING`, `SUBMITTED`, `null` | `null` when the requirement set has no `SELFIE`. |
+| `steps.proof_of_address` | `PENDING`, `SUBMITTED`, `null` | `null` when the requirement set has no `PROOF_OF_ADDRESS`. |
+
+A `null` step is one the session never asks for. Ignore it.
+
+Blaaiz sends a session for review only when every step that is not `null` is `SUBMITTED`. A submit call that leaves a step at `PENDING` fails with `422`.
+
+<Note>
+  `steps.documents` is `null` on a `["PROOF_OF_ADDRESS"]` session. Every other
+  supported set includes `DOCUMENTS`, so read the field rather than assume a
+  document step exists.
+</Note>
 
 ### Rejections
 
