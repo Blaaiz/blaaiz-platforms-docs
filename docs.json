@@ -230,7 +230,7 @@
             "pages": [
               "/api-reference/crypto/list-assets-openapi.json GET /api/external/crypto/assets",
               "/api-reference/crypto/list-wallets-openapi.json GET /api/external/crypto/wallets",
-              "/api-reference/crypto/create-wallet-openapi.json POST /api/external/crypto/wallets",
+              "/api-reference/crypto/create-wallet-openapi.json POST /api/external/crypto/wallets/{walletId}/addresses",
               "/api-reference/crypto/get-wallet-openapi.json GET /api/external/crypto/wallets/{walletId}",
               "/api-reference/crypto/list-wallet-addresses-openapi.json GET /api/external/crypto/wallets/{walletId}/addresses",
               "/api-reference/crypto/list-wallet-transactions-openapi.json GET /api/external/crypto/wallets/{walletId}/transactions",

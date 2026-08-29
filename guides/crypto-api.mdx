@@ -1,11 +1,11 @@
 ---
 title: Crypto API
-description: Create crypto wallets, swap balances, and send crypto payouts.
+description: Create customer wallet addresses, swap balances, and send crypto payouts.
 ---
 
 The Crypto API lets your business manage crypto balances through API Services.
 
-Use this API to create crypto wallets, get deposit addresses, swap wallet balances, and send crypto to an external address.
+Use this API to create customer wallet addresses, read crypto wallets, swap wallet balances, and send crypto to an external address.
 
 The Crypto API is separate from the Payout API. The Payout API does not accept crypto payout methods.
 
@@ -13,7 +13,7 @@ The Crypto API is separate from the Payout API. The Payout API does not accept c
 
 Blaaiz must enable Crypto API access for your business.
 
-Your business must have an approved KYB status before it creates a crypto wallet, swap, or payout.
+Your business must have approved KYB before it creates customer wallet addresses, swaps, or payouts.
 
 Your business must also be eligible for crypto swaps and payouts.
 
@@ -25,7 +25,7 @@ Request the same individual scopes when you get an access token.
 | --- | --- |
 | `crypto-asset:read` | Read active crypto assets and networks. |
 | `crypto-wallet:read` | Read crypto wallets and deposit addresses. |
-| `crypto-wallet:create` | Create a crypto wallet. |
+| `crypto-wallet:create` | Create customer wallet addresses. |
 | `crypto-transaction:read` | Read crypto wallet transactions. |
 | `crypto-swap:create` | Swap balances between your business wallets. |
 | `crypto-payout:create` | Send an on-chain crypto payout. |
@@ -44,28 +44,30 @@ The amount can have up to 18 decimal places. The smallest accepted amount is `0.
 }
 ```
 
-## Create a crypto wallet
+## Create customer wallet addresses
 
-Create one crypto wallet for each asset that your business needs.
+Create business crypto wallets in the Blaaiz dashboard. A crypto wallet holds your business balance.
 
-1. Call [List crypto assets](/api-reference/crypto/list-crypto-assets).
-2. Choose an active asset and network.
-3. Call [Create a crypto wallet](/api-reference/crypto/create-a-crypto-wallet).
-4. Save the returned wallet ID.
+Use the API to create static deposit addresses for your business customers. A customer wallet address belongs to your business wallet. It does not create a customer balance.
 
-You can send either `crypto_currency_id` or `crypto_currency_symbol`. Do not send both values.
+The request needs a `customer_id`. The customer must belong to your business, have a `VERIFIED` status, and not be under Enhanced Due Diligence.
 
-Use [List crypto wallets](/api-reference/crypto/list-crypto-wallets) to get all crypto wallets for your business.
+1. Call [List crypto wallets](/api-reference/crypto/list-crypto-wallets).
+2. Choose the business wallet that should receive the deposit.
+3. Call [Create customer wallet addresses](/api-reference/crypto/create-customer-wallet-addresses).
+4. Save each returned address with its network and customer ID.
 
-Use [Get a crypto wallet](/api-reference/crypto/get-a-crypto-wallet) to get one wallet.
+Blaaiz creates one static address for every active network on the wallet. You can create addresses for many customers on the same business wallet.
 
-## Get a deposit address
+If address creation awaits provider confirmation, the API returns `409`. Do not create a new customer address. Contact Blaaiz support.
+
+## List wallet addresses
+
+Use [List crypto wallet addresses](/api-reference/crypto/list-crypto-wallet-addresses) to get the addresses for a business wallet.
+
+The response includes `customer_id` for a customer wallet address. The value is `null` for a business address.
 
 Use a deposit address only with the network shown in the response.
-
-1. Call [List crypto wallet addresses](/api-reference/crypto/list-crypto-wallet-addresses).
-2. Choose the address that matches the asset and network.
-3. Give the address and network to the sender.
 
 ## Swap wallet balances
 
@@ -163,6 +165,8 @@ The event values are `crypto.payout.processing`, `crypto.payout.successful`, and
 Blaaiz sends `crypto.payout.failed` only when the payout reaches a final failed state.
 
 Blaaiz sends `crypto.deposit.successful` to your configured `collection_url` after it credits a business crypto wallet from an on-chain deposit.
+
+The payload includes `customer_id` at the top level when the funded address belongs to one of your customers. It is not in a source object.
 
 Use [Webhook events](/guides/webhooks/events) for the payload details.
 
