@@ -65,6 +65,8 @@ If address creation awaits provider confirmation, the API returns `409`. Do not 
 
 Use [List crypto wallet addresses](/api-reference/crypto/list-crypto-wallet-addresses) to get the addresses for a business wallet.
 
+To get the addresses for one customer, add the optional `customer_id` query parameter. Without `customer_id`, the response includes every address on the wallet.
+
 The response includes `customer_id` for a customer wallet address. The value is `null` for a business address.
 
 Use a deposit address only with the network shown in the response.

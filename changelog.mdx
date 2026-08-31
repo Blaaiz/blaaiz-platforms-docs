@@ -6,6 +6,28 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">31/08/2026</div>
+      <div className="changelog-card">
+        <h3>Filter crypto wallet addresses by customer</h3>
+        <p>
+          List the crypto deposit addresses for one customer on a business wallet.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/crypto/list-crypto-wallet-addresses">
+              GET /crypto/wallets/{"{walletId}"}/addresses
+            </a>{" "}
+            accepts an optional <code>customer_id</code> query parameter. The response
+            includes only the addresses for that customer.
+          </li>
+          <li>
+            Without <code>customer_id</code>, the response includes every address on the
+            wallet, as before.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">29/08/2026</div>
       <div className="changelog-card">
         <h3>Customer crypto wallet addresses</h3>
