@@ -51,7 +51,6 @@
                         "enum": [
                             "bank_transfer",
                             "interac",
-                            "crypto",
                             "wire",
                             "ach"
                         ]
@@ -175,31 +174,14 @@
                         "type": "string",
                         "description": "Optional country helper"
                     },
-                    "wallet_address": {
-                        "type": "string",
-                        "description": "Required for crypto"
-                    },
-                    "wallet_token": {
-                        "type": "string",
-                        "description": "Required for crypto",
-                        "enum": [
-                            "USDT",
-                            "USDC"
-                        ]
-                    },
-                    "wallet_network": {
-                        "type": "string",
-                        "description": "Required for crypto",
-                        "enum": [
-                            "BSC_MAINNET",
-                            "ETHEREUM_MAINNET",
-                            "TRON_MAINNET",
-                            "MATIC_MAINNET"
-                        ]
-                    },
                     "note": {
                         "type": "string",
                         "description": "Narration; defaults to business name if empty"
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "Your own reference for this payout. Blaaiz stores the value and returns it on the transaction endpoints and the webhooks. Each value must be unique for your business. Maximum 255 characters."
                     }
                 },
                 "required": [
@@ -333,22 +315,6 @@
                         ]
                     },
                     {
-                        "title": "Crypto — USDT on Ethereum",
-                        "examples": [
-                            {
-                                "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
-                                "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
-                                "method": "crypto",
-                                "from_amount": 150,
-                                "from_currency_id": "USD",
-                                "to_currency_id": "USD",
-                                "wallet_address": "0x6b175474e89094c44da98b954eedeac495271d0f",
-                                "wallet_network": "ETHEREUM_MAINNET",
-                                "wallet_token": "USDT"
-                            }
-                        ]
-                    },
-                    {
                         "title": "Specify amount to send (from_amount)",
                         "required": [
                             "from_amount"
@@ -419,6 +385,11 @@
                     "reference": {
                         "type": "string"
                     },
+                    "merchant_reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The reference that you supplied. It is null if you supplied no reference."
+                    },
                     "currency": {
                         "type": "string"
                     },
@@ -487,7 +458,7 @@
         "/api/external/payout": {
             "post": {
                 "summary": "Create a payout",
-                "description": "This endpoint is used to initiate a payout from a business wallet to a recipient using the specified payout method. \n \n We advise to call the `fees breakdown` endpoint to get up-to-date fees before proceeding with transaction. \n \n For payouts in all currencies, we deliver a webhook when the payment is completed. However, for some currencies (i.e., CAD), we deliver a webhook when the payment is initiated, and also when it is completed. Required scope: `payout:create`.",
+                "description": "> **Do not use `method: \"crypto\"` with this endpoint.** Use the Crypto API for wallet swaps and on-chain crypto payouts.\n\nUse this endpoint to start a payout from a business wallet to a recipient with a supported fiat payout method.\n\nCall the `fees breakdown` endpoint to get the current fees before you create a payout.\n\nBlaaiz sends a webhook when the payout completes. For some currencies, such as CAD, Blaaiz also sends a webhook when processing starts. Required scope: `payout:create`.",
                 "tags": [
                     "Payout"
                 ],
@@ -614,20 +585,6 @@
                                         "email": "jane.doe@example.com",
                                         "security_question": "What city was our first meeting in?",
                                         "security_answer": "Toronto2024"
-                                    }
-                                },
-                                "crypto": {
-                                    "summary": "Crypto — USDT on Ethereum",
-                                    "value": {
-                                        "wallet_id": "b18ed308-5ac5-4e9e-bb16-8c03ec2d3c01",
-                                        "customer_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
-                                        "method": "crypto",
-                                        "from_amount": 150,
-                                        "from_currency_id": "USD",
-                                        "to_currency_id": "USD",
-                                        "wallet_address": "0x6b175474e89094c44da98b954eedeac495271d0f",
-                                        "wallet_network": "ETHEREUM_MAINNET",
-                                        "wallet_token": "USDT"
                                     }
                                 }
                             }

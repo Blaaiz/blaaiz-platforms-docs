@@ -1,0 +1,8 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Blaaiz Platform API - Get Crypto Wallet", "version": "1.0.0", "description": "Get one crypto wallet."},
+  "tags": [{"name": "Crypto"}],
+  "servers": [{"url": "https://api-prod.blaaiz.com"}, {"url": "https://api-dev.blaaiz.com"}],
+  "components": {"securitySchemes": {"oauth2ClientCredentials": {"type": "oauth2", "flows": {"clientCredentials": {"tokenUrl": "/oauth/token", "scopes": {"crypto-wallet:read": "Read crypto wallets and deposit addresses."}}}}}},
+  "paths": {"/api/external/crypto/wallets/{walletId}": {"get": {"summary": "Get a crypto wallet", "description": "Get a crypto wallet. Required scope: `crypto-wallet:read`.", "tags": ["Crypto"], "security": [{"oauth2ClientCredentials": ["crypto-wallet:read"]}], "parameters": [{"name": "walletId", "in": "path", "required": true, "schema": {"type": "string"}, "description": "The crypto wallet ID."}], "responses": {"200": {"description": "Crypto wallet retrieved successfully.", "content": {"application/json": {"example": {"message": "Crypto wallet retrieved successfully.", "data": {"id": "wallet-id", "asset": {"id": 1, "symbol": "USDC", "name": "USD Coin", "decimals": 6}, "balance": "250.000000", "is_active": true, "created_at": "2026-08-12T20:00:00.000000Z", "updated_at": "2026-08-12T20:00:00.000000Z"}}}}}, "404": {"description": "The wallet does not belong to your business or does not exist."}}}}}
+}

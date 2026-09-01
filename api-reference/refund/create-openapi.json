@@ -1,0 +1,388 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Initiate Refund",
+        "version": "1.0.0",
+        "description": "Refund a collection back to its original sender. Blaaiz refunds the full collection amount only. Refunds are supported for EUR and GBP collections that you created through the API for one of your business customers. A `REFUND` webhook is delivered to your `collection_url` at each stage of the refund lifecycle."
+    },
+    "tags": [
+        {
+            "name": "Refund"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "refund:create": "Initiate refunds of business-customer collections to source."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "RefundRequest": {
+                "type": "object",
+                "properties": {
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "The transaction ID of the collection to refund. The collection must belong to one of your business customers, be created through the API, and be a successful EUR or GBP ClearJunction collection."
+                    },
+                    "reason": {
+                        "type": "string",
+                        "maxLength": 250,
+                        "description": "Optional reason for the refund. Stored against the transaction. Defaults to `Refund of collection to source` when omitted."
+                    },
+                    "reference": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Optional idempotency key of your choice. Reuse the same `reference` on the same `transaction_id` to safely retry without a second refund. The same `reference` on a different transaction returns a 400 conflict."
+                    }
+                },
+                "required": [
+                    "transaction_id"
+                ]
+            },
+            "Refund": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Refund ID."
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Refund status.",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "SUCCESSFUL",
+                            "FAILED"
+                        ]
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Refund type. Always `FULL` for refunds to source.",
+                        "enum": [
+                            "FULL"
+                        ]
+                    },
+                    "amount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "The refunded amount. Always the full original collection amount."
+                    },
+                    "currency": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Currency of the refund (EUR or GBP)."
+                    },
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "The transaction ID of the collection that was refunded."
+                    },
+                    "reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The idempotency key you sent on the request, when supplied."
+                    },
+                    "business_customer_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Business customer that owns the refunded collection."
+                    },
+                    "refund_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The provider reference for the refund. Populated once the provider accepts the refund."
+                    },
+                    "failure_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Reason the refund failed. Populated only when `status` is `FAILED`."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Refund creation timestamp."
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Refund last-update timestamp."
+                    }
+                },
+                "required": [
+                    "id",
+                    "status",
+                    "type",
+                    "amount",
+                    "currency",
+                    "transaction_id",
+                    "reference",
+                    "business_customer_id",
+                    "refund_reference",
+                    "failure_reason",
+                    "created_at",
+                    "updated_at"
+                ]
+            },
+            "RefundResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Refund"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "ValidationError": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "errors"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/refund": {
+            "post": {
+                "summary": "Initiate a refund",
+                "description": "Refund a collection back to its original sender. Blaaiz refunds the full collection amount only; there is no `amount` field. \n \n The collection must belong to one of your business customers, be created through the API, and be a successful EUR or GBP ClearJunction collection. The refund must start within 7 days of the collection. Only one refund attempt is allowed per collection. \n \n Pass an optional `reference` as an idempotency key: reusing the same `reference` on the same `transaction_id` returns the same refund instead of creating a second one. Required scope: `refund:create`.",
+                "tags": [
+                    "Refund"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "refund:create"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefundRequest"
+                            },
+                            "examples": {
+                                "minimal": {
+                                    "summary": "Minimal — transaction only",
+                                    "value": {
+                                        "transaction_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee"
+                                    }
+                                },
+                                "with_reason_and_reference": {
+                                    "summary": "With reason and idempotency reference",
+                                    "value": {
+                                        "transaction_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "reason": "Customer cancelled the order",
+                                        "reference": "refund-order-8842"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Refund initiated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefundResponse"
+                                },
+                                "example": {
+                                    "message": "Refund initiated successfully.",
+                                    "data": {
+                                        "id": "a1f7c9e2-4b3d-4c8a-9f2e-7d6b5a4c3e21",
+                                        "status": "PROCESSING",
+                                        "type": "FULL",
+                                        "amount": 500,
+                                        "currency": "GBP",
+                                        "transaction_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "reference": "refund-order-8842",
+                                        "business_customer_id": "6c258e65-de94-4d9d-87fb-117480a9d0e7",
+                                        "refund_reference": "cj-refund-3f9a12",
+                                        "failure_reason": null,
+                                        "created_at": "2026-08-03T10:15:00.000000Z",
+                                        "updated_at": "2026-08-03T10:15:02.000000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The collection cannot be refunded.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "unsupported_currency": {
+                                        "summary": "Currency not supported",
+                                        "value": {
+                                            "message": "Refunds back to source are only supported for EUR and GBP collections. This transaction is in NGN."
+                                        }
+                                    },
+                                    "not_successful": {
+                                        "summary": "Collection is not successful",
+                                        "value": {
+                                            "message": "Only successful collections can be refunded back to source. This transaction is PENDING."
+                                        }
+                                    },
+                                    "outside_window": {
+                                        "summary": "Outside the refund window",
+                                        "value": {
+                                            "message": "Refunds back to source must start within 7 days of the collection."
+                                        }
+                                    },
+                                    "already_refunded": {
+                                        "summary": "A refund already exists",
+                                        "value": {
+                                            "message": "A refund has already been started for this collection."
+                                        }
+                                    },
+                                    "reference_conflict": {
+                                        "summary": "Reference reused on a different transaction",
+                                        "value": {
+                                            "message": "This reference was already used for a different transaction. Use a new reference."
+                                        }
+                                    },
+                                    "not_api_transaction": {
+                                        "summary": "Collection was not created through the API",
+                                        "value": {
+                                            "message": "This collection was not created through the API, so it cannot be refunded through the API."
+                                        }
+                                    },
+                                    "not_owned": {
+                                        "summary": "Collection not found for any of your customers",
+                                        "value": {
+                                            "message": "This collection was not found for any of your customers."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The access token does not carry the refund:create scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid scope(s) provided."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "The transaction does not exist.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "No query results for model [App\\Models\\Business\\BusinessTransaction]."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                },
+                                "example": {
+                                    "message": "The transaction id of the collection to refund is required.",
+                                    "errors": {
+                                        "transaction_id": [
+                                            "The transaction id of the collection to refund is required."
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

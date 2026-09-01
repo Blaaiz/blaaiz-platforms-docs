@@ -20,6 +20,10 @@ mode: custom
   </div>
 
   <div className="home-container">
+    <Warning>
+      **The Payout API no longer supports crypto payouts.** Use the [Crypto API](/guides/crypto-api) to swap a business wallet balance and send an on-chain crypto payout. Crypto collections remain available for eligible, crypto-enabled businesses.
+    </Warning>
+
     <section className="home-section">
       <p className="home-section__title">Quickstart guides</p>
       <CardGroup cols={3}>
@@ -30,7 +34,7 @@ mode: custom
           Onboard companies through KYB: beneficial owners, KYB documents, submit.
         </Card>
         <Card title="Make your first payout" icon="money-check-dollar-pen" href="/guides/creating-first-payout">
-          Orchestrate payouts and on/off-ramps across fiat and crypto rails.
+          Send fiat payouts. Use the Crypto API for crypto swaps and on-chain crypto payouts.
         </Card>
         <Card title="Provision virtual accounts" icon="id-card" href="/api-reference/virtual-bank-accounts/create-virtual-bank-account">
           Create virtual bank accounts with local details to receive deposits.

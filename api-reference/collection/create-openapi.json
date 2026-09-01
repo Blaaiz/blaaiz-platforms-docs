@@ -81,6 +81,11 @@
                         "format": "uri",
                         "description": "Optional HTTPS URL to redirect the customer to after payment authorization (e.g. 3DS). Blaaiz appends `transaction_id` and `status` query parameters to this URL before redirecting. Maximum 2048 characters.",
                         "maxLength": 2048
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "description": "Your own reference for this collection. Blaaiz stores the value and returns it on the transaction endpoints and the webhooks. Each value must be unique for your business. Maximum 255 characters."
                     }
                 },
                 "required": [

@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Get Transaction",
         "version": "1.0.0",
-        "description": "Retrieve details of a completed API transaction. Transaction responses now include `swap_details` for swap transactions."
+        "description": "Retrieve details of a completed API transaction. Transaction responses include `swap_details` for swap transactions, `refund_status` for collections, and a nested `refund` object when the credential can read refunds."
     },
     "tags": [
         {
@@ -147,6 +147,77 @@
                     "exchange_rate"
                 ]
             },
+            "Refund": {
+                "type": "object",
+                "description": "Refund detail for the collection. Returned only when the credential can read refunds (a legacy API key, or an OAuth token with `refund:read`). `null` when no refund exists.",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "SUCCESSFUL",
+                            "FAILED"
+                        ]
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "FULL"
+                        ]
+                    },
+                    "amount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "currency": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "transaction_id": {
+                        "type": "string"
+                    },
+                    "reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "business_customer_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "refund_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "failure_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
             "Transaction": {
                 "type": "object",
                 "properties": {
@@ -176,6 +247,19 @@
                         "type": "string",
                         "description": "Transaction status."
                     },
+                    "refund_status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Refund state of the collection. `null` when no refund exists.",
+                        "enum": [
+                            "PROCESSING",
+                            "SUCCESSFUL",
+                            "FAILED",
+                            null
+                        ]
+                    },
                     "type": {
                         "type": "string",
                         "description": "Normalized transaction type returned by the API. Possible values are `collection`, `payout`, and `swap`."
@@ -183,6 +267,11 @@
                     "reference": {
                         "type": "string",
                         "description": "Transaction reference."
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The reference that you supplied. It is null if you supplied no reference."
                     },
                     "currency": {
                         "type": [
@@ -253,6 +342,17 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "refund": {
+                        "description": "Refund detail. Present only when the credential can read refunds (a legacy API key, or an OAuth token with `refund:read`). `null` when no refund exists.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Refund"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -261,6 +361,7 @@
                     "business_customer_id",
                     "business_wallet_id",
                     "status",
+                    "refund_status",
                     "type",
                     "reference",
                     "currency",
@@ -307,7 +408,7 @@
         "/api/external/transaction/{id}": {
             "get": {
                 "summary": "Get transaction",
-                "description": "Retrieve a completed API transaction by its transaction ID or reference. Required scope: `transaction:read`.",
+                "description": "Retrieve a completed API transaction by its transaction ID, its reference, or the merchant_reference that you supplied. Required scope: `transaction:read`.",
                 "tags": [
                     "Transaction"
                 ],
@@ -323,7 +424,7 @@
                         "name": "id",
                         "in": "path",
                         "required": true,
-                        "description": "Unique transaction ID or transaction reference.",
+                        "description": "Transaction ID, transaction reference, or the merchant_reference that you supplied. Blaaiz reads the identifiers in that order.",
                         "schema": {
                             "type": "string"
                         }
@@ -347,6 +448,7 @@
                                                 "business_customer_id": "customer_123",
                                                 "business_wallet_id": "wallet_ngn_001",
                                                 "status": "SUCCESSFUL",
+                                                "refund_status": null,
                                                 "type": "payout",
                                                 "reference": "payout_ref_001",
                                                 "currency": "NGN",
@@ -372,7 +474,8 @@
                                                     "status": "SUCCESSFUL",
                                                     "routing_number": null,
                                                     "email": null
-                                                }
+                                                },
+                                                "refund": null
                                             }
                                         }
                                     },
@@ -385,6 +488,7 @@
                                                 "business_customer_id": "customer_123",
                                                 "business_wallet_id": "wallet_ngn_001",
                                                 "status": "SUCCESSFUL",
+                                                "refund_status": null,
                                                 "type": "collection",
                                                 "reference": "collection_ref_001",
                                                 "currency": "NGN",
@@ -399,7 +503,8 @@
                                                     "collection_name": "John Doe"
                                                 },
                                                 "swap_details": null,
-                                                "recipient": null
+                                                "recipient": null,
+                                                "refund": null
                                             }
                                         }
                                     },
@@ -412,6 +517,7 @@
                                                 "business_customer_id": null,
                                                 "business_wallet_id": "wallet_usd_001",
                                                 "status": "SUCCESSFUL",
+                                                "refund_status": null,
                                                 "type": "swap",
                                                 "reference": "swap_ref_001",
                                                 "currency": "USD",
@@ -436,7 +542,50 @@
                                                     "amount_type": "from",
                                                     "exchange_rate": 1600
                                                 },
-                                                "recipient": null
+                                                "recipient": null,
+                                                "refund": null
+                                            }
+                                        }
+                                    },
+                                    "RefundedCollection": {
+                                        "value": {
+                                            "message": "Transaction retrieved successfully",
+                                            "data": {
+                                                "id": "txn_collection_gbp_002",
+                                                "business_id": "business_123",
+                                                "business_customer_id": "customer_123",
+                                                "business_wallet_id": "wallet_gbp_001",
+                                                "status": "SUCCESSFUL",
+                                                "refund_status": "SUCCESSFUL",
+                                                "type": "collection",
+                                                "reference": "collection_ref_gbp_002",
+                                                "currency": "GBP",
+                                                "amount": 500,
+                                                "amount_without_fee": 500,
+                                                "fee": 0,
+                                                "rate": null,
+                                                "date": "2026-08-03T09:10:00.000000Z",
+                                                "payee_collection_email": null,
+                                                "source_information": {
+                                                    "collection_email": null,
+                                                    "collection_name": null
+                                                },
+                                                "swap_details": null,
+                                                "recipient": null,
+                                                "refund": {
+                                                    "id": "a1f7c9e2-4b3d-4c8a-9f2e-7d6b5a4c3e21",
+                                                    "status": "SUCCESSFUL",
+                                                    "type": "FULL",
+                                                    "amount": 500,
+                                                    "currency": "GBP",
+                                                    "transaction_id": "txn_collection_gbp_002",
+                                                    "reference": "refund-order-8842",
+                                                    "business_customer_id": "customer_123",
+                                                    "refund_reference": "cj-refund-3f9a12",
+                                                    "failure_reason": null,
+                                                    "created_at": "2026-08-03T10:15:00.000000Z",
+                                                    "updated_at": "2026-08-03T10:22:40.000000Z"
+                                                }
                                             }
                                         }
                                     }

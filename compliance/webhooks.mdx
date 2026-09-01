@@ -1,0 +1,266 @@
+---
+title: Merchant KYC webhooks
+description: Register your KYC webhook URL, read the session events, and verify the signature.
+---
+
+Blaaiz sends the result of every verification session to a webhook URL that you register. The webhook is the only push channel for the result. You can also poll the session endpoints, but the webhook arrives as soon as the review completes.
+
+## Register your KYC URL
+
+Merchant KYC events go to a third webhook URL, `kyc_url`. It is separate from `collection_url` and `payout_url`.
+
+Set `kyc_url` when you register your webhook URLs:
+
+```bash
+curl -X POST https://api-prod.blaaiz.com/api/external/webhook \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "collection_url": "https://yourapp.com/webhooks/collection",
+    "payout_url": "https://yourapp.com/webhooks/payout",
+    "kyc_url": "https://yourapp.com/webhooks/kyc"
+  }'
+```
+
+If you already registered your webhook URLs, add `kyc_url` with an update:
+
+```bash
+curl -X PUT https://api-prod.blaaiz.com/api/external/webhook/WEBHOOK_ID \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "collection_url": "https://yourapp.com/webhooks/collection",
+    "payout_url": "https://yourapp.com/webhooks/payout",
+    "kyc_url": "https://yourapp.com/webhooks/kyc"
+  }'
+```
+
+Both calls need the `webhook:write` scope. The URL must be HTTPS and must resolve on the public internet.
+
+`kyc_url` is optional. If you omit it, Blaaiz records the session result and does not deliver it. Read the result from [GET a session](/api-reference/compliance-kyc/get-session-openapi.json) instead.
+
+<Note>
+  Merchant KYC webhooks are signed with the same `signing_secret` as your
+  collection and payout webhooks. You need no second secret.
+</Note>
+
+## Events
+
+| Event | Meaning |
+| --- | --- |
+| `merchant.kyc.session.completed` | The review finished. `data.result` is `APPROVED` or `REJECTED`. |
+| `merchant.kyc.session.expired` | The session passed its deadline before it completed. |
+
+Blaaiz sends no webhook for a session that you cancel, and no webhook for a verdict that arrives after a session is already terminal.
+
+## Payload
+
+The body holds two fields: `event` and `data`. The timestamp travels in the `x-blaaiz-timestamp` header, not in the body.
+
+```json
+{
+  "event": "merchant.kyc.session.completed",
+  "data": {
+    "session_id": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33",
+    "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+    "customer_reference": "user_10482",
+    "requirements": ["DOCUMENTS", "SELFIE", "FACE_MATCH"],
+    "result": "APPROVED",
+    "rejection_reason": null,
+    "rejection_type": null,
+    "completed_at": "2026-08-29T09:31:05.000Z"
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `data.session_id` | string | The session id. |
+| `data.business_id` | string | Your business id. |
+| `data.customer_reference` | string | The reference you sent on create. |
+| `data.requirements` | array | The requirement set of the session. |
+| `data.result` | string | `APPROVED` or `REJECTED`. |
+| `data.rejection_reason` | string or null | Text you can show to the person. Only set when `result` is `REJECTED`. |
+| `data.rejection_type` | string or null | `FINAL` or `RETRYABLE`. Only set when `result` is `REJECTED`. |
+| `data.completed_at` | string | When the review completed, in ISO 8601. |
+
+A rejected session looks like this:
+
+```json
+{
+  "event": "merchant.kyc.session.completed",
+  "data": {
+    "session_id": "3b81f0d5-9c47-42ae-b6e1-7d2a5c9f4801",
+    "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+    "customer_reference": "user_10513",
+    "requirements": ["DOCUMENTS"],
+    "result": "REJECTED",
+    "rejection_reason": "The document image is too blurred to read.",
+    "rejection_type": "RETRYABLE",
+    "completed_at": "2026-08-29T11:02:44.000Z"
+  }
+}
+```
+
+An expired session carries a smaller payload:
+
+```json
+{
+  "event": "merchant.kyc.session.expired",
+  "data": {
+    "session_id": "5c19ab73-2f60-4d8e-8a11-c07be4d95f22",
+    "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+    "customer_reference": "user_10604",
+    "expired_at": "2026-08-30T09:14:22.000Z"
+  }
+}
+```
+
+## Headers
+
+| Header | Description |
+| --- | --- |
+| `Content-Type` | Always `application/json`. |
+| `User-Agent` | Always `Blaaiz`. |
+| `x-blaaiz-timestamp` | The time Blaaiz signed the request, as Unix seconds. |
+| `x-blaaiz-signature` | The HMAC-SHA256 signature, in lowercase hexadecimal. |
+
+## Verify the signature
+
+Blaaiz builds the signature over the timestamp, a full stop, and the request body:
+
+```
+signature = HMAC_SHA256(x-blaaiz-timestamp + "." + raw_request_body, signing_secret)
+```
+
+Use the **raw** request body. If you decode the JSON and encode it again, key order and spacing can change, and the signature no longer matches.
+
+<Warning>
+  Reject the request when the signature does not match. A request with a bad
+  signature did not come from Blaaiz.
+</Warning>
+
+<CodeGroup>
+
+```javascript Node.js
+const crypto = require('crypto');
+const express = require('express');
+
+const app = express();
+const secret = process.env.BLAAIZ_WEBHOOK_SIGNING_SECRET;
+const REPLAY_WINDOW_SECONDS = 300;
+
+// Keep the raw body. The signature covers the exact bytes Blaaiz sent.
+app.post('/webhooks/kyc', express.raw({ type: 'application/json' }), (req, res) => {
+    const timestamp = req.headers['x-blaaiz-timestamp'];
+    const receivedSignature = req.headers['x-blaaiz-signature'];
+
+    if (!timestamp || !receivedSignature) {
+        return res.status(400).send('Missing signature headers.');
+    }
+
+    const age = Math.floor(Date.now() / 1000) - Number(timestamp);
+    if (!Number.isFinite(age) || Math.abs(age) > REPLAY_WINDOW_SECONDS) {
+        return res.status(400).send('Timestamp outside the replay window.');
+    }
+
+    const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(`${timestamp}.${req.body.toString('utf8')}`)
+        .digest('hex');
+
+    const expected = Buffer.from(expectedSignature, 'utf8');
+    const received = Buffer.from(receivedSignature, 'utf8');
+
+    if (expected.length !== received.length || !crypto.timingSafeEqual(expected, received)) {
+        return res.status(401).send('Invalid signature.');
+    }
+
+    const payload = JSON.parse(req.body.toString('utf8'));
+
+    // Answer first, then process the event in the background.
+    res.status(200).send('OK');
+
+    if (payload.event === 'merchant.kyc.session.completed') {
+        handleSessionResult(payload.data);
+    }
+});
+```
+
+```php PHP
+<?php
+
+$secret = getenv('BLAAIZ_WEBHOOK_SIGNING_SECRET');
+$replayWindowSeconds = 300;
+
+// The raw body, not a decoded and re-encoded copy.
+$rawBody = file_get_contents('php://input');
+$timestamp = $_SERVER['HTTP_X_BLAAIZ_TIMESTAMP'] ?? null;
+$receivedSignature = $_SERVER['HTTP_X_BLAAIZ_SIGNATURE'] ?? null;
+
+if ($timestamp === null || $receivedSignature === null) {
+    http_response_code(400);
+    exit('Missing signature headers.');
+}
+
+if (abs(time() - (int) $timestamp) > $replayWindowSeconds) {
+    http_response_code(400);
+    exit('Timestamp outside the replay window.');
+}
+
+$expectedSignature = hash_hmac('sha256', $timestamp . '.' . $rawBody, $secret);
+
+if (! hash_equals($expectedSignature, $receivedSignature)) {
+    http_response_code(401);
+    exit('Invalid signature.');
+}
+
+$payload = json_decode($rawBody, true);
+
+http_response_code(200);
+
+if (($payload['event'] ?? null) === 'merchant.kyc.session.completed') {
+    handleSessionResult($payload['data']);
+}
+```
+
+</CodeGroup>
+
+### Replay window
+
+The signature does not expire on its own. Compare `x-blaaiz-timestamp` against your own clock and reject anything older than 5 minutes. This stops an attacker from replaying a request that they captured earlier.
+
+Keep your server clock in sync with NTP. A drifting clock rejects valid webhooks.
+
+## Delivery and retries
+
+Reply with any HTTP 2xx status to confirm the delivery. Blaaiz retries every other outcome, including a timeout and a connection error.
+
+| Attempt | Delay after the previous attempt |
+| --- | --- |
+| 1 | Immediate |
+| 2 | 1 minute |
+| 3 | 5 minutes |
+| 4 | 15 minutes |
+| 5 | 1 hour |
+
+After the fifth attempt fails, Blaaiz marks the event as failed and stops. Read the session with [GET a session](/api-reference/compliance-kyc/get-session-openapi.json) to recover the result.
+
+<Note>
+  Merchant KYC webhooks use their own retry schedule. It is shorter than the
+  schedule for [collection and payout events](/guides/webhooks/events).
+</Note>
+
+## Handle duplicates
+
+Blaaiz delivers each event at least once, so the same event can arrive twice. Make your handler idempotent.
+
+Deduplicate on `data.session_id` together with `event`. A session sends `merchant.kyc.session.completed` one time, so a second delivery of that pair is a duplicate.
+
+## Best practice
+
+1. Verify the signature before you read the payload.
+2. Check the timestamp against your replay window.
+3. Reply with 2xx within 30 seconds.
+4. Do the slow work in a background job.
+5. Treat a repeated `session_id` and `event` pair as a duplicate.

@@ -1,0 +1,258 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Refund",
+        "version": "1.0.0",
+        "description": "Retrieve a refund by its refund ID. Only refunds of API-created collections are returned on this endpoint."
+    },
+    "tags": [
+        {
+            "name": "Refund"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "refund:read": "Read refund status."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Refund": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Refund ID."
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Refund status.",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "SUCCESSFUL",
+                            "FAILED"
+                        ]
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "Refund type. Always `FULL` for refunds to source.",
+                        "enum": [
+                            "FULL"
+                        ]
+                    },
+                    "amount": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "description": "The refunded amount. Always the full original collection amount."
+                    },
+                    "currency": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Currency of the refund (EUR or GBP)."
+                    },
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "The transaction ID of the collection that was refunded."
+                    },
+                    "reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The idempotency key you sent when you started the refund, when supplied."
+                    },
+                    "business_customer_id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Business customer that owns the refunded collection."
+                    },
+                    "refund_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The provider reference for the refund. Populated once the provider accepts the refund."
+                    },
+                    "failure_reason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Reason the refund failed. Populated only when `status` is `FAILED`."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Refund creation timestamp."
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Refund last-update timestamp."
+                    }
+                },
+                "required": [
+                    "id",
+                    "status",
+                    "type",
+                    "amount",
+                    "currency",
+                    "transaction_id",
+                    "reference",
+                    "business_customer_id",
+                    "refund_reference",
+                    "failure_reason",
+                    "created_at",
+                    "updated_at"
+                ]
+            },
+            "RefundResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Refund"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/refund/{id}": {
+            "get": {
+                "summary": "Get a refund",
+                "description": "Retrieve a refund by its refund ID. Only refunds of collections that you created through the API are returned. Required scope: `refund:read`.",
+                "tags": [
+                    "Refund"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "refund:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The refund ID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Refund retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefundResponse"
+                                },
+                                "example": {
+                                    "message": "Refund retrieved successfully.",
+                                    "data": {
+                                        "id": "a1f7c9e2-4b3d-4c8a-9f2e-7d6b5a4c3e21",
+                                        "status": "SUCCESSFUL",
+                                        "type": "FULL",
+                                        "amount": 500,
+                                        "currency": "GBP",
+                                        "transaction_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+                                        "reference": "refund-order-8842",
+                                        "business_customer_id": "6c258e65-de94-4d9d-87fb-117480a9d0e7",
+                                        "refund_reference": "cj-refund-3f9a12",
+                                        "failure_reason": null,
+                                        "created_at": "2026-08-03T10:15:00.000000Z",
+                                        "updated_at": "2026-08-03T10:22:40.000000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The access token does not carry the refund:read scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid scope(s) provided."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Refund not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Refund not found."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

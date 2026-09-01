@@ -64,7 +64,7 @@ The `scope` parameter must be a **space-separated list of individual scopes** th
   individual scopes as shown below:
 
   ```
-  scope=wallet:read currency:read bank:read customer:read customer:write beneficiary:read virtual-account:read virtual-account:create virtual-account:close collection:create collection:crypto:create collection:interac:accept collection:interac:create payout:create swap:create transaction:read fees:read rates:read file:upload webhook:read webhook:write webhook:replay mock:webhook:trigger
+  scope=wallet:read currency:read bank:read customer:read customer:write beneficiary:read virtual-account:read virtual-account:create virtual-account:close collection:create collection:crypto:create collection:interac:accept collection:interac:create payout:create swap:create transaction:read fees:read rates:read file:upload webhook:read webhook:write webhook:replay mock:webhook:trigger crypto-wallet:read crypto-wallet:create crypto-asset:read crypto-transaction:read crypto-payout:create crypto-swap:create
   ```
 </Warning>
 
@@ -83,11 +83,12 @@ For convenience, Blaaiz provides pre-built bundles that group related scopes. Bu
 | Bundle | Description |
 | --- | --- |
 | `full-access` | All available scopes (default if none specified) |
-| `read-only` | Read access to wallets, currencies, customers, transactions, fees, rates, and webhooks |
+| `read-only` | Read access to wallets, currencies, customers, crypto assets, crypto transactions, fees, rates, and webhooks |
 | `collections` | Create collections, manage customers, and read transactions |
 | `payouts` | Create payouts, read wallets, banks, beneficiaries, fees, and rates |
 | `virtual-accounts` | Create and manage virtual accounts and customers |
 | `customers` | Manage customers, beneficiaries, and file uploads |
+| `crypto` | Create crypto wallets, read crypto data, create swaps, and create crypto payouts |
 
 ### Individual scopes
 
@@ -114,10 +115,25 @@ You can also select scopes individually for fine-grained control:
 | `fees:read` | Read fee breakdowns |
 | `rates:read` | Read exchange rates |
 | `file:upload` | Generate presigned file upload URLs |
-| `webhook:read` | Read webhook configuration |
+| `webhook:read` | Read webhook configuration and delivery logs |
 | `webhook:write` | Create and update webhook configuration |
 | `webhook:replay` | Replay webhook deliveries |
 | `mock:webhook:trigger` | Trigger mock webhook simulations |
+| `crypto-wallet:read` | Read crypto wallets and their deposit addresses |
+| `crypto-wallet:create` | Create crypto wallets |
+| `crypto-asset:read` | Read active crypto assets and networks |
+| `crypto-transaction:read` | Read crypto wallet transactions |
+| `crypto-payout:create` | Create on-chain crypto payouts |
+| `crypto-swap:create` | Swap crypto and fiat wallet balances |
+| `compliance-kyc:read` | Read [Merchant KYC](/compliance/overview) verification sessions |
+| `compliance-kyc:create` | Create, upload to, and submit Merchant KYC verification sessions |
+| `compliance-kyc:cancel` | Cancel Merchant KYC verification sessions |
+
+<Note>
+  The three `compliance-kyc` scopes are not part of any bundle except
+  `full-access`. Select them individually when you create or rotate your
+  credentials.
+</Note>
 
 If you do not specify any scopes or bundle when creating credentials, the `full-access` bundle is assigned by default. This means your credentials will have all individual scopes available. You still need to pass those individual scopes in the `scope` parameter when [requesting a token](#getting-an-access-token).
 

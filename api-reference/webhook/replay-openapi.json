@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - Replay Webhook",
         "version": "1.0.0",
-        "description": "Trigger (on demand) a webhook for any successful transaction (payout or collection)."
+        "description": "Replay an eligible webhook delivery for a successful fiat transaction or a failed crypto payout webhook."
     },
     "tags": [
         {
@@ -39,11 +39,16 @@
                 "properties": {
                     "transaction_id": {
                         "type": "string",
-                        "description": "Transaction ID to replay"
+                        "description": "A successful fiat transaction ID. Do not send this field with `webhook_log_id`."
+                    },
+                    "webhook_log_id": {
+                        "type": "string",
+                        "description": "A failed crypto payout webhook log ID. Do not send this field with `transaction_id`."
                     }
                 },
-                "required": [
-                    "transaction_id"
+                "oneOf": [
+                    {"required": ["transaction_id"]},
+                    {"required": ["webhook_log_id"]}
                 ]
             },
             "WebhookReplayResponse": {
@@ -74,7 +79,7 @@
         "/api/external/webhook-replay": {
             "post": {
                 "summary": "Replay webhook",
-                "description": "Trigger a webhook on demand for a successful transaction. Required scope: `webhook:replay`.",
+                "description": "Replay a webhook delivery. Send `transaction_id` for a successful fiat transaction. Send `webhook_log_id` for an eligible failed crypto payout webhook. Required scope: `webhook:replay`.",
                 "tags": [
                     "Webhook"
                 ],
@@ -93,7 +98,7 @@
                                 "$ref": "#/components/schemas/WebhookReplayRequest"
                             },
                             "example": {
-                                "transaction_id": "fb87c0f8-31e3-46f3-b0d3-1ff2618565bc"
+                                "webhook_log_id": "fb87c0f8-31e3-46f3-b0d3-1ff2618565bc"
                             }
                         }
                     }
@@ -124,6 +129,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Both selectors were sent, neither selector was sent, or the webhook log is not eligible for replay."
                     }
                 }
             }

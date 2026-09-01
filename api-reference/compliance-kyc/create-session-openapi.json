@@ -1,0 +1,466 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Create Verification Session",
+        "version": "1.0.0",
+        "description": "Create a merchant KYC verification session for one person. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+    },
+    "tags": [
+        {
+            "name": "Merchant KYC"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "CreateSessionRequest": {
+                "type": "object",
+                "properties": {
+                    "customer_reference": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Your own reference for the person you verify. Blaaiz returns it on the session and on the webhook."
+                    },
+                    "idempotency_key": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "description": "Your key for this create. A repeat of the same key returns the stored session instead of a new one. The key is unique to your business and is never released."
+                    },
+                    "requirements": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 4,
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "DOCUMENTS",
+                                "SELFIE",
+                                "FACE_MATCH",
+                                "PROOF_OF_ADDRESS"
+                            ]
+                        },
+                        "description": "What the session must prove. Order does not matter, and a value may appear once. Supported sets: [DOCUMENTS, SELFIE, FACE_MATCH], [DOCUMENTS], [DOCUMENTS, SELFIE, FACE_MATCH, PROOF_OF_ADDRESS], [DOCUMENTS, PROOF_OF_ADDRESS], and [PROOF_OF_ADDRESS]. FACE_MATCH needs DOCUMENTS and SELFIE in the same set. Any other combination fails with 422, and the message names the supported sets."
+                    },
+                    "fulfilment_mode": {
+                        "type": "string",
+                        "enum": [
+                            "SUMSUB_HOSTED",
+                            "BLAAIZ_HOSTED",
+                            "HEADLESS"
+                        ],
+                        "description": "Who collects the input. Omit it to take the default for the requirement set: SUMSUB_HOSTED for [DOCUMENTS, SELFIE, FACE_MATCH], HEADLESS for [DOCUMENTS], and SUMSUB_HOSTED for every set that includes PROOF_OF_ADDRESS. BLAAIZ_HOSTED is available for [DOCUMENTS, SELFIE, FACE_MATCH] and for every set that includes PROOF_OF_ADDRESS. HEADLESS is available for [DOCUMENTS, PROOF_OF_ADDRESS] and [PROOF_OF_ADDRESS], but never for a set that includes SELFIE."
+                    },
+                    "applicant": {
+                        "type": "object",
+                        "description": "Details you already hold about the person. Every field is optional.",
+                        "properties": {
+                            "first_name": {
+                                "type": "string",
+                                "maxLength": 100
+                            },
+                            "last_name": {
+                                "type": "string",
+                                "maxLength": 100
+                            },
+                            "dob": {
+                                "type": "string",
+                                "format": "date",
+                                "description": "Date of birth in YYYY-MM-DD format."
+                            },
+                            "country": {
+                                "type": "string",
+                                "minLength": 3,
+                                "maxLength": 3,
+                                "description": "ISO 3166-1 alpha-3 country code, for example NGA or CAN."
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "customer_reference",
+                    "idempotency_key",
+                    "requirements"
+                ]
+            },
+            "Session": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The verification session id."
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Your business id."
+                    },
+                    "customer_reference": {
+                        "type": "string",
+                        "description": "Your own reference for the person being verified."
+                    },
+                    "requirements": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "DOCUMENTS",
+                                "SELFIE",
+                                "FACE_MATCH",
+                                "PROOF_OF_ADDRESS"
+                            ]
+                        },
+                        "description": "What the session must prove, in canonical order."
+                    },
+                    "fulfilment_mode": {
+                        "type": "string",
+                        "enum": [
+                            "SUMSUB_HOSTED",
+                            "BLAAIZ_HOSTED",
+                            "HEADLESS"
+                        ],
+                        "description": "Who collects the input from the person."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "CREATED",
+                            "AWAITING_INPUT",
+                            "IN_REVIEW",
+                            "APPROVED",
+                            "REJECTED",
+                            "EXPIRED",
+                            "CANCELLED"
+                        ],
+                        "description": "The session status."
+                    },
+                    "steps": {
+                        "type": "object",
+                        "properties": {
+                            "documents": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no DOCUMENTS."
+                            },
+                            "selfie": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no SELFIE."
+                            },
+                            "proof_of_address": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no PROOF_OF_ADDRESS."
+                            }
+                        },
+                        "required": [
+                            "documents",
+                            "selfie",
+                            "proof_of_address"
+                        ]
+                    },
+                    "rejection": {
+                        "type": "object",
+                        "nullable": true,
+                        "description": "Set only when status is REJECTED. null for every other status.",
+                        "properties": {
+                            "reason": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Text you can show to the person."
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "FINAL",
+                                    "RETRYABLE"
+                                ],
+                                "nullable": true,
+                                "description": "RETRYABLE means the person can try again in a new session. FINAL means do not retry."
+                            }
+                        },
+                        "required": [
+                            "reason",
+                            "type"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When Blaaiz expires the session if it is still open."
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "description": "When the review completed."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "verification_link": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The link the person opens for a SUMSUB_HOSTED session. It is null for every other mode. It is returned on create only; the read endpoints never return it."
+                    },
+                    "link_expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "description": "When verification_link stops working. null when there is no link."
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "customer_reference",
+                    "requirements",
+                    "fulfilment_mode",
+                    "status",
+                    "steps",
+                    "rejection",
+                    "expires_at",
+                    "completed_at",
+                    "created_at",
+                    "verification_link",
+                    "link_expires_at"
+                ]
+            },
+            "CreateSessionResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Session"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Field-level validation messages. Present on a 422 caused by request validation.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions": {
+            "post": {
+                "summary": "Create a verification session",
+                "description": "Create a verification session for one person. The response normally returns status AWAITING_INPUT. A status of CREATED means the setup did not finish; repeat the call with the same idempotency_key. A repeat with the same idempotency_key returns the stored session. A repeat with the same key but a different customer_reference or a different requirement set returns 422. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "tags": [
+                    "Merchant KYC"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:create"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSessionRequest"
+                            },
+                            "examples": {
+                                "blaaiz_hosted": {
+                                    "summary": "Documents, selfie and face match on the Blaaiz capture page",
+                                    "value": {
+                                        "customer_reference": "user_10482",
+                                        "idempotency_key": "kyc-user_10482-2026-08-29",
+                                        "requirements": [
+                                            "DOCUMENTS",
+                                            "SELFIE",
+                                            "FACE_MATCH"
+                                        ],
+                                        "fulfilment_mode": "BLAAIZ_HOSTED",
+                                        "applicant": {
+                                            "first_name": "Amara",
+                                            "last_name": "Okafor",
+                                            "dob": "1993-04-17",
+                                            "country": "NGA"
+                                        }
+                                    }
+                                },
+                                "headless_documents": {
+                                    "summary": "Documents only, uploaded from your server",
+                                    "value": {
+                                        "customer_reference": "user_10513",
+                                        "idempotency_key": "kyc-user_10513-2026-08-29",
+                                        "requirements": [
+                                            "DOCUMENTS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS"
+                                    }
+                                },
+                                "headless_documents_and_proof_of_address": {
+                                    "summary": "Documents and proof of address, uploaded from your server",
+                                    "value": {
+                                        "customer_reference": "user_10574",
+                                        "idempotency_key": "kyc-user_10574-2026-08-29",
+                                        "requirements": [
+                                            "DOCUMENTS",
+                                            "PROOF_OF_ADDRESS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS"
+                                    }
+                                },
+                                "headless_proof_of_address": {
+                                    "summary": "Proof of address only, uploaded from your server",
+                                    "value": {
+                                        "customer_reference": "user_10596",
+                                        "idempotency_key": "kyc-user_10596-2026-08-29",
+                                        "requirements": [
+                                            "PROOF_OF_ADDRESS"
+                                        ],
+                                        "fulfilment_mode": "HEADLESS"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verification session created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateSessionResponse"
+                                },
+                                "example": {
+                                    "message": "Verification session created successfully.",
+                                    "data": {
+                                        "id": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33",
+                                        "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                        "customer_reference": "user_10482",
+                                        "requirements": [
+                                            "DOCUMENTS",
+                                            "SELFIE",
+                                            "FACE_MATCH"
+                                        ],
+                                        "fulfilment_mode": "BLAAIZ_HOSTED",
+                                        "status": "AWAITING_INPUT",
+                                        "steps": {
+                                            "documents": "PENDING",
+                                            "selfie": "PENDING",
+                                            "proof_of_address": null
+                                        },
+                                        "rejection": null,
+                                        "expires_at": "2026-08-30T09:14:22.000Z",
+                                        "completed_at": null,
+                                        "created_at": "2026-08-29T09:14:22.000Z",
+                                        "verification_link": null,
+                                        "link_expires_at": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "status": 403
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The request is invalid, the requirement set is not supported, the idempotency key was reused with different details, or you reached the open session cap.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Too many open verification sessions; complete, cancel, or let existing sessions expire."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

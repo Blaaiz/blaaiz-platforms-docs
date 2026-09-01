@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - List Transactions",
         "version": "1.0.0",
-        "description": "Retrieve a paginated list of completed API transactions for your business. Transaction responses now include `swap_details` for swap transactions."
+        "description": "Retrieve a paginated list of completed API transactions for your business. Transaction responses include `swap_details` for swap transactions and `refund_status` for collections."
     },
     "tags": [
         {
@@ -62,15 +62,20 @@
                     },
                     "status": {
                         "type": "string",
-                        "description": "Filter by transaction status.",
+                        "description": "Filter by transaction status. `EXPIRED` returns collections that were not completed before their expiry time.",
                         "enum": [
                             "FAILED",
-                            "SUCCESSFUL"
+                            "SUCCESSFUL",
+                            "EXPIRED"
                         ]
                     },
                     "customer_id": {
                         "type": "string",
                         "description": "Filter by business customer ID."
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "description": "Filter by the reference that you supplied on the payout or the collection."
                     }
                 }
             },
@@ -225,6 +230,19 @@
                         "type": "string",
                         "description": "Transaction status."
                     },
+                    "refund_status": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Refund state of the collection. `null` when no refund exists.",
+                        "enum": [
+                            "PROCESSING",
+                            "SUCCESSFUL",
+                            "FAILED",
+                            null
+                        ]
+                    },
                     "type": {
                         "type": "string",
                         "description": "Normalized transaction type returned by the API. Possible values are `collection`, `payout`, and `swap`."
@@ -232,6 +250,11 @@
                     "reference": {
                         "type": "string",
                         "description": "Transaction reference."
+                    },
+                    "merchant_reference": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The reference that you supplied. It is null if you supplied no reference."
                     },
                     "currency": {
                         "type": [
@@ -310,6 +333,7 @@
                     "business_customer_id",
                     "business_wallet_id",
                     "status",
+                    "refund_status",
                     "type",
                     "reference",
                     "currency",
@@ -504,6 +528,7 @@
                                             "business_customer_id": "customer_123",
                                             "business_wallet_id": "wallet_ngn_001",
                                             "status": "SUCCESSFUL",
+                                            "refund_status": null,
                                             "type": "collection",
                                             "reference": "collection_ref_001",
                                             "currency": "NGN",
@@ -526,6 +551,7 @@
                                             "business_customer_id": "customer_123",
                                             "business_wallet_id": "wallet_ngn_001",
                                             "status": "SUCCESSFUL",
+                                            "refund_status": null,
                                             "type": "payout",
                                             "reference": "payout_ref_001",
                                             "currency": "NGN",
@@ -559,6 +585,7 @@
                                             "business_customer_id": null,
                                             "business_wallet_id": "wallet_usd_001",
                                             "status": "SUCCESSFUL",
+                                            "refund_status": null,
                                             "type": "swap",
                                             "reference": "swap_ref_001",
                                             "currency": "USD",

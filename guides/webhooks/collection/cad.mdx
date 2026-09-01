@@ -18,7 +18,8 @@ These are sent to your `collection_url` when your business receives funds.
 | `message`                             | A message indicating the status of the transaction.                                   |
 | `transaction_id`                      | A unique identifier for the transaction used for tracking and reference.              |
 | `transaction_reference`               | A unique identifier for the transaction used for tracking and reference.              |
-| `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL, FAILED).                             |
+| `merchant_reference`                  | Always `null`. An Interac collection has no reference from you.                       |
+| `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL, FAILED, EXPIRED).                    |
 | `transaction_fee`                     | The fee charged for the transaction.                                                  |
 | `transaction_amount_without_fee`      | The amount that was transferred, excluding any fees.                                  |
 | `transaction_amount`                  | The total amount of the transaction, including fees.                                  |
@@ -27,6 +28,7 @@ These are sent to your `collection_url` when your business receives funds.
 | `source_information`                  | An object containing details about the source of the funds.                           |
 | `source_information.collection_email` | The email address of the sender who initiated the collection.                         |
 | `source_information.collection_name`  | The name of the sender who initiated the collection. May be `null` if unavailable.    |
+| `failure_reason`                      | The reason a collection failed, as reported by the payment provider. Blaaiz includes this field only when `transaction_status` is `FAILED`. |
 | `event_id`                            | A unique identifier for the event associated with the transaction.                    |
 | `type`                                | The type of transaction, indicating it as a collection (e.g., "collection").          |
 
@@ -37,6 +39,7 @@ These are sent to your `collection_url` when your business receives funds.
   "message": "Transaction Completed",
   "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
   "transaction_reference": "CA1MR6ahQBCJ",
+  "merchant_reference": null,
   "transaction_status": "SUCCESSFUL",
   "transaction_fee": 0.0,
   "transaction_amount_without_fee": 20.0,
@@ -46,6 +49,81 @@ These are sent to your `collection_url` when your business receives funds.
   "source_information": {
     "collection_email": "test@test.com",
     "collection_name": "John Doe"
+  },
+  "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
+  "type": "collection"
+}
+```
+
+## Failed transactions
+
+Blaaiz also sends a collection webhook when a CAD collection fails. The webhook goes to the same `collection_url`, with `transaction_status` set to `FAILED` and `message` set to `Transaction Failed`.
+
+A failed webhook adds a `failure_reason` field. This field gives the reason the collection did not complete, as reported by the payment provider. Use this reason to tell the payer what to correct, or to open a support case.
+
+<Note>
+Blaaiz sends `failure_reason` one time, on the failure webhook only. A later webhook replay does not include the `failure_reason` field.
+</Note>
+
+<Warning>
+Do not release goods or value for a `FAILED` collection. No funds move, and Blaaiz does not credit your CAD wallet.
+</Warning>
+
+On a failed collection, the amount fields are `0.00` and the `source_information` fields can be `null`.
+
+### Failed example payload
+
+```json
+{
+  "message": "Transaction Failed",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "CA1MR6ahQBCJ",
+  "merchant_reference": null,
+  "transaction_status": "FAILED",
+  "transaction_fee": 0.0,
+  "transaction_amount_without_fee": 0.0,
+  "transaction_amount": 0.0,
+  "transaction_currency": "CAD",
+  "payee_collection_email": "yourbusiness@example.com",
+  "source_information": {
+    "collection_email": null,
+    "collection_name": null
+  },
+  "failure_reason": "GetIncomingTransfers Error : Interac Response Description : 320 - Operation cannot be performed due to current transfer status",
+  "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
+  "type": "collection"
+}
+```
+
+## Expired transactions
+
+Blaaiz sends a collection webhook when a CAD collection expires. A collection expires when the payer does not approve an Interac money request before its expiry time. The default expiry time is 48 hours after you create the request.
+
+The webhook goes to the same `collection_url`. Blaaiz sets `transaction_status` to `EXPIRED` and `message` to `Transaction Expired`.
+
+<Warning>
+Do not release goods or value for an `EXPIRED` collection. No funds move, and Blaaiz does not credit your CAD wallet.
+</Warning>
+
+The amount fields show the amount you requested. The `source_information` fields and `payee_collection_email` are `null`, because the payer never approved the request.
+
+### Expired example payload
+
+```json
+{
+  "message": "Transaction Expired",
+  "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+  "transaction_reference": "CA1MR6ahQBCJ",
+  "merchant_reference": null,
+  "transaction_status": "EXPIRED",
+  "transaction_fee": 2.0,
+  "transaction_amount_without_fee": 98.0,
+  "transaction_amount": 100.0,
+  "transaction_currency": "CAD",
+  "payee_collection_email": null,
+  "source_information": {
+    "collection_email": null,
+    "collection_name": null
   },
   "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844",
   "type": "collection"

@@ -3,6 +3,10 @@ title: Creating your first payout
 description: Step-by-step guide to creating your first payout
 ---
 
+<Warning>
+**The Payout API no longer supports crypto payouts.** Use the [Crypto API](/guides/crypto-api) for wallet swaps and on-chain crypto payouts. Crypto collections remain available for eligible, crypto-enabled businesses.
+</Warning>
+
 ## Payout process
 
 To help you get started with the payout process, we'll walk through the steps of creating your first payout using our API. We'll assume that you have completed the onboarding process, been whitelisted for API services, created your OAuth credentials, obtained an access token, and set up your webhooks for both collections and payouts. The following steps will guide you through the payout process:
@@ -188,7 +192,7 @@ Before initiating a payout, ensure the following prerequisites are in place for 
 
     **Payout method must be valid for the currency**
 
-    Each currency supports specific payout methods (e.g. `bank_transfer`, `interac`, `crypto`, `ach`, `wire`). If you use a method that is not available for the destination currency, the request will be rejected.
+    Each currency supports specific fiat payout methods, such as `bank_transfer`, `interac`, `ach`, and `wire`. The API rejects unsupported methods.
 
     **Business must not be under Enhanced Due Diligence**
 

@@ -1,0 +1,172 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Verify EUR IBAN",
+        "version": "1.0.0",
+        "description": "SEPA reachability check for a EUR IBAN"
+    },
+    "tags": [
+        {
+            "name": "Bank"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "bank:read": "Read bank and bank account data."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "IbanVerificationRequest": {
+                "type": "object",
+                "description": "This endpoint checks if a EUR IBAN is reachable on the SEPA and SEPA Instant networks. You send the IBAN. Blaaiz returns two reachability flags. \n This endpoint is a reachability check. It is not a name-match or Confirmation-of-Payee check, because the provider has no EUR equivalent of that check today. \n **Example Use Cases:** \n - Confirm that a EUR account can receive a SEPA payment before a payout. \n - Check if an account can receive a SEPA Instant payment. \n You can send the IBAN with or without spaces. Blaaiz removes the spaces before the check.",
+                "properties": {
+                    "iban": {
+                        "type": "string",
+                        "description": "EUR IBAN to check. The value starts with a 2-letter country code, 2 check digits, and 11 to 30 more characters. The full value is 15 to 34 characters. Spaces are allowed and Blaaiz removes them."
+                    }
+                },
+                "required": [
+                    "iban"
+                ]
+            },
+            "IbanVerificationResponse": {
+                "type": "object",
+                "properties": {
+                    "sepa_reachable": {
+                        "type": "boolean",
+                        "description": "True if the account is reachable on the SEPA network."
+                    },
+                    "sepa_inst_reachable": {
+                        "type": "boolean",
+                        "description": "True if the account is reachable on the SEPA Instant network."
+                    }
+                },
+                "required": [
+                    "sepa_reachable",
+                    "sepa_inst_reachable"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/bank/iban-verification": {
+            "post": {
+                "summary": "Verify EUR IBAN",
+                "description": "Check if a EUR IBAN is reachable on the SEPA and SEPA Instant networks. Required scope: `bank:read`.",
+                "tags": [
+                    "Bank"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "bank:read"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IbanVerificationRequest"
+                            },
+                            "example": {
+                                "iban": "DE89370400440532013000"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Reachability check completed. The status code is 200 when the account is reachable, partly reachable, or not reachable.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/IbanVerificationResponse"
+                                },
+                                "examples": {
+                                    "reachable": {
+                                        "summary": "Reachable on both networks",
+                                        "value": {
+                                            "sepa_reachable": true,
+                                            "sepa_inst_reachable": true
+                                        }
+                                    },
+                                    "partial": {
+                                        "summary": "Reachable on SEPA only",
+                                        "value": {
+                                            "sepa_reachable": true,
+                                            "sepa_inst_reachable": false
+                                        }
+                                    },
+                                    "unreachable": {
+                                        "summary": "Not reachable",
+                                        "value": {
+                                            "sepa_reachable": false,
+                                            "sepa_inst_reachable": false
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The IBAN is missing or has an invalid format.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The provided IBAN is not valid. IBAN must start with a 2-letter country code, followed by 2 check digits, and be between 15 and 34 characters long."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

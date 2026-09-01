@@ -7,6 +7,10 @@ description: Common parameters used across Blaaiz API endpoints
 
 While interacting with our API, you may encounter specific parameters in the request body for various endpoints. Below are key parameters and their possible values.
 
+<Warning>
+**Do not use `method: "crypto"` with the Payout API.** Use the [Crypto API](/guides/crypto-api) for wallet swaps and on-chain crypto payouts. Crypto collections remain available for eligible, crypto-enabled businesses.
+</Warning>
+
 ### Method
 
 The `method` parameter appears in the **Payout API** when initiating a payout. It represents the channel through which the money will be sent.
@@ -15,13 +19,26 @@ The `method` parameter appears in the **Payout API** when initiating a payout. I
 - `interac` – Sends the payout using Interac (available for CAD transactions).
 - `ach` - Sends the payout using ACH (available for USD transactions).
 - `wire` - Sends the payout using Wire (available for USD transactions).
-- `crypto` - Sends the payout using Crypto (available for USD transactions).
-
-Use either of these values depending on which provider you want to use for the payout process.
+Use the value that matches the payout method and the payout currency.
 
 For the **Collection API**, the currently documented value is:
 
 - `card` - Creates a card collection request for a business wallet.
+
+### Merchant reference
+
+The optional `merchant_reference` parameter appears in the **Payout API** and the **Collection API**. Send your own identifier for the transaction, for example an order ID or an invoice number. You then do not have to keep a map between your identifier and the Blaaiz transaction ID.
+
+- Blaaiz accepts any string up to 255 characters. No format is enforced.
+- Each value must be unique for your business. If an earlier payout or collection already uses the value, the request fails with `422` and this message: `Could not proceed. Kindly check your merchant reference and try again`.
+- Two different businesses can use the same value.
+- Blaaiz returns the value on the transaction endpoints. It also sends the value on the collection, payout and payout-initiated webhooks.
+- [Get transaction](/api-reference/transaction/get-transaction) accepts the value in place of the transaction ID. Blaaiz reads the transaction ID first, then the transaction reference, then your `merchant_reference`.
+- [List transactions](/api-reference/transaction/list-transactions) accepts the value as a filter.
+
+<Warning>
+Blaaiz keeps the reference after it creates the transaction, whatever the final status. If a payout or a collection fails, use a new `merchant_reference` for the retry.
+</Warning>
 
 ### File category
 

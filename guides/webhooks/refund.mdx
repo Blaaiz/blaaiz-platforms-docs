@@ -1,0 +1,91 @@
+---
+title: Refund
+description: Webhook payload for refunds of a collection back to source
+---
+
+Blaaiz sends a refund webhook when you refund a collection back to its original sender. The refund unwinds a collection, so Blaaiz delivers the webhook to your `collection_url`.
+
+## When it fires
+
+Blaaiz delivers a refund webhook at each stage of the refund lifecycle:
+
+| Stage | Wire `type` | `status` | Meaning |
+| :---- | :---------- | :------- | :------ |
+| Initiation | `refund_initiated` | `processing` | Blaaiz started the refund and sent it to the provider. |
+| Success | `refund` | `successful` | The provider returned the funds to the sender. |
+| Failure | `refund` | `failed` | The refund failed. See `failure_reason`. |
+
+<Note>
+The wire `type` is `refund_initiated` for the first delivery and `refund` for the
+final delivery. Use the `status` field to tell a successful refund from a failed one.
+</Note>
+
+## Parameters overview
+
+| Parameter | Description |
+| :-------- | :---------- |
+| `type` | The webhook type. `refund_initiated` at initiation, `refund` at the final stage. |
+| `refund_id` | The unique identifier of the refund. |
+| `reference` | The idempotency key you sent when you started the refund. `null` if you sent none. |
+| `transaction_id` | The transaction ID of the collection that was refunded. |
+| `collection_reference` | The reference of the collection that was refunded. |
+| `business_customer_id` | The business customer that owns the refunded collection. |
+| `amount` | The refunded amount. Always the full original collection amount. |
+| `currency` | The currency of the refund (EUR or GBP). |
+| `status` | The refund status. One of `processing`, `successful`, or `failed`. |
+| `failure_reason` | The reason the refund failed. Set only when `status` is `failed`. |
+| `created_at` | The refund creation time (ISO 8601). |
+| `updated_at` | The refund last-update time (ISO 8601). |
+| `event_id` | A unique identifier for this webhook event. |
+
+## Example payload — successful refund
+
+```json
+{
+  "type": "refund",
+  "refund_id": "a1f7c9e2-4b3d-4c8a-9f2e-7d6b5a4c3e21",
+  "reference": "refund-order-8842",
+  "transaction_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+  "collection_reference": "cj-collection-reference",
+  "business_customer_id": "6c258e65-de94-4d9d-87fb-117480a9d0e7",
+  "amount": 500.0,
+  "currency": "GBP",
+  "status": "successful",
+  "failure_reason": null,
+  "created_at": "2026-08-03T10:15:00+00:00",
+  "updated_at": "2026-08-03T10:22:40+00:00",
+  "event_id": "9d46a6c7-fbb4-48f0-912c-4f9611fe5844"
+}
+```
+
+## Example payload — failed refund
+
+A failed refund carries `status` set to `failed` and a `failure_reason`. Blaaiz handles the funds. You do not need to retry the refund.
+
+```json
+{
+  "type": "refund",
+  "refund_id": "a1f7c9e2-4b3d-4c8a-9f2e-7d6b5a4c3e21",
+  "reference": "refund-order-8842",
+  "transaction_id": "9d4c4ec5-59ea-4130-bf8a-6a5edec401ee",
+  "collection_reference": "cj-collection-reference",
+  "business_customer_id": "6c258e65-de94-4d9d-87fb-117480a9d0e7",
+  "amount": 500.0,
+  "currency": "GBP",
+  "status": "failed",
+  "failure_reason": "Declined by the payer bank",
+  "created_at": "2026-08-03T10:15:00+00:00",
+  "updated_at": "2026-08-03T10:31:12+00:00",
+  "event_id": "b28f1d4a-77c2-4e0b-9a31-2f5c8e6d1a90"
+}
+```
+
+## Signature verification
+
+Blaaiz signs every refund webhook with your webhook `signing_secret`. Verify the `x-blaaiz-signature` header before you process the payload. See [Signature verification](/guides/webhooks/signature-verification/overview).
+
+## Related pages
+
+- [Refunding a collection](/guides/refunding-a-collection) — rules and lifecycle.
+- [Initiate a refund](/api-reference/refund/create) — start a refund.
+- [Get a refund](/api-reference/refund/get) — read a refund status.

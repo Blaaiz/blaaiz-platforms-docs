@@ -1,0 +1,175 @@
+---
+title: Crypto API
+description: Create customer wallet addresses, swap balances, and send crypto payouts.
+---
+
+The Crypto API lets your business manage crypto balances through API Services.
+
+Use this API to create customer wallet addresses, read crypto wallets, swap wallet balances, and send crypto to an external address.
+
+The Crypto API is separate from the Payout API. The Payout API does not accept crypto payout methods.
+
+## Before you start
+
+Blaaiz must enable Crypto API access for your business.
+
+Your business must have approved KYB before it creates customer wallet addresses, swaps, or payouts.
+
+Your business must also be eligible for crypto swaps and payouts.
+
+Create OAuth credentials with the Crypto scopes.
+
+Request the same individual scopes when you get an access token.
+
+| Scope | Lets the token do this |
+| --- | --- |
+| `crypto-asset:read` | Read active crypto assets and networks. |
+| `crypto-wallet:read` | Read crypto wallets and deposit addresses. |
+| `crypto-wallet:create` | Create customer wallet addresses. |
+| `crypto-transaction:read` | Read crypto wallet transactions. |
+| `crypto-swap:create` | Swap balances between your business wallets. |
+| `crypto-payout:create` | Send an on-chain crypto payout. |
+
+The `crypto` credential bundle includes these six scopes.
+
+## Use a crypto amount
+
+Send each crypto `amount` as a JSON string. Do not send a JSON number.
+
+The amount can have up to 18 decimal places. The smallest accepted amount is `0.00000001`.
+
+```json
+{
+  "amount": "0.25000000"
+}
+```
+
+## Create customer wallet addresses
+
+Create business crypto wallets in the Blaaiz dashboard. A crypto wallet holds your business balance.
+
+Use the API to create static deposit addresses for your business customers. A customer wallet address belongs to your business wallet. It does not create a customer balance.
+
+The request needs a `customer_id`. The customer must belong to your business, have a `VERIFIED` status, and not be under Enhanced Due Diligence.
+
+1. Call [List crypto wallets](/api-reference/crypto/list-crypto-wallets).
+2. Choose the business wallet that should receive the deposit.
+3. Call [Create customer wallet addresses](/api-reference/crypto/create-customer-wallet-addresses).
+4. Save each returned address with its network and customer ID.
+
+Blaaiz creates one static address for every active network on the wallet. You can create addresses for many customers on the same business wallet.
+
+If address creation awaits provider confirmation, the API returns `409`. Do not create a new customer address. Contact Blaaiz support.
+
+## List wallet addresses
+
+Use [List crypto wallet addresses](/api-reference/crypto/list-crypto-wallet-addresses) to get the addresses for a business wallet.
+
+To get the addresses for one customer, add the optional `customer_id` query parameter. Without `customer_id`, the response includes every address on the wallet.
+
+The response includes `customer_id` for a customer wallet address. The value is `null` for a business address.
+
+Use a deposit address only with the network shown in the response.
+
+## Swap wallet balances
+
+A crypto swap moves value between two wallets that belong to your business.
+
+The source wallet and destination wallet can be crypto wallets, fiat wallets, or one of each.
+
+Supported swaps are:
+
+- Crypto to crypto.
+- Crypto to fiat.
+- Fiat to crypto.
+
+The API uses the current rate when it processes the swap. The API does not lock a rate before the swap.
+
+1. Get the source wallet ID.
+2. Get the destination wallet ID.
+3. Send [Create a crypto swap](/api-reference/crypto/create-a-crypto-swap).
+4. Get the returned transaction IDs to get transaction details.
+
+## Send an on-chain crypto payout
+
+A crypto payout sends crypto from a business crypto wallet to an external blockchain address.
+
+The source wallet must be a crypto wallet that belongs to your business. The destination address must not belong to a Blaaiz user or business wallet.
+
+Each crypto payout needs a `customer_id`. The customer must belong to your business and have a `VERIFIED` status.
+
+1. Call [List crypto assets](/api-reference/crypto/list-crypto-assets).
+2. Choose an active token and network.
+3. Check the destination address and network.
+4. Send [Create a crypto payout](/api-reference/crypto/create-a-crypto-payout).
+5. Get the payout status from [Get a crypto transaction](/api-reference/crypto/get-a-crypto-transaction).
+
+The response returns `processing` while Blaaiz processes an accepted payout. The final status is `successful` or `failed`.
+
+The response gives the applied rate and the destination currency. These values describe the payout request. They do not reserve a rate.
+
+## Use an idempotency key
+
+The crypto payout and crypto swap endpoints need an `Idempotency-Key` request header.
+
+Use a new unique key for each new payout or swap. Use the same key only when you retry the same request.
+
+If Blaaiz completed the first request, it returns the original result for the repeated request.
+
+If you reuse a key with different request data, the API returns `422`.
+
+If the first request is still active, the API returns `409`.
+
+```http
+Idempotency-Key: 4cc5e82c-553b-4e73-80dc-83ac900e4c63
+```
+
+## Check a crypto transaction
+
+Use [List crypto transactions](/api-reference/crypto/list-crypto-transactions) to get all crypto transactions that your API integration created.
+
+Use [List crypto wallet transactions](/api-reference/crypto/list-crypto-wallet-transactions) to limit the list to one wallet.
+
+Use [Get a crypto transaction](/api-reference/crypto/get-a-crypto-transaction) to get one transaction by ID.
+
+The list endpoint accepts these optional filters:
+
+| Filter | Values |
+| --- | --- |
+| `status` | `processing`, `successful`, `failed` |
+| `type` | `payout`, `swap` |
+| `direction` | `in`, `out` for a swap |
+| `wallet_id` | A wallet ID. Use this filter only with the account-wide list endpoint. |
+| `customer_id` | A customer ID. This filter returns transactions for that customer. |
+| `start_date` | A date in `YYYY-MM-DD` format. |
+| `end_date` | A date in `YYYY-MM-DD` format. |
+| `search_term` | A transaction reference or another searchable transaction value. |
+| `per_page` | An integer from `1` to `100`. |
+
+The `type` value describes the business operation. For a swap, `direction` shows the source leg or the destination leg.
+
+For an on-chain payout, `processing` means the payout is active. `failed` means that the payout ended unsuccessfully.
+
+Each transaction includes the amount, fee, net amount, balance change, target currency, target amount, rate, network, and transaction hash when they apply.
+
+A crypto-to-fiat or fiat-to-crypto swap includes `fiat_transaction_id` and a compact `fiat_transaction` object. The object contains its ID, wallet ID, reference, status, currency, amount, fee, net amount, and creation time.
+
+For a fiat-linked swap, use `GET /api/external/transaction/{fiat_transaction_id}` to get the full fiat transaction. The request needs `transaction:read`.
+
+A crypto-to-crypto swap includes `counterparty_transaction_id` and a compact `counterparty_transaction` object. The object contains its ID, wallet ID, type, direction, status, currency, and amount.
+
+## Receive crypto webhooks
+
+Blaaiz sends crypto payout webhooks to your configured `payout_url`.
+
+The event values are `crypto.payout.processing`, `crypto.payout.successful`, and `crypto.payout.failed`.
+
+Blaaiz sends `crypto.payout.failed` only when the payout reaches a final failed state.
+
+Blaaiz sends `crypto.deposit.successful` to your configured `collection_url` after it credits a business crypto wallet from an on-chain deposit.
+
+The payload includes `customer_id` at the top level when the funded address belongs to one of your customers. It is not in a source object.
+
+Use [Webhook events](/guides/webhooks/events) for the payload details.
+
+Use [List webhook logs](/api-reference/webhook/list-webhook-logs) to inspect a delivery. Use [Replay a webhook](/api-reference/webhook/replay-webhook) to resend an eligible failed delivery.

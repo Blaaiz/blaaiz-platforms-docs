@@ -1,13 +1,17 @@
 ---
 title: Crypto on/off-ramps
-description: Accept stablecoin deposits and convert between crypto and fiat
+description: Receive stablecoins and move value between crypto and fiat wallets
 ---
 
-Let users move between crypto and fiat currencies. Blaaiz supports collecting stablecoins (on-ramp) and paying out to crypto wallets (off-ramp) alongside traditional fiat rails.
+<Warning>
+**The Payout API no longer supports crypto payouts.** Use the [Crypto API](/guides/crypto-api) for wallet swaps and on-chain crypto payouts. Crypto collections remain available for eligible, crypto-enabled businesses.
+</Warning>
+
+Use crypto collections to receive supported stablecoins. Use the Crypto API to move a business balance or send an on-chain crypto payout.
 
 ## On-ramp: Crypto to fiat
 
-Accept stablecoin deposits from users and settle the value into your fiat wallet, or hold the balance for future fiat payouts.
+Use this flow to receive a supported stablecoin and settle its value in a fiat wallet.
 
 ### How it works
 
@@ -30,15 +34,15 @@ sequenceDiagram
 
 ### Step-by-step
 
-1. **Get supported networks** — Call [Get crypto networks](/api-reference/collection/get-crypto-networks) to retrieve available networks and tokens.
-2. **Initiate a crypto collection** — Call [Initiate crypto collection](/api-reference/collection/initiate-crypto) with the amount, token, and network. You receive a deposit address.
-3. **Display to your user** — Show the deposit address and network in your UI. The user sends stablecoins from their external wallet.
-4. **Confirm receipt** — Listen for the `collection.completed` webhook. Once confirmed, the equivalent value is credited to your wallet.
-5. **Convert to fiat** — The collected value lands in your business wallet. From there you can [create a fiat payout](/api-reference/payout/create) to the user's bank account, or [swap](/api-reference/swap/create) to another currency.
+1. Call [Get crypto networks](/api-reference/collection/get-crypto-networks).
+2. Call [Initiate a crypto collection](/api-reference/collection/initiate-crypto-collection).
+3. Show the deposit address and network to the user.
+4. Wait for the `collection.completed` webhook.
+5. Use [Create a fiat payout](/api-reference/payout/create-a-payout) to send the fiat balance to a bank account.
 
 ## Off-ramp: Fiat to crypto
 
-Send funds from your fiat wallet to a user's crypto wallet address. This lets users withdraw their balance as stablecoins.
+Use two Crypto API requests to send value from a fiat wallet to an external crypto address.
 
 ### How it works
 
@@ -50,27 +54,31 @@ sequenceDiagram
     participant Blockchain
 
     User->>You: Requests crypto withdrawal
-    You->>Blaaiz: POST /payout (method: crypto_wallet)
+    You->>Blaaiz: POST /crypto/swaps
+    Blaaiz->>You: Swap result
+    You->>Blaaiz: POST /crypto/payouts
     Blaaiz->>Blockchain: Sends stablecoins to wallet address
-    Blaaiz->>You: payout.completed webhook
-    You->>User: Withdrawal confirmed
+    Blaaiz->>You: Crypto payout status webhook
+    You->>User: Show the final payout result
 ```
 
 ### Step-by-step
 
-1. **Collect the user's wallet details** — Get the user's wallet address, token, and network.
-2. **Preview fees** — Call [Fee breakdown](/api-reference/fees/get-breakdown) to show the user the network fees and any conversion costs.
-3. **Create a crypto payout** — [Create a payout](/api-reference/payout/create) with `method: "crypto_wallet"` and include the `wallet_address`, `wallet_token`, and `wallet_network` fields.
-4. **Track delivery** — Listen for the `payout.completed` webhook to confirm the on-chain transaction was sent.
+1. Get the destination address, token, and network.
+2. Get the business crypto wallet ID for the token.
+3. Call [Create a crypto swap](/api-reference/crypto/create-a-crypto-swap).
+4. Call [Create a crypto payout](/api-reference/crypto/create-a-crypto-payout).
+5. Check the transaction status until it is `SUCCESSFUL` or `FAILED`.
 
 <Note>
-Crypto payout support varies by token and network. Contact [support@blaaiz.com](mailto:support@blaaiz.com) to confirm which crypto payout rails are available for your business.
+Use [List crypto assets](/api-reference/crypto/list-crypto-assets) to see the active tokens and networks for your business.
 </Note>
 
 ## APIs used
 
 - [Get crypto networks](/api-reference/collection/get-crypto-networks)
-- [Initiate crypto collection](/api-reference/collection/initiate-crypto)
-- [Create payout](/api-reference/payout/create)
-- [Fee breakdown](/api-reference/fees/get-breakdown)
+- [Initiate crypto collection](/api-reference/collection/initiate-crypto-collection)
+- [Crypto API](/guides/crypto-api)
+- [Create a crypto swap](/api-reference/crypto/create-a-crypto-swap)
+- [Create a crypto payout](/api-reference/crypto/create-a-crypto-payout)
 - [Webhook events](/guides/webhooks/events)

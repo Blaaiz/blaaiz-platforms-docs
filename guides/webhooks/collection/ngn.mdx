@@ -14,6 +14,7 @@ These are sent to your `collection_url` when your business receives funds.
 | `message`                             | Indicates the status of the transaction.                                  |
 | `transaction_id`                      | A unique identifier for the transaction.                                  |
 | `transaction_reference`               | A unique identifier for the transaction.                                  |
+| `merchant_reference`                  | The reference that you supplied on the collection. It is `null` if you supplied no reference. |
 | `transaction_status`                  | The status of the transaction (e.g., SUCCESSFUL).                         |
 | `transaction_fee`                     | The fee charged for the transaction.                                      |
 | `transaction_amount_without_fee`      | The amount sent excluding fees.                                           |
@@ -36,6 +37,7 @@ These are sent to your `collection_url` when your business receives funds.
   "message": "Transaction Completed",
   "transaction_id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
   "transaction_reference": "90980e50-0b83-40a6-aa46-ac8e795b1acd",
+  "merchant_reference": "INVOICE-77",
   "transaction_status": "SUCCESSFUL",
   "transaction_fee": 39.12,
   "transaction_amount_without_fee": 612.88,

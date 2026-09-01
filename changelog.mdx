@@ -6,6 +6,303 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">31/08/2026</div>
+      <div className="changelog-card">
+        <h3>Filter crypto wallet addresses by customer</h3>
+        <p>
+          List the crypto deposit addresses for one customer on a business wallet.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/crypto/list-crypto-wallet-addresses">
+              GET /crypto/wallets/{"{walletId}"}/addresses
+            </a>{" "}
+            accepts an optional <code>customer_id</code> query parameter. The response
+            includes only the addresses for that customer.
+          </li>
+          <li>
+            Without <code>customer_id</code>, the response includes every address on the
+            wallet, as before.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">29/08/2026</div>
+      <div className="changelog-card">
+        <h3>Customer crypto wallet addresses</h3>
+        <p>
+          Create static crypto wallet addresses for your business customers through API Services.
+          Blaaiz credits the business wallet when an address receives funds.
+        </p>
+        <ul>
+          <li>
+            Create business crypto wallets in the Blaaiz dashboard. Use{" "}
+            <a href="/api-reference/crypto/create-customer-wallet-addresses">
+              POST /crypto/wallets/{"{walletId}"}/addresses
+            </a>{" "}
+            to create customer wallet addresses.
+          </li>
+          <li>
+            The request needs a <code>customer_id</code>. The customer must belong to your business, have a <code>VERIFIED</code> status, and not be under Enhanced Due Diligence.
+          </li>
+          <li>
+            The <code>crypto.deposit.successful</code> webhook now includes <code>customer_id</code>
+            when it credits a customer wallet address.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">27/08/2026</div>
+      <div className="changelog-card">
+        <h3>Send your own reference on payouts and collections</h3>
+        <p>
+          You can now send your own reference on a payout or a collection. Blaaiz
+          stores the value, returns it, and lets you find the transaction by it.
+          You no longer have to keep a map between your order or invoice ID and the
+          Blaaiz transaction ID.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/payout/create-a-payout">POST /payout</a> and{" "}
+            <a href="/api-reference/collection/initiate-a-collection">POST /collection</a>{" "}
+            accept an optional <code>merchant_reference</code>. Any string up to 255
+            characters is valid.
+          </li>
+          <li>
+            Each <code>merchant_reference</code> must be unique for your business. A
+            value that one of your earlier transactions already uses returns{" "}
+            <code>422</code>. Two different businesses can use the same value.
+          </li>
+          <li>
+            Transaction responses now include <code>merchant_reference</code>. Use the
+            new filter on{" "}
+            <a href="/api-reference/transaction/list-transactions">POST /transaction</a>{" "}
+            to list the transaction with that value.
+          </li>
+          <li>
+            <a href="/api-reference/transaction/get-transaction">GET /transaction/{"{id}"}</a>{" "}
+            now accepts your <code>merchant_reference</code> in place of the transaction
+            ID.
+          </li>
+          <li>
+            The collection, payout and payout-initiated webhooks now carry{" "}
+            <code>merchant_reference</code>. The value is <code>null</code> when you
+            supplied no reference.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">13/08/2026</div>
+      <div className="changelog-card">
+        <h3>Crypto API: customer payouts and deposit webhooks</h3>
+        <p>
+          Crypto payouts now identify the business customer that the payout is for.
+          Blaaiz also sends a webhook when it credits a business crypto wallet from an on-chain deposit.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/crypto/create-a-crypto-payout">POST /crypto/payouts</a>{" "}
+            now needs a <code>customer_id</code>. The customer must belong to
+            your business and have a <code>VERIFIED</code> status.
+          </li>
+          <li>
+            Crypto transaction responses now include <code>customer_id</code>.
+            Use the optional <code>customer_id</code> filter to list that
+            customer’s crypto transactions.
+          </li>
+          <li>
+            Blaaiz sends <code>crypto.deposit.successful</code> to your
+            <code>collection_url</code> after it credits a business crypto wallet
+            from an on-chain deposit. The payload includes <code>customer_id</code>
+            when the address belongs to a business customer.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">12/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: Crypto API for business wallets</h3>
+        <p>
+          You can manage business crypto wallets through API Services.
+          Create crypto wallets in the Blaaiz dashboard and get their addresses and transactions through API Services.
+          You can swap wallet balances and send on-chain crypto payouts.
+        </p>
+        <ul>
+          <li>
+            The new <a href="/guides/crypto-api">Crypto API guide</a> shows the
+            supported wallet, asset, transaction, swap, and payout endpoints.
+          </li>
+          <li>
+            New OAuth scopes control access to crypto assets, wallets,
+            transactions, swaps, and payouts. The <code>crypto</code> bundle
+            includes all Crypto API scopes.
+          </li>
+          <li>
+            Crypto swaps and crypto payouts need an <code>Idempotency-Key</code>.
+            A repeated request with the same key and data returns the first
+            result.
+          </li>
+          <li>
+            Send each swap or payout amount as a decimal string with no more
+            than 18 decimal places. Swap amount fields also return as decimal
+            strings.
+          </li>
+          <li>
+            Crypto payouts send <code>crypto.payout.processing</code>,
+            <code>crypto.payout.successful</code>, and
+            <code>crypto.payout.failed</code> to your <code>payout_url</code>.
+            The failed event identifies a final failed payout.
+          </li>
+          <li>
+            Use the webhook log endpoints to inspect deliveries. You can replay
+            an eligible failed crypto payout webhook by its log ID.
+          </li>
+          <li>
+            The Payout API no longer supports crypto payouts.
+            Use a Crypto API swap before you create an on-chain crypto payout.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">10/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: add a note to an Interac money request</h3>
+        <p>
+          You can now set a custom note when you initiate an Interac money
+          request. Blaaiz shows this note as the description on the request that
+          the payer approves.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/collection/initiate-interac">POST /collection/interac-money-request</a>{" "}
+            now accepts an optional <code>note</code>. The note is limited to 50
+            characters. URLs and code-like content are not allowed.
+          </li>
+          <li>
+            When you omit the <code>note</code>, Blaaiz uses the standard CAD
+            funding description as before.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">05/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: verify GBP and EUR payee details</h3>
+        <p>
+          You can now verify a payee's account details before you send a GBP or
+          EUR payout. Both endpoints need the <code>bank:read</code> scope.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/bank/payee-verification">POST /bank/payee-verification</a>{" "}
+            runs a UK Confirmation-of-Payee check on a GBP account. Send the{" "}
+            <code>sort_code</code>, <code>account_number</code>, and the{" "}
+            <code>account_name</code> that you expect. The response returns{" "}
+            <code>matched</code>, <code>match_confidence_code</code>, and{" "}
+            <code>suggested_account_name</code>. It never returns the real
+            account name.
+          </li>
+          <li>
+            <a href="/api-reference/bank/iban-verification">POST /bank/iban-verification</a>{" "}
+            checks if a EUR <code>iban</code> is reachable on SEPA and SEPA
+            Instant. The response returns <code>sepa_reachable</code> and{" "}
+            <code>sepa_inst_reachable</code>. This is a reachability check, not a
+            name-match check.
+          </li>
+          <li>
+            A full match, a close match, and a hard no-match all return{" "}
+            <code>200</code>. For GBP, an account and sort code that the provider
+            rejects as invalid returns <code>400</code>. An invalid request
+            payload returns <code>422</code>.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">03/08/2026</div>
+      <div className="changelog-card">
+        <h3>New: refund a collection to source</h3>
+        <p>
+          You can now refund a collection back to its original sender through the
+          API. Blaaiz refunds the full collection amount only.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/refund/create">POST /refund</a> starts a
+            refund. Send the <code>transaction_id</code>, plus an optional{" "}
+            <code>reason</code> and an optional <code>reference</code> as an
+            idempotency key. Reusing the same <code>reference</code> on the same
+            transaction returns the same refund; reusing it on a different
+            transaction returns <code>400</code>.
+          </li>
+          <li>
+            <a href="/api-reference/refund/get">GET /refund/{"{id}"}</a> returns a
+            refund by ID.
+          </li>
+          <li>
+            Refunds apply to successful EUR and GBP ClearJunction collections that
+            you created through the API for one of your business customers. The
+            refund must start within 7 days of the collection, and each
+            collection can be refunded once. See{" "}
+            <a href="/guides/refunding-a-collection">Refunding a collection</a>.
+          </li>
+          <li>
+            New OAuth scopes <code>refund:create</code> and{" "}
+            <code>refund:read</code>. Both belong to the{" "}
+            <code>collections</code> bundle; <code>refund:read</code> also belongs
+            to the <code>read-only</code> bundle.
+          </li>
+          <li>
+            A <a href="/guides/webhooks/refund">refund webhook</a> is delivered to
+            your <code>collection_url</code> at initiation (<code>type: refund_initiated</code>,{" "}
+            <code>status: processing</code>) and again at the final stage
+            (<code>type: refund</code>, <code>status: successful</code> or{" "}
+            <code>failed</code>). A declined refund returns a <code>failed</code>{" "}
+            webhook; Blaaiz handles the funds and you do not need to retry.
+          </li>
+          <li>
+            The transaction responses now include <code>refund_status</code>.{" "}
+            <a href="/api-reference/transaction/get">GET /transaction/{"{id}"}</a>{" "}
+            also returns a nested <code>refund</code> object when the credential
+            can read refunds (a legacy API key, or an OAuth token with{" "}
+            <code>refund:read</code>).
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">24/07/2026</div>
+      <div className="changelog-card">
+        <h3>New: expired collection webhook</h3>
+        <p>
+          Blaaiz now tells you when a collection expires. A collection expires
+          when it is not completed before its expiry time — for example, when a
+          payer does not approve an{" "}
+          <a href="/guides/use-cases/interac-money-requests">Interac money request</a>{" "}
+          within 48 hours.
+        </p>
+        <ul>
+          <li>
+            Blaaiz sends a webhook to your <code>collection_url</code> with{" "}
+            <code>transaction_status</code> set to <code>EXPIRED</code> and{" "}
+            <code>message</code> set to <code>Transaction Expired</code>. No funds
+            move. See <a href="/guides/webhooks/collection/cad#expired-transactions">Expired transactions</a>.
+          </li>
+          <li>
+            <a href="/api-reference/transaction/list">List transactions</a> now
+            accepts <code>status: EXPIRED</code> so you can find expired
+            collections.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">08/07/2026</div>
       <div className="changelog-card">
         <h3>Custom Interac security question &amp; answer for CAD payouts</h3>
@@ -646,6 +943,14 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
           for NGN, GBP, USD, EUR, and CAD payouts.
         </p>
         <p>Other updates:</p>
+        <Warning>
+          **The Payout API no longer supports crypto payouts.**
+          The Crypto payout example below is part of this historical release
+          note only. Use the <a href="/guides/crypto-api">Crypto API</a> to
+          swap a business wallet balance and send an on-chain crypto payout.
+          Crypto collections remain available for eligible, crypto-enabled
+          businesses.
+        </Warning>
         <ul>
           <li>
             Updated the Virtual Bank Account creation response message to reflect

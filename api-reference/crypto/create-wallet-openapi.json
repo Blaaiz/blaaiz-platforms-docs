@@ -1,0 +1,36 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Blaaiz Platform API - Create Customer Wallet Addresses", "version": "1.0.0", "description": "Create static wallet addresses for one business customer."},
+  "tags": [{"name": "Crypto"}],
+  "servers": [{"url": "https://api-prod.blaaiz.com"}, {"url": "https://api-dev.blaaiz.com"}],
+  "components": {
+    "securitySchemes": {"oauth2ClientCredentials": {"type": "oauth2", "flows": {"clientCredentials": {"tokenUrl": "/oauth/token", "scopes": {"crypto-wallet:create": "Create customer wallet addresses."}}}}},
+    "schemas": {
+      "CreateCustomerWalletAddressesRequest": {
+        "type": "object",
+        "description": "Create addresses for one business customer.",
+        "required": ["customer_id"],
+        "properties": {"customer_id": {"type": "string", "description": "The ID of an eligible business customer."}}
+      }
+    }
+  },
+  "paths": {
+    "/api/external/crypto/wallets/{walletId}/addresses": {
+      "post": {
+        "summary": "Create customer wallet addresses",
+        "description": "Create static wallet addresses for one eligible business customer. Blaaiz creates an address for each active wallet network. Required scope: `crypto-wallet:create`.",
+        "tags": ["Crypto"],
+        "security": [{"oauth2ClientCredentials": ["crypto-wallet:create"]}],
+        "parameters": [{"name": "walletId", "in": "path", "required": true, "schema": {"type": "string"}, "description": "The business crypto wallet ID."}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateCustomerWalletAddressesRequest"}, "example": {"customer_id": "customer-id"}}}},
+        "responses": {
+          "201": {"description": "Crypto wallet addresses created successfully.", "content": {"application/json": {"example": {"message": "Crypto wallet addresses created successfully.", "data": [{"id": "address-id", "customer_id": "customer-id", "address": "0x742d35Cc6634C0532925a3b844Bc9e7595f6E123", "network": "ETHEREUM_MAINNET", "type": "deposit", "status": "SUCCESSFUL"}]}}}},
+          "400": {"description": "The customer is not verified or is under Enhanced Due Diligence."},
+          "404": {"description": "The wallet or customer does not belong to your business."},
+          "409": {"description": "Address creation is active or awaiting provider confirmation."},
+          "422": {"description": "The customer ID is missing or invalid."}
+        }
+      }
+    }
+  }
+}

@@ -13,6 +13,24 @@ Customer-level transitions are also sent to your `collection_url`. The wire `eve
 
 Always verify the `x-blaaiz-signature` header using your webhook `signing_secret` before processing a webhook.
 
+## Why did a CAD collection fail, and how do we find the reason?
+
+If a CAD collection fails, Blaaiz sends a collection webhook with `transaction_status` set to `FAILED`. The webhook adds a `failure_reason` field. This field gives the reason from the payment provider.
+
+Blaaiz sends `failure_reason` one time, on the failure webhook only. A webhook replay does not include the `failure_reason` field.
+
+Do not release goods or value for a `FAILED` collection. No funds move, and Blaaiz does not credit your CAD wallet.
+
+See [CAD collection webhook](/guides/webhooks/collection/cad#failed-transactions) for the full failed payload.
+
+## What happens when an Interac money request expires?
+
+An Interac money request expires when the payer does not approve it before its expiry time. The default expiry time is 48 hours after you create the request. You can set a shorter time with `expiry_hours`.
+
+When a money request expires, Blaaiz sends a collection webhook with `transaction_status` set to `EXPIRED` and `message` set to `Transaction Expired`. No funds move. Do not release goods or value. Use the webhook to close the pending request in your system.
+
+To find these transactions later, pass `status: EXPIRED` to the [List transactions](/api-reference/transaction/list) endpoint.
+
 ## What information is included in the webhook?
 
 The webhook payload includes transaction details such as:

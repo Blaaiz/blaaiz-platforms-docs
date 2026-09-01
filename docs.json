@@ -45,6 +45,7 @@
             "group": "Guides",
             "pages": [
               "guides/creating-first-payout",
+              "guides/crypto-api",
               {
                 "group": "Business customer KYB",
                 "pages": [
@@ -55,6 +56,7 @@
               },
               "guides/customer-data-corrections",
               "guides/collections-overview",
+              "guides/refunding-a-collection",
               "guides/virtual-bank-accounts",
               "guides/interac-auto-deposits",
               "guides/interac-money-requests",
@@ -99,6 +101,7 @@
                   "guides/webhooks/payout/gbp"
                 ]
               },
+              "guides/webhooks/refund",
               {
                 "group": "Signature verification",
                 "pages": [
@@ -157,7 +160,9 @@
             "group": "Bank",
             "pages": [
               "/api-reference/bank/list-openapi.json GET /api/external/bank",
-              "/api-reference/bank/account-lookup-openapi.json POST /api/external/bank/account-lookup"
+              "/api-reference/bank/account-lookup-openapi.json POST /api/external/bank/account-lookup",
+              "/api-reference/bank/payee-verification-openapi.json POST /api/external/bank/payee-verification",
+              "/api-reference/bank/iban-verification-openapi.json POST /api/external/bank/iban-verification"
             ]
           },
           {
@@ -208,9 +213,31 @@
             ]
           },
           {
+            "group": "Refund",
+            "pages": [
+              "/api-reference/refund/create-openapi.json POST /api/external/refund",
+              "/api-reference/refund/get-openapi.json GET /api/external/refund/{id}"
+            ]
+          },
+          {
             "group": "Swap",
             "pages": [
               "/api-reference/swap/create-openapi.json POST /api/external/swap"
+            ]
+          },
+          {
+            "group": "Crypto",
+            "pages": [
+              "/api-reference/crypto/list-assets-openapi.json GET /api/external/crypto/assets",
+              "/api-reference/crypto/list-wallets-openapi.json GET /api/external/crypto/wallets",
+              "/api-reference/crypto/create-wallet-openapi.json POST /api/external/crypto/wallets/{walletId}/addresses",
+              "/api-reference/crypto/get-wallet-openapi.json GET /api/external/crypto/wallets/{walletId}",
+              "/api-reference/crypto/list-wallet-addresses-openapi.json GET /api/external/crypto/wallets/{walletId}/addresses",
+              "/api-reference/crypto/list-wallet-transactions-openapi.json GET /api/external/crypto/wallets/{walletId}/transactions",
+              "/api-reference/crypto/list-transactions-openapi.json GET /api/external/crypto/transactions",
+              "/api-reference/crypto/get-transaction-openapi.json GET /api/external/crypto/transactions/{transactionId}",
+              "/api-reference/crypto/create-payout-openapi.json POST /api/external/crypto/payouts",
+              "/api-reference/crypto/create-swap-openapi.json POST /api/external/crypto/swaps"
             ]
           },
           {
@@ -266,8 +293,39 @@
               "/api-reference/webhook/register-openapi.json POST /api/external/webhook",
               "/api-reference/webhook/get-openapi.json GET /api/external/webhook",
               "/api-reference/webhook/update-openapi.json PUT /api/external/webhook/{businessWebhook}",
+              "/api-reference/webhook/list-logs-openapi.json GET /api/external/webhook-logs",
+              "/api-reference/webhook/get-log-openapi.json GET /api/external/webhook-logs/{id}",
               "/api-reference/webhook/replay-openapi.json POST /api/external/webhook-replay",
               "/api-reference/mock/simulate-webhook-interac-openapi.json POST /api/external/mock/simulate-webhook/interac"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Compliance",
+        "icon": "shield-check",
+        "iconType": "duotone",
+        "groups": [
+          {
+            "group": "Merchant KYC",
+            "pages": [
+              "compliance/overview",
+              "compliance/quickstart-hosted",
+              "compliance/quickstart-headless",
+              "compliance/webhooks"
+            ]
+          },
+          {
+            "group": "Verification sessions",
+            "pages": [
+              "/api-reference/compliance-kyc/create-session-openapi.json POST /api/external/compliance/kyc/sessions",
+              "/api-reference/compliance-kyc/list-sessions-openapi.json GET /api/external/compliance/kyc/sessions",
+              "/api-reference/compliance-kyc/get-session-openapi.json GET /api/external/compliance/kyc/sessions/{sessionId}",
+              "/api-reference/compliance-kyc/create-document-upload-url-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/documents/upload-url",
+              "/api-reference/compliance-kyc/upload-document-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/documents",
+              "/api-reference/compliance-kyc/submit-session-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/submit",
+              "/api-reference/compliance-kyc/issue-capture-link-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/capture-link",
+              "/api-reference/compliance-kyc/cancel-session-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/cancel"
             ]
           }
         ]
