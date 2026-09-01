@@ -1,0 +1,380 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - List Verification Sessions",
+        "version": "1.0.0",
+        "description": "List the merchant KYC verification sessions of your business, newest first. Requires the compliance-kyc:read scope."
+    },
+    "tags": [
+        {
+            "name": "Merchant KYC"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:read": "Read merchant KYC verification sessions."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Session": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The verification session id."
+                    },
+                    "business_id": {
+                        "type": "string",
+                        "description": "Your business id."
+                    },
+                    "customer_reference": {
+                        "type": "string",
+                        "description": "Your own reference for the person being verified."
+                    },
+                    "requirements": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "DOCUMENTS",
+                                "SELFIE",
+                                "FACE_MATCH",
+                                "PROOF_OF_ADDRESS"
+                            ]
+                        },
+                        "description": "What the session must prove, in canonical order."
+                    },
+                    "fulfilment_mode": {
+                        "type": "string",
+                        "enum": [
+                            "SUMSUB_HOSTED",
+                            "BLAAIZ_HOSTED",
+                            "HEADLESS"
+                        ],
+                        "description": "Who collects the input from the person."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "CREATED",
+                            "AWAITING_INPUT",
+                            "IN_REVIEW",
+                            "APPROVED",
+                            "REJECTED",
+                            "EXPIRED",
+                            "CANCELLED"
+                        ],
+                        "description": "The session status."
+                    },
+                    "steps": {
+                        "type": "object",
+                        "properties": {
+                            "documents": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no DOCUMENTS."
+                            },
+                            "selfie": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no SELFIE."
+                            },
+                            "proof_of_address": {
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "SUBMITTED"
+                                ],
+                                "nullable": true,
+                                "description": "null when the requirement set has no PROOF_OF_ADDRESS."
+                            }
+                        },
+                        "required": [
+                            "documents",
+                            "selfie",
+                            "proof_of_address"
+                        ]
+                    },
+                    "rejection": {
+                        "type": "object",
+                        "nullable": true,
+                        "description": "Set only when status is REJECTED. null for every other status.",
+                        "properties": {
+                            "reason": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "Text you can show to the person."
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "FINAL",
+                                    "RETRYABLE"
+                                ],
+                                "nullable": true,
+                                "description": "RETRYABLE means the person can try again in a new session. FINAL means do not retry."
+                            }
+                        },
+                        "required": [
+                            "reason",
+                            "type"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When Blaaiz expires the session if it is still open."
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "description": "When the review completed."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "business_id",
+                    "customer_reference",
+                    "requirements",
+                    "fulfilment_mode",
+                    "status",
+                    "steps",
+                    "rejection",
+                    "expires_at",
+                    "completed_at",
+                    "created_at"
+                ]
+            },
+            "ListSessionsResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "sessions": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        },
+                        "required": [
+                            "sessions"
+                        ]
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Field-level validation messages. Present on a 422 caused by request validation.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions": {
+            "get": {
+                "summary": "List verification sessions",
+                "description": "List the verification sessions of your business. The listing is always scoped to the business behind your access token. This endpoint stays available even when Merchant KYC is disabled for your business. Required scope: `compliance-kyc:read`.",
+                "tags": [
+                    "Merchant KYC"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many sessions to return. The default is 20 and the maximum is 100.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "description": "How many sessions to skip. The default is 0.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification sessions retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListSessionsResponse"
+                                },
+                                "example": {
+                                    "message": "Verification sessions retrieved successfully.",
+                                    "data": {
+                                        "sessions": [
+                                            {
+                                                "id": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33",
+                                                "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                                "customer_reference": "user_10482",
+                                                "requirements": [
+                                                    "DOCUMENTS",
+                                                    "SELFIE",
+                                                    "FACE_MATCH"
+                                                ],
+                                                "fulfilment_mode": "BLAAIZ_HOSTED",
+                                                "status": "AWAITING_INPUT",
+                                                "steps": {
+                                                    "documents": "PENDING",
+                                                    "selfie": "PENDING",
+                                                    "proof_of_address": null
+                                                },
+                                                "rejection": null,
+                                                "expires_at": "2026-08-30T09:14:22.000Z",
+                                                "completed_at": null,
+                                                "created_at": "2026-08-29T09:14:22.000Z"
+                                            },
+                                            {
+                                                "id": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33",
+                                                "business_id": "9d4c4ec5-572d-49de-a362-f01ed09f2b1b",
+                                                "customer_reference": "user_10482",
+                                                "requirements": [
+                                                    "DOCUMENTS"
+                                                ],
+                                                "fulfilment_mode": "HEADLESS",
+                                                "status": "AWAITING_INPUT",
+                                                "steps": {
+                                                    "documents": "SUBMITTED",
+                                                    "selfie": null,
+                                                    "proof_of_address": null
+                                                },
+                                                "rejection": null,
+                                                "expires_at": "2026-08-30T09:14:22.000Z",
+                                                "completed_at": null,
+                                                "created_at": "2026-08-29T09:14:22.000Z"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid scope(s) provided."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The query parameters are invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The limit must not be greater than 100.",
+                                    "errors": {
+                                        "limit": [
+                                            "The limit must not be greater than 100."
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

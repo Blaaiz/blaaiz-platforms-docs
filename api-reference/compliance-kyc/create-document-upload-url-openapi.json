@@ -1,0 +1,248 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Create Document Upload URL",
+        "version": "1.0.0",
+        "description": "Get a presigned URL to upload one verification document. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+    },
+    "tags": [
+        {
+            "name": "Merchant KYC"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "CreateDocumentUploadUrlRequest": {
+                "type": "object",
+                "properties": {
+                    "file_name": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "pattern": "^[a-zA-Z0-9_ -]+\\.(jpg|jpeg|png|webp|pdf)$",
+                        "description": "Your name for the file. Use letters, numbers, spaces, dashes, or underscores, and end it in .jpg, .jpeg, .png, .webp, or .pdf. Blaaiz adds a random prefix and returns the result in data.file_name."
+                    },
+                    "id_doc_type": {
+                        "type": "string",
+                        "enum": [
+                            "PASSPORT",
+                            "ID_CARD",
+                            "DRIVERS",
+                            "RESIDENCE_PERMIT",
+                            "UTILITY_BILL",
+                            "BANK_STATEMENT",
+                            "SELFIE"
+                        ],
+                        "description": "What the document is. UTILITY_BILL and BANK_STATEMENT satisfy the proof-of-address step. Every other type except SELFIE satisfies the documents step. Which types a session accepts depends on its requirement set. A session that includes SELFIE rejects a SELFIE upload, because Blaaiz captures the selfie."
+                    }
+                },
+                "required": [
+                    "file_name",
+                    "id_doc_type"
+                ]
+            },
+            "CreateDocumentUploadUrlResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "url": {
+                                "type": "string",
+                                "description": "The presigned URL. Send the file to it with an HTTP PUT. It is valid for 5 minutes."
+                            },
+                            "file_name": {
+                                "type": "string",
+                                "description": "The name Blaaiz gave the staged file. Send this exact value as file_name on the documents endpoint."
+                            },
+                            "headers": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "description": "Headers you must send with the upload. The object can be empty."
+                            }
+                        },
+                        "required": [
+                            "url",
+                            "file_name",
+                            "headers"
+                        ]
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "description": "Field-level validation messages. Present on a 422 caused by request validation.",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/documents/upload-url": {
+            "post": {
+                "summary": "Create a document upload URL",
+                "description": "Get a presigned URL for one document, then send the file to it with an HTTP PUT, then register the file on the documents endpoint. Use this transport for every real document: a request body larger than about 8 KB is rejected at the network edge. The URL is valid for 5 minutes and the staged file must be 5 MB or smaller. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "tags": [
+                    "Merchant KYC"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:create"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateDocumentUploadUrlRequest"
+                            },
+                            "example": {
+                                "file_name": "passport front.jpg",
+                                "id_doc_type": "PASSPORT"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verification session document upload URL generated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateDocumentUploadUrlResponse"
+                                },
+                                "example": {
+                                    "message": "Verification session document upload URL generated successfully.",
+                                    "data": {
+                                        "url": "https://blaaiz-compliance-prod-storage.s3.eu-west-1.amazonaws.com/merchant-kyc/9d4c4ec5/9f2c7b41/4a7f1c92e0_passport%20front.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=300&X-Amz-Signature=EXAMPLE",
+                                        "file_name": "4a7f1c92e0_passport front.jpg",
+                                        "headers": {}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "status": 403
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "The file name or document type is invalid, or the session does not accept documents.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Documents of type SELFIE are not accepted for this session; the selfie is captured on the verification link."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -125,6 +125,15 @@ You can also select scopes individually for fine-grained control:
 | `crypto-transaction:read` | Read crypto wallet transactions |
 | `crypto-payout:create` | Create on-chain crypto payouts |
 | `crypto-swap:create` | Swap crypto and fiat wallet balances |
+| `compliance-kyc:read` | Read [Merchant KYC](/compliance/overview) verification sessions |
+| `compliance-kyc:create` | Create, upload to, and submit Merchant KYC verification sessions |
+| `compliance-kyc:cancel` | Cancel Merchant KYC verification sessions |
+
+<Note>
+  The three `compliance-kyc` scopes are not part of any bundle except
+  `full-access`. Select them individually when you create or rotate your
+  credentials.
+</Note>
 
 If you do not specify any scopes or bundle when creating credentials, the `full-access` bundle is assigned by default. This means your credentials will have all individual scopes available. You still need to pass those individual scopes in the `scope` parameter when [requesting a token](#getting-an-access-token).
 

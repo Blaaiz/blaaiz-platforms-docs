@@ -46,6 +46,11 @@
                         "type": "string",
                         "format": "uri",
                         "description": "URL to receive collection, virtual account, and customer KYC event notifications. This includes customer.created, customer.verified, and customer.rejected."
+                    },
+                    "kyc_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "Optional. URL to receive Merchant KYC verification session events (merchant.kyc.session.completed and merchant.kyc.session.expired). Omit it if you do not use Merchant KYC. Send null to clear a URL you set before."
                     }
                 },
                 "required": [
@@ -98,7 +103,7 @@
         "/api/external/webhook": {
             "post": {
                 "summary": "Register webhook URLs",
-                "description": "Register webhook URLs to receive event notifications. URLs must be HTTPS; Blaaiz signs requests via x-blaaiz-signature. Verify deliveries with your webhook signing_secret. Your collection_url receives collection events, virtual account events, and customer KYC events such as customer.created, customer.verified, and customer.rejected. Required scope: `webhook:write`.",
+                "description": "Register webhook URLs to receive event notifications. URLs must be HTTPS; Blaaiz signs requests via x-blaaiz-signature. Verify deliveries with your webhook signing_secret. Your collection_url receives collection events, virtual account events, and customer KYC events such as customer.created, customer.verified, and customer.rejected. Your optional kyc_url receives Merchant KYC verification session events. Required scope: `webhook:write`.",
                 "tags": [
                     "Webhook"
                 ],
@@ -118,7 +123,8 @@
                             },
                             "example": {
                                 "payout_url": "https://yourapp.com/webhooks/payout",
-                                "collection_url": "https://yourapp.com/webhooks/collection"
+                                "collection_url": "https://yourapp.com/webhooks/collection",
+                                "kyc_url": "https://yourapp.com/webhooks/kyc"
                             }
                         }
                     }
