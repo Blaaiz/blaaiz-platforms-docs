@@ -247,5 +247,9 @@ Before initiating a payout, ensure the following prerequisites are in place for 
   </Tab>
   <Tab title="CAD">
     CAD payouts are sent via **Interac**. There are no additional prerequisites beyond the general requirements listed in the "All Currencies" tab. Ensure you provide the recipient's `email`, `interac_first_name`, and `interac_last_name` in your request.
+
+    **Optional custom security question & answer**
+
+    By default, Blaaiz auto-generates the Interac e-Transfer security question and answer for you. If you'd rather set your own, pass both `security_question` (max 40 characters) and `security_answer` (3–23 characters, letters and digits only — no spaces or special characters, and the answer must not appear within the question). Supply both or neither; omitting them keeps the auto-generated pair. When you supply your own, you are responsible for communicating the answer to the recipient out-of-band. Note that some receiving banks (e.g. CIBC) require a minimum answer length of 6, so a 6+ character answer is safest across banks.
   </Tab>
 </Tabs>
