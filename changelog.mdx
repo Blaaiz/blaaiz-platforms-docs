@@ -6,6 +6,26 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">06/09/2026</div>
+      <div className="changelog-card">
+        <h3>Interac reference in completed CAD payout webhooks</h3>
+        <p>
+          Use the Interac reference number to identify a completed CAD payout.
+        </p>
+        <ul>
+          <li>
+            The <a href="/guides/webhooks/payout/cad">completed CAD payout webhook</a>{" "}
+            includes a top-level <code>interac_reference</code> string. The value
+            is <code>null</code> when no reference is available.
+          </li>
+          <li>
+            The <code>payout_initiated</code> webhook does not include this field.
+            The existing <code>extras.interac_instruction</code> field is unchanged.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">31/08/2026</div>
       <div className="changelog-card">
         <h3>Filter crypto wallet addresses by customer</h3>
