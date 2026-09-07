@@ -7,7 +7,7 @@
     "light": "#4c63f5",
     "dark": "#4c63f5"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
   "navigation": {
     "tabs": [
       {
@@ -360,8 +360,8 @@
     }
   },
   "logo": {
-    "light": "https://ik.imagekit.io/fxxm9wumg/light-theme.png",
-    "dark": "https://ik.imagekit.io/fxxm9wumg/dark-theme.png"
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
   },
   "navbar": {
     "links": [
