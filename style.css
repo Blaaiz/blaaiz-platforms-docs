@@ -274,31 +274,31 @@ body main[class*="content"] {
 }
 
 /* Changelog dark mode */
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .changelog-page {
   color: #e5e7eb;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .changelog-date {
   border-color: #34d399;
   background: rgba(52, 211, 153, 0.12);
   color: #22c55e;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .changelog-card {
   background: #090b0f;
   border: 1px solid #1f2937;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .changelog-card
   h3 {
   color: #f8fafc;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .changelog-card
   p,
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .changelog-card
   ul {
   color: #cbd5e1;
@@ -315,12 +315,12 @@ body main[class*="content"] {
   letter-spacing: 0.04em;
 }
 
-/* Dark mode (Mintlify dark or explicit color-scheme) */
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .home-page {
+/* Dark mode (Mintlify applies a `dark` class to <html>) */
+html.dark .home-page {
   background: #090b0f;
   color: #e5e7eb;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .home-hero {
+html.dark .home-hero {
   margin: 0;
   padding-top: 200px;
   padding-bottom: 200px;
@@ -336,7 +336,7 @@ body main[class*="content"] {
         180deg,
         rgba(76, 99, 245, 0.141) 10%,
         rgba(15, 20, 45, 0.949) 70%,
-        rgb(24, 26, 11) 100%
+        rgb(9, 11, 15) 100%
       ),
     repeating-radial-gradient(
       circle,
@@ -346,91 +346,91 @@ body main[class*="content"] {
 
   background-color: #090b0f;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-hero__title {
   color: #f8fafc;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-hero__body {
   color: #cbd5e1;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-hero__cta {
   background: linear-gradient(135deg, #4c63f5, #7c3aed);
   color: #f8fafc;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-hero__cta:hover {
   background: linear-gradient(135deg, #4559da, #6d28d9);
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section__title {
   color: #e2e8f0;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .Card,
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .card {
   background: #111827;
   border: 1px solid #1f2937;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .Card
   h3,
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .Card
   h2,
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .card
   h3,
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .card
   h2 {
   color: #f1f5f9;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .Card
   p,
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .card
   p {
   color: #cbd5e1;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .Card
   svg,
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"])
+html.dark
   .home-section
   .card
   svg {
   color: #4c63f5;
 }
-:is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .coming-soon {
+html.dark .coming-soon {
   background: rgba(76, 99, 245, 0.3);
   color: #e5e7eb;
 }
 
 /* Dark mode hero mobile responsiveness */
 @media (max-width: 960px) {
-  :is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .home-hero {
+  html.dark .home-hero {
     padding-top: 120px;
     padding-bottom: 120px;
   }
 }
 
 @media (max-width: 640px) {
-  :is(html[data-theme="dark"], html[style*="color-scheme: dark"]) .home-hero {
+  html.dark .home-hero {
     padding-top: 80px;
     padding-bottom: 80px;
   }
