@@ -5,7 +5,7 @@ description: Upload identity documents and proof of address from your own server
 
 This quickstart uses the `HEADLESS` fulfilment mode. You already hold the document images, so you upload them from your server. Blaaiz never contacts the person you verify.
 
-A headless session asks for `DOCUMENTS`, `PROOF_OF_ADDRESS`, or both. If you need a live selfie, use the [Blaaiz-hosted quickstart](/compliance/quickstart-hosted) instead. Read [Merchant KYC overview](/compliance/overview) first for the session model.
+A headless session asks for `DOCUMENTS`, `PROOF_OF_ADDRESS`, or both. If you need a live selfie, use the [hosted quickstart](/compliance/quickstart-hosted) instead. Read [Merchant KYC overview](/compliance/overview) first for the session model.
 
 ## Before you start
 
@@ -54,7 +54,7 @@ curl -X POST https://api-prod.blaaiz.com/api/external/compliance/kyc/sessions \
   }'
 ```
 
-`HEADLESS` is the default mode for a `["DOCUMENTS"]` set, so you can omit `fulfilment_mode`. Send `"fulfilment_mode": "HEADLESS"` if you prefer to be explicit.
+A `["DOCUMENTS"]` set supports `HEADLESS` only, so you can omit `fulfilment_mode`. Send `"fulfilment_mode": "HEADLESS"` if you prefer to be explicit.
 
 ```json
 {
@@ -278,7 +278,7 @@ Blaaiz refuses the submit in three cases:
 
 - A step of the set is still `PENDING`. Upload what that step asks for first. A `null` step never blocks the submit.
 - The session already left `AWAITING_INPUT`. You cannot submit twice.
-- The session is `SUMSUB_HOSTED`. The person submits that session on the verification link.
+- The session is `HOSTED`. The person completes that session on the verification link.
 
 Review starts only when every step of the set is `SUBMITTED`. On a `["DOCUMENTS", "PROOF_OF_ADDRESS"]` session, that means both uploads must land before you call submit.
 

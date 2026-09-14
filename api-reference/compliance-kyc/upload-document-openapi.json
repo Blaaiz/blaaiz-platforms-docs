@@ -121,8 +121,7 @@
                     "fulfilment_mode": {
                         "type": "string",
                         "enum": [
-                            "SUMSUB_HOSTED",
-                            "BLAAIZ_HOSTED",
+                            "HOSTED",
                             "HEADLESS"
                         ],
                         "description": "Who collects the input from the person."
@@ -279,7 +278,7 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/documents": {
             "post": {
                 "summary": "Upload a verification document",
-                "description": "Add one document to a session. Send the bytes one of two ways, never both: file_name names a file you already staged through the upload-url endpoint, and content_base64 carries the bytes inline. Use file_name for every real document, because a request body larger than about 8 KB is rejected at the network edge. An inline document must be 700 KB or smaller after decoding, and a staged file must be 5 MB or smaller. The session must be AWAITING_INPUT. The response is the session, with steps.documents set to SUBMITTED. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Add one document to a session. Send the bytes one of two ways, never both: file_name names a file you already staged through the upload-url endpoint, and content_base64 carries the bytes inline. Use file_name for every real document, because a request body larger than about 8 KB is rejected at the network edge. An inline document must be 700 KB or smaller after decoding, and a staged file must be 5 MB or smaller. The session must be AWAITING_INPUT, and it must be HEADLESS. A HOSTED session refuses the call with a 422, because the end customer supplies the documents on the verification link. The response is the session, with steps.documents set to SUBMITTED. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
                     "Merchant KYC"
                 ],

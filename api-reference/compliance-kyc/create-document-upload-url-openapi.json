@@ -131,7 +131,7 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/documents/upload-url": {
             "post": {
                 "summary": "Create a document upload URL",
-                "description": "Get a presigned URL for one document, then send the file to it with an HTTP PUT, then register the file on the documents endpoint. Use this transport for every real document: a request body larger than about 8 KB is rejected at the network edge. The URL is valid for 5 minutes and the staged file must be 5 MB or smaller. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Get a presigned URL for one document, then send the file to it with an HTTP PUT, then register the file on the documents endpoint. Use this transport for every real document: a request body larger than about 8 KB is rejected at the network edge. The URL is valid for 5 minutes and the staged file must be 5 MB or smaller. The session must be HEADLESS. A HOSTED session refuses the call with a 422, because the end customer supplies the documents on the verification link. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
                     "Merchant KYC"
                 ],

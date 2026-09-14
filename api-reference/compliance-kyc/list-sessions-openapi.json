@@ -66,8 +66,7 @@
                     "fulfilment_mode": {
                         "type": "string",
                         "enum": [
-                            "SUMSUB_HOSTED",
-                            "BLAAIZ_HOSTED",
+                            "HOSTED",
                             "HEADLESS"
                         ],
                         "description": "Who collects the input from the person."
@@ -292,7 +291,7 @@
                                                     "SELFIE",
                                                     "FACE_MATCH"
                                                 ],
-                                                "fulfilment_mode": "BLAAIZ_HOSTED",
+                                                "fulfilment_mode": "HOSTED",
                                                 "status": "AWAITING_INPUT",
                                                 "steps": {
                                                     "documents": "PENDING",
