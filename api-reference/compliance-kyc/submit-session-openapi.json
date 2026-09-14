@@ -66,8 +66,7 @@
                     "fulfilment_mode": {
                         "type": "string",
                         "enum": [
-                            "SUMSUB_HOSTED",
-                            "BLAAIZ_HOSTED",
+                            "HOSTED",
                             "HEADLESS"
                         ],
                         "description": "Who collects the input from the person."
@@ -224,7 +223,7 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/submit": {
             "post": {
                 "summary": "Submit a verification session for review",
-                "description": "Send the session for review. The session moves to IN_REVIEW, stops accepting documents, and no longer expires. The request takes no body. Blaaiz refuses the submit when any step of the requirement set is still PENDING, when the session already left AWAITING_INPUT, and when the session is SUMSUB_HOSTED. A step that is null never blocks the submit. A SUMSUB_HOSTED session is submitted by the person on the verification link. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Send the session for review. The session moves to IN_REVIEW, stops accepting documents, and no longer expires. The request takes no body. Blaaiz refuses the submit when any step of the requirement set is still PENDING, when the session already left AWAITING_INPUT, and when the session is HOSTED. A step that is null never blocks the submit. The person completes a HOSTED session on the verification link. A HOSTED session answers the submit with the message: This session is completed by the end customer on the verification link. Send the customer the verification_link, or call POST /sessions/{id}/verification-link to issue a new one. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
                     "Merchant KYC"
                 ],

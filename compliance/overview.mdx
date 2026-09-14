@@ -22,7 +22,7 @@ Three scopes control the endpoints:
 | Scope | Endpoints |
 | --- | --- |
 | `compliance-kyc:read` | List sessions, get one session |
-| `compliance-kyc:create` | Create a session, upload documents, get an upload URL, issue a capture link, submit a session |
+| `compliance-kyc:create` | Create a session, upload documents, get an upload URL, issue a verification link, submit a session |
 | `compliance-kyc:cancel` | Cancel a session |
 
 The cancel action has its own scope because it is the one destructive action in the product. Request the scopes you need in the `scope` parameter of your token request.
@@ -35,11 +35,12 @@ Every session has a `fulfilment_mode`. The mode says who collects the input from
 
 | `fulfilment_mode` | Who collects the input | How you start it |
 | --- | --- | --- |
-| `BLAAIZ_HOSTED` | A Blaaiz capture page, at `verify.blaaiz.com` in production. The page shows one step for each requirement in the set: the documents, the proof of address, and the selfie. | Issue a capture link and send it to the person. |
-| `SUMSUB_HOSTED` | A verification page hosted by the Blaaiz verification partner. | Send the person the `verification_link` that the create response returns. |
+| `HOSTED` | A verification page hosted by Blaaiz or by the Blaaiz verification partner. The page shows one step for each requirement in the set: the documents, the proof of address, and the selfie. | Send the person the `verification_link` that the create response returns. |
 | `HEADLESS` | Your own server. You upload the document images and the proof of address through the API. | Upload what the set asks for, then submit the session. |
 
-If you omit `fulfilment_mode` on create, Blaaiz uses the default mode for the requirement set you asked for.
+Blaaiz decides which page a `HOSTED` session uses. Your integration does not change: send the person the `verification_link`, then wait for the webhook.
+
+If you omit `fulfilment_mode` on create, Blaaiz selects a mode that the requirement set supports and your business is allowed to use.
 
 ## Requirements
 
@@ -58,21 +59,15 @@ The `requirements` array says what the session must prove. The order does not ma
 
 Blaaiz supports the combinations in the table below. If you ask for any other combination, the create call fails with `422` and the message names the supported sets.
 
-| `requirements` | `fulfilment_mode` | Default for the set |
+| `requirements` | `HOSTED` | `HEADLESS` |
 | --- | --- | --- |
-| `["DOCUMENTS", "SELFIE", "FACE_MATCH"]` | `SUMSUB_HOSTED` | Yes |
-| `["DOCUMENTS", "SELFIE", "FACE_MATCH"]` | `BLAAIZ_HOSTED` | No |
-| `["DOCUMENTS"]` | `HEADLESS` | Yes |
-| `["DOCUMENTS", "SELFIE", "FACE_MATCH", "PROOF_OF_ADDRESS"]` | `SUMSUB_HOSTED` | Yes |
-| `["DOCUMENTS", "SELFIE", "FACE_MATCH", "PROOF_OF_ADDRESS"]` | `BLAAIZ_HOSTED` | No |
-| `["DOCUMENTS", "PROOF_OF_ADDRESS"]` | `SUMSUB_HOSTED` | Yes |
-| `["DOCUMENTS", "PROOF_OF_ADDRESS"]` | `BLAAIZ_HOSTED` | No |
-| `["DOCUMENTS", "PROOF_OF_ADDRESS"]` | `HEADLESS` | No |
-| `["PROOF_OF_ADDRESS"]` | `SUMSUB_HOSTED` | Yes |
-| `["PROOF_OF_ADDRESS"]` | `BLAAIZ_HOSTED` | No |
-| `["PROOF_OF_ADDRESS"]` | `HEADLESS` | No |
+| `["DOCUMENTS"]` | No | Yes |
+| `["DOCUMENTS", "SELFIE", "FACE_MATCH"]` | Yes | No |
+| `["DOCUMENTS", "SELFIE", "FACE_MATCH", "PROOF_OF_ADDRESS"]` | Yes | No |
+| `["DOCUMENTS", "PROOF_OF_ADDRESS"]` | Yes | Yes |
+| `["PROOF_OF_ADDRESS"]` | Yes | Yes |
 
-Every set that includes `PROOF_OF_ADDRESS` is available in all three modes, except the set that also includes `SELFIE`. That set needs Blaaiz or the verification partner to capture the selfie, so it is never headless.
+Every set that includes `PROOF_OF_ADDRESS` is available in both modes, except the set that also includes `SELFIE`.
 
 <Note>
   A documents-only set is never hosted, and a set with `SELFIE` is never
@@ -181,8 +176,8 @@ To stay under the cap, cancel the sessions you no longer need. If your volume ne
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Blaaiz-hosted quickstart" icon="link" href="/compliance/quickstart-hosted">
-    Create a session, send a capture link, and get the result on your webhook.
+  <Card title="Hosted quickstart" icon="link" href="/compliance/quickstart-hosted">
+    Create a session, send the verification link, and get the result on your webhook.
   </Card>
   <Card title="Headless quickstart" icon="upload" href="/compliance/quickstart-headless">
     Upload document images from your server and submit the session for review.

@@ -66,8 +66,7 @@
                     "fulfilment_mode": {
                         "type": "string",
                         "enum": [
-                            "SUMSUB_HOSTED",
-                            "BLAAIZ_HOSTED",
+                            "HOSTED",
                             "HEADLESS"
                         ],
                         "description": "Who collects the input from the person."

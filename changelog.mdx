@@ -6,6 +6,46 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">14/09/2026</div>
+      <div className="changelog-card">
+        <h3>Two fulfilment modes for Merchant KYC</h3>
+        <p>
+          A verification session now has two fulfilment modes. You choose the shape
+          of the flow. Blaaiz chooses the page that hosts it.
+        </p>
+        <ul>
+          <li>
+            <code>fulfilment_mode</code> takes <code>HOSTED</code> or{" "}
+            <code>HEADLESS</code>. The values <code>SUMSUB_HOSTED</code> and{" "}
+            <code>BLAAIZ_HOSTED</code> are removed. A request that sends one of them
+            fails with <code>422</code>.
+          </li>
+          <li>
+            A <code>HOSTED</code> create response always carries{" "}
+            <code>verification_link</code> and <code>link_expires_at</code>. Send the
+            link to the person you verify. A <code>HEADLESS</code> session returns{" "}
+            <code>null</code> for both fields.
+          </li>
+          <li>
+            <code>POST /compliance/kyc/sessions/{"{sessionId}"}/verification-link</code>{" "}
+            replaces <code>POST /compliance/kyc/sessions/{"{sessionId}"}/capture-link</code>.
+            It returns <code>verification_link</code> and <code>link_expires_at</code>.
+            The fields <code>capture_url</code> and <code>expires_at</code> are removed
+            from that response.
+          </li>
+          <li>
+            Blaaiz decides which page a <code>HOSTED</code> session uses. The choice is
+            the same for every session of one business, and the API never names it.
+          </li>
+          <li>
+            See the <a href="/compliance/overview">Merchant KYC overview</a> for the
+            supported requirement sets per mode, and the{" "}
+            <a href="/compliance/quickstart-hosted">hosted quickstart</a> for the new flow.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">06/09/2026</div>
       <div className="changelog-card">
         <h3>Interac reference in completed CAD payout webhooks</h3>

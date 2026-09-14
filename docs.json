@@ -324,7 +324,7 @@
               "/api-reference/compliance-kyc/create-document-upload-url-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/documents/upload-url",
               "/api-reference/compliance-kyc/upload-document-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/documents",
               "/api-reference/compliance-kyc/submit-session-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/submit",
-              "/api-reference/compliance-kyc/issue-capture-link-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/capture-link",
+              "/api-reference/compliance-kyc/issue-verification-link-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/verification-link",
               "/api-reference/compliance-kyc/cancel-session-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/cancel"
             ]
           }

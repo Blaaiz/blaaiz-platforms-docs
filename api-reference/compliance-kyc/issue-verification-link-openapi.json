@@ -1,9 +1,9 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "Blaaiz Platform API - Issue Capture Link",
+        "title": "Blaaiz Platform API - Issue Verification Link",
         "version": "1.0.0",
-        "description": "Issue the capture link a person opens to finish a Blaaiz-hosted verification session. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+        "description": "Issue a new verification link for a HOSTED verification session. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
     },
     "tags": [
         {
@@ -34,7 +34,7 @@
             }
         },
         "schemas": {
-            "IssueCaptureLinkResponse": {
+            "IssueVerificationLinkResponse": {
                 "type": "object",
                 "properties": {
                     "message": {
@@ -43,19 +43,19 @@
                     "data": {
                         "type": "object",
                         "properties": {
-                            "capture_url": {
+                            "verification_link": {
                                 "type": "string",
                                 "description": "The link the person opens. Use it exactly as returned; the host differs between environments."
                             },
-                            "expires_at": {
+                            "link_expires_at": {
                                 "type": "string",
                                 "format": "date-time",
                                 "description": "When the link stops working."
                             }
                         },
                         "required": [
-                            "capture_url",
-                            "expires_at"
+                            "verification_link",
+                            "link_expires_at"
                         ]
                     }
                 },
@@ -93,10 +93,10 @@
         }
     },
     "paths": {
-        "/api/external/compliance/kyc/sessions/{sessionId}/capture-link": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/verification-link": {
             "post": {
-                "summary": "Issue a capture link",
-                "description": "Issue the link the person opens to complete the steps of the session: the documents, the proof of address, and the selfie. The link is valid for 30 minutes. Every call issues a new link and the previous link stops working at that moment, so use this endpoint to replace a link that expired or leaked. The link is a live credential for one session: send it over a private channel and keep it out of your logs. The request takes no body. Blaaiz refuses the call when the session is terminal, and when fulfilment_mode is not BLAAIZ_HOSTED. Every BLAAIZ_HOSTED session can take a capture link, including a session with no selfie step. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "summary": "Issue a verification link",
+                "description": "Issue a new verification link for a HOSTED session. The create response already carries the first link, so call this endpoint only to replace a link that expired or leaked. Read link_expires_at for the new deadline. The previous link may stop working as soon as Blaaiz issues a new one. The link is a live credential for one session: send it over a private channel and keep it out of your logs. The request takes no body. Blaaiz refuses the call when the session is terminal, and when the session is HEADLESS. Every HOSTED session can take a verification link, including a session with no selfie step. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
                     "Merchant KYC"
                 ],
@@ -122,17 +122,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Capture link issued successfully.",
+                        "description": "Verification link issued successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/IssueCaptureLinkResponse"
+                                    "$ref": "#/components/schemas/IssueVerificationLinkResponse"
                                 },
                                 "example": {
-                                    "message": "Capture link issued successfully.",
+                                    "message": "Verification link issued successfully.",
                                     "data": {
-                                        "capture_url": "https://verify.blaaiz.com/c/8Kq2rV5wZs1tYb7NfPjX0aLmC4hD6gEuR9oT3nQiWxs",
-                                        "expires_at": "2026-08-29T09:44:22.000Z"
+                                        "verification_link": "https://verify.blaaiz.com/c/8Kq2rV5wZs1tYb7NfPjX0aLmC4hD6gEuR9oT3nQiWxs",
+                                        "link_expires_at": "2026-08-29T09:44:22.000Z"
                                     }
                                 }
                             }
@@ -179,14 +179,14 @@
                         }
                     },
                     "422": {
-                        "description": "The session is finished, or it is not a BLAAIZ_HOSTED session.",
+                        "description": "The session is finished, or it is a HEADLESS session.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "This session is not hosted on the Blaaiz capture page."
+                                    "message": "This session is completed by your server. Upload the documents the set asks for, then submit the session."
                                 }
                             }
                         }
