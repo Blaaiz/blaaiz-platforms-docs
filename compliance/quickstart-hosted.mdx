@@ -99,7 +99,7 @@ The response returns the session:
 
 Store `data.id` against your own record for `user_10482`. You need the session id for every later call.
 
-Read `data.verification_link` and `data.link_expires_at` from this response. A `HOSTED` session always carries both. Use the `verification_link` value exactly as it is returned. The host differs between environments, so do not build the URL yourself.
+Read `data.verification_link` and `data.link_expires_at` from this response. A `HOSTED` session carries both while it waits for the person. After the session moves to review or closes, both fields are `null`. Use the `verification_link` value exactly as it is returned. The host differs between environments, so do not build the URL yourself.
 
 <Note>
   `verification_link` comes back on the create call only. The read endpoints

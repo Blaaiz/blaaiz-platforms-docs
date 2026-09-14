@@ -38,7 +38,7 @@ Every session has a `fulfilment_mode`. The mode says who collects the input from
 | `HOSTED` | A verification page hosted by Blaaiz or by the Blaaiz verification partner. The page shows one step for each requirement in the set: the documents, the proof of address, and the selfie. | Send the person the `verification_link` that the create response returns. |
 | `HEADLESS` | Your own server. You upload the document images and the proof of address through the API. | Upload what the set asks for, then submit the session. |
 
-Blaaiz decides which page a `HOSTED` session uses. The choice is the same for every session of one business. Your integration does not change: send the person the `verification_link`, then wait for the webhook.
+Blaaiz decides which page a `HOSTED` session uses. Your integration does not change: send the person the `verification_link`, then wait for the webhook.
 
 If you omit `fulfilment_mode` on create, Blaaiz selects a mode that the requirement set supports and your business is allowed to use.
 
