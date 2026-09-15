@@ -190,7 +190,7 @@ curl -X POST https://api-prod.blaaiz.com/api/external/compliance/kyc/sessions/9f
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
-A cancel on a session that is already terminal succeeds and changes nothing.
+A cancel on a session that is already terminal is refused with `422`. A cancelled session answers `This session has already been cancelled.`; an approved, rejected or expired session answers `This session has already reached a final state and cannot be cancelled.` A cancel also closes the person's verification page: after it, the person cannot continue or upload.
 
 <Note>
   Do not upload documents and do not call the submit endpoint for a `HOSTED`

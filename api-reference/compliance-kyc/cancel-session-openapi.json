@@ -223,7 +223,7 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/cancel": {
             "post": {
                 "summary": "Cancel a verification session",
-                "description": "Cancel a session that you no longer need. CANCELLED is terminal: Blaaiz sends no webhook for the session after a cancel, and the verification link stops working. A cancel frees a slot under your open session cap. A cancel on a session that is already terminal succeeds and changes nothing. The request takes no body. This endpoint stays available even when Merchant KYC is disabled for your business. Required scope: `compliance-kyc:cancel`.",
+                "description": "Cancel a session that you no longer need. CANCELLED is terminal: Blaaiz sends no webhook for the session after a cancel, and the verification link stops working. A cancel frees a slot under your open session cap. A cancel on a session that is already terminal is refused with `422`: `This session has already been cancelled.` for a cancelled session, and `This session has already reached a final state and cannot be cancelled.` for an approved, rejected or expired one. A cancel also closes the person's verification page. The request takes no body. This endpoint stays available even when Merchant KYC is disabled for your business. Required scope: `compliance-kyc:cancel`.",
                 "tags": [
                     "Merchant KYC"
                 ],
@@ -317,6 +317,30 @@
                                 },
                                 "example": {
                                     "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity. The session is already terminal.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "examples": {
+                                    "already_cancelled": {
+                                        "summary": "Already cancelled",
+                                        "value": {
+                                            "message": "This session has already been cancelled."
+                                        }
+                                    },
+                                    "final_state": {
+                                        "summary": "Already approved, rejected or expired",
+                                        "value": {
+                                            "message": "This session has already reached a final state and cannot be cancelled."
+                                        }
+                                    }
                                 }
                             }
                         }

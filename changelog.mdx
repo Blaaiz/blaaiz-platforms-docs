@@ -6,6 +6,32 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">15/09/2026</div>
+      <div className="changelog-card">
+        <h3>Clearer cancels and rejection reasons for Merchant KYC</h3>
+        <ul>
+          <li>
+            A cancel on a session that is already terminal now fails with{" "}
+            <code>422</code>. A cancelled session answers{" "}
+            <code>This session has already been cancelled.</code> An approved, rejected
+            or expired session answers{" "}
+            <code>This session has already reached a final state and cannot be cancelled.</code>{" "}
+            Before this change a repeat cancel answered <code>200</code>.
+          </li>
+          <li>
+            A cancel now closes the person's verification page. After a cancel the
+            person cannot continue or upload documents.
+          </li>
+          <li>
+            <code>rejection_reason</code> is set on every <code>RETRYABLE</code>{" "}
+            rejection. When the provider sends no comment, Blaaiz derives plain
+            sentences from the rejection labels that tell the person what to correct.
+            A <code>FINAL</code> rejection carries one fixed sentence.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">14/09/2026</div>
       <div className="changelog-card">
         <h3>Two fulfilment modes for Merchant KYC</h3>
