@@ -371,6 +371,13 @@
                     "reference": {
                         "type": "string"
                     },
+                    "external_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Saved payout reference from the first recipient, in any currency. Null until a reference is available."
+                    },
                     "merchant_reference": {
                         "type": "string",
                         "nullable": true,
@@ -405,6 +412,7 @@
                     "business_wallet_id",
                     "status",
                     "reference",
+                    "external_reference",
                     "currency",
                     "amount",
                     "amount_without_fee",
@@ -592,6 +600,7 @@
                                         "business_wallet_id": "9228327b-d448-43f4-a78a-0211edad4365",
                                         "status": "SUCCESSFUL",
                                         "reference": "ef5ba1ca-2a5f-4092-b19d-11f9f7ecbbac",
+                                        "external_reference": null,
                                         "currency": "NGN",
                                         "amount": 473,
                                         "amount_without_fee": 473,
