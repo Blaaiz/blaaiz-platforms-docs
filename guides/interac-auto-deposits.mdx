@@ -1,6 +1,6 @@
 ---
 title: Interac Auto Deposits
-description: Learn how Interac Auto Deposits work on Blaaiz and how to receive CAD collections seamlessly.
+description: Register an Interac auto-deposit email through the API or dashboard, check its status, and receive CAD collections.
 ---
 
 ## Overview
@@ -79,7 +79,62 @@ Any funds sent to this email will:
 
 ---
 
-## Setting Up Interac Auto Deposit
+## Set up through the API
+
+Your business must have API services enabled and an existing CAD wallet.
+
+1. Grant `interac-auto-deposit-email:create` and `interac-auto-deposit-email:read` to your OAuth credentials.
+2. Request an access token with those individual scopes.
+3. [Configure your webhook URL](/guides/webhooks/events) to receive registration status updates.
+4. Submit the email for registration.
+
+```bash
+curl --request POST 'https://api-prod.blaaiz.com/api/external/interac-auto-deposit-email' \
+  --header 'Authorization: Bearer YOUR_ACCESS_TOKEN' \
+  --header 'Content-Type: application/json' \
+  --header 'Accept: application/json' \
+  --data '{"email":"payments@example.com"}'
+```
+
+The API returns HTTP `201`:
+
+```json
+{
+  "data": {
+    "id": "01994c21-a4d0-7000-8000-123456789abc",
+    "email": "payments@example.com",
+    "status": "PENDING",
+    "created_at": "2026-09-16T10:00:00.000000Z",
+    "updated_at": "2026-09-16T10:00:00.000000Z"
+  }
+}
+```
+
+The request enters the same review process as a dashboard submission. Blaaiz admins complete the external setup before they change the status.
+
+<Note>
+A `201` response confirms receipt of the registration request. Wait for `ACTIVE` before you ask customers to send funds.
+</Note>
+
+The email must pass the same uniqueness checks as a dashboard submission. A repeated request for the same live email returns `422`.
+After an uncertain response, list your registrations before you retry the create request.
+
+| Action | Endpoint | OAuth scope |
+| --- | --- | --- |
+| [Register an email](/api-reference/interac-auto-deposit-email/register-an-interac-auto-deposit-email) | `POST /api/external/interac-auto-deposit-email` | `interac-auto-deposit-email:create` |
+| [List emails](/api-reference/interac-auto-deposit-email/list-interac-auto-deposit-emails) | `GET /api/external/interac-auto-deposit-email` | `interac-auto-deposit-email:read` |
+| [View one email](/api-reference/interac-auto-deposit-email/get-an-interac-auto-deposit-email) | `GET /api/external/interac-auto-deposit-email/{id}` | `interac-auto-deposit-email:read` |
+
+The list returns 10 records per page. Use `status`, `search_term`, and `page` to filter or navigate the results.
+The response contains a `data` array, `links`, and pagination fields under `meta`.
+Both read endpoints include your dashboard and API registrations. They exclude deleted registrations and registrations from other businesses.
+
+The single-record endpoint uses the registration ID, not the email address. An unknown, deleted, or other business's ID returns `404`.
+You cannot change the registration status through these API endpoints.
+
+See [Authentication](/guides/authentication#scopes) for credential setup and scope bundles.
+
+## Set up through the dashboard
 
 ### Step 1: Access the CAD Wallet
 
@@ -107,15 +162,18 @@ Here, you can:
 
 ### Step 3: Configuration Statuses
 
-Auto Deposit setup is **not instant**. The status will move through the following states:
+Auto Deposit setup is **not instant**. Each registration has one of these statuses:
 
 | Status       | Meaning                                   |
 | ------------ | ----------------------------------------- |
 | `PENDING`    | Request submitted and awaiting review     |
 | `PROCESSING` | Blaaiz is configuring the Auto Deposit    |
 | `ACTIVE`     | Setup complete and ready to receive funds |
+| `BLOCKED`    | Registration is blocked; contact Blaaiz support |
 
-Once the status becomes **ACTIVE**, Blaaiz will send an email notification to your business email address confirming completion.
+When an admin changes the status to `ACTIVE` or `BLOCKED`, Blaaiz sends a [registration status webhook](/guides/webhooks/interac-auto-deposit-email).
+Your business needs API services enabled, a webhook URL, and a webhook signing secret.
+Use the read endpoints to check the current status if you miss a webhook.
 
 ---
 

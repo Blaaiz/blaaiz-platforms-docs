@@ -16,6 +16,8 @@ Your business has three webhook URLs: `collection_url`, `payout_url`, and `kyc_u
 | `collection.completed` | Payment received successfully | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
 | `collection.failed` | Payment failed | `collection_url` | [Collection](/guides/webhooks/collection/ngn) |
 | `collection.expired` | Interac money request expired before the payer approved it | `collection_url` | [Collection](/guides/webhooks/collection/cad#expired-transactions) |
+| `auto_deposit_email.active` | Interac auto-deposit registration activated | `collection_url`, with `payout_url` fallback | [Interac auto-deposit email](/guides/webhooks/interac-auto-deposit-email) |
+| `auto_deposit_email.blocked` | Interac auto-deposit registration blocked or an active registration removed | `collection_url`, with `payout_url` fallback | [Interac auto-deposit email](/guides/webhooks/interac-auto-deposit-email) |
 | `refund_initiated` | Refund of a collection to source started | `collection_url` | [Refund](/guides/webhooks/refund) |
 | `refund` | Refund of a collection to source succeeded or failed (see `status`) | `collection_url` | [Refund](/guides/webhooks/refund) |
 | `payout.initiated` | Payout has been created | `payout_url` | [Payout](/guides/webhooks/payout/ngn) |
@@ -36,12 +38,15 @@ Your business has three webhook URLs: `collection_url`, `payout_url`, and `kyc_u
 | `merchant.kyc.session.expired` | A Merchant KYC verification session passed its deadline before it completed | `kyc_url` | [Merchant KYC](/compliance/webhooks) |
 
 <Note>
-Payout and crypto payout events use your `payout_url`. Merchant KYC events use your `kyc_url`. Crypto deposit events and all other events use your `collection_url`.
+Payout and crypto payout events use your `payout_url`. Merchant KYC events use your `kyc_url`. Interac auto-deposit registration events use `collection_url`, or `payout_url` when `collection_url` is null. Crypto deposit events and the other listed events use `collection_url`.
 </Note>
 
 <Note>
 Merchant KYC events use their own payload shape and their own retry schedule. See [Merchant KYC webhooks](/compliance/webhooks).
 </Note>
+
+Interac auto-deposit registration events use a flat payload with `type`, `email`, `status`, `message`, and `event_id`.
+See [registration status webhooks](/guides/webhooks/interac-auto-deposit-email) for the exact payload.
 
 ## Payload structure
 
@@ -106,6 +111,11 @@ The `customer_id` field is at the top level. The payload has no source object.
 ```
 
 ## Webhook retries
+
+<Note>
+The retry, log, and replay guidance below does not apply to Interac auto-deposit registration events.
+Those events use synchronous delivery without automatic retries or webhook logs. Use the read endpoints to check a missed status update.
+</Note>
 
 A webhook can be delivered more than once. Use `event_id` to process each event once in your system.
 

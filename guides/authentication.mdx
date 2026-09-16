@@ -64,7 +64,7 @@ The `scope` parameter must be a **space-separated list of individual scopes** th
   individual scopes as shown below:
 
   ```
-  scope=wallet:read currency:read bank:read customer:read customer:write beneficiary:read virtual-account:read virtual-account:create virtual-account:close collection:create collection:crypto:create collection:interac:accept collection:interac:create payout:create swap:create transaction:read fees:read rates:read file:upload webhook:read webhook:write webhook:replay mock:webhook:trigger crypto-wallet:read crypto-wallet:create crypto-asset:read crypto-transaction:read crypto-payout:create crypto-swap:create
+  scope=wallet:read currency:read bank:read customer:read customer:write beneficiary:read virtual-account:read virtual-account:create virtual-account:close collection:create collection:crypto:create collection:interac:accept collection:interac:create interac-auto-deposit-email:create interac-auto-deposit-email:read payout:create swap:create transaction:read fees:read rates:read file:upload webhook:read webhook:write webhook:replay mock:webhook:trigger crypto-wallet:read crypto-wallet:create crypto-asset:read crypto-transaction:read crypto-payout:create crypto-swap:create
   ```
 </Warning>
 
@@ -90,6 +90,8 @@ For convenience, Blaaiz provides pre-built bundles that group related scopes. Bu
 | `customers` | Manage customers, beneficiaries, and file uploads |
 | `crypto` | Create crypto wallets, read crypto data, create swaps, and create crypto payouts |
 
+The `full-access` and `collections` bundles include both `interac-auto-deposit-email` scopes. The `read-only` bundle includes only `interac-auto-deposit-email:read`.
+
 ### Individual scopes
 
 You can also select scopes individually for fine-grained control:
@@ -109,6 +111,8 @@ You can also select scopes individually for fine-grained control:
 | `collection:crypto:create` | Read crypto networks and initiate crypto collections |
 | `collection:interac:accept` | Accept Interac money requests |
 | `collection:interac:create` | Initiate Interac money requests |
+| `interac-auto-deposit-email:create` | Submit an Interac auto-deposit email for registration |
+| `interac-auto-deposit-email:read` | Read Interac auto-deposit registrations and their status |
 | `payout:create` | Initiate payouts |
 | `swap:create` | Initiate swaps |
 | `transaction:read` | Read business transactions |
