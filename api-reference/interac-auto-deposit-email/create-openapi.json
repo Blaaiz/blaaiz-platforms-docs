@@ -1,0 +1,271 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Register an Interac auto-deposit email",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Interac Auto Deposit Email"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use a Bearer token from POST /oauth/token. The token must include the required individual scope.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "interac-auto-deposit-email:create": "Submit an Interac auto-deposit email for registration."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "AutoDepositEmail": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "email",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Registration ID. Use this ID to read the registration."
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "description": "Interac auto-deposit email."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "ACTIVE",
+                            "BLOCKED"
+                        ],
+                        "description": "Registration status. New registrations start as PENDING. Blaaiz admins update the status after external setup."
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Creation time in UTC."
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Last update time in UTC."
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/interac-auto-deposit-email": {
+            "post": {
+                "summary": "Register an Interac auto-deposit email",
+                "operationId": "registerInteracAutoDepositEmail",
+                "tags": [
+                    "Interac Auto Deposit Email"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "interac-auto-deposit-email:create"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Registration created with status PENDING.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AutoDepositEmail"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": "01994c21-a4d0-7000-8000-123456789abc",
+                                        "email": "payments@example.com",
+                                        "status": "PENDING",
+                                        "created_at": "2026-09-16T10:00:00.000000Z",
+                                        "updated_at": "2026-09-16T10:00:00.000000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The business does not have a CAD wallet.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "message": "Please create a CAD wallet before adding an auto deposit email"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Email is missing, invalid, too long, or already in use.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "message": "The email has already been taken.",
+                                    "errors": {
+                                        "email": [
+                                            "The email has already been taken."
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid external API credentials.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Missing OAuth scope or business access is disabled.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "API rate limit exceeded.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Submit an email for external setup by Blaaiz. API services must be enabled and your business must have a CAD wallet. The email must pass the same uniqueness checks as dashboard registration. A deleted business Interac registration does not reserve its email. This endpoint creates a PENDING request; it does not activate the email. The response contains the registration ID. You cannot set the status or register for another business. A repeated request with the same live email returns 422. Use the list endpoint to check the registration after an uncertain response. See [Interac Auto Deposits](/guides/interac-auto-deposits) for setup and status webhooks.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 255,
+                                        "description": "Email to register. It must not conflict with an account email or an existing live Interac registration."
+                                    }
+                                }
+                            },
+                            "example": {
+                                "email": "payments@example.com"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,398 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - List Interac auto-deposit emails",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Interac Auto Deposit Email"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use a Bearer token from POST /oauth/token. The token must include the required individual scope.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "interac-auto-deposit-email:read": "Read Interac auto-deposit emails and their registration status."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "AutoDepositEmail": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "email",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Registration ID. Use this ID to read the registration."
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "description": "Interac auto-deposit email."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "ACTIVE",
+                            "BLOCKED"
+                        ],
+                        "description": "Registration status. New registrations start as PENDING. Blaaiz admins update the status after external setup."
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Creation time in UTC."
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Last update time in UTC."
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/interac-auto-deposit-email": {
+            "get": {
+                "summary": "List Interac auto-deposit emails",
+                "operationId": "listInteracAutoDepositEmails",
+                "tags": [
+                    "Interac Auto Deposit Email"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "interac-auto-deposit-email:read"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated registrations owned by your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "data",
+                                        "links",
+                                        "meta"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/AutoDepositEmail"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object",
+                                            "required": [
+                                                "first",
+                                                "last",
+                                                "prev",
+                                                "next"
+                                            ],
+                                            "properties": {
+                                                "first": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "uri"
+                                                },
+                                                "last": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "uri"
+                                                },
+                                                "prev": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "uri"
+                                                },
+                                                "next": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "uri"
+                                                }
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "required": [
+                                                "current_page",
+                                                "from",
+                                                "last_page",
+                                                "links",
+                                                "path",
+                                                "per_page",
+                                                "to",
+                                                "total"
+                                            ],
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                },
+                                                "from": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "minimum": 1
+                                                },
+                                                "links": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "url": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ],
+                                                                "format": "uri"
+                                                            },
+                                                            "label": {
+                                                                "type": "string"
+                                                            },
+                                                            "active": {
+                                                                "type": "boolean"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "path": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "const": 10
+                                                },
+                                                "to": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "data": [
+                                        {
+                                            "id": "01994c21-a4d0-7000-8000-123456789abc",
+                                            "email": "payments@example.com",
+                                            "status": "PENDING",
+                                            "created_at": "2026-09-16T10:00:00.000000Z",
+                                            "updated_at": "2026-09-16T10:00:00.000000Z"
+                                        }
+                                    ],
+                                    "links": {
+                                        "first": "https://api-prod.blaaiz.com/api/external/interac-auto-deposit-email?page=1",
+                                        "last": "https://api-prod.blaaiz.com/api/external/interac-auto-deposit-email?page=1",
+                                        "prev": null,
+                                        "next": null
+                                    },
+                                    "meta": {
+                                        "current_page": 1,
+                                        "from": 1,
+                                        "last_page": 1,
+                                        "links": [
+                                            {
+                                                "url": null,
+                                                "label": "&laquo; Previous",
+                                                "active": false
+                                            },
+                                            {
+                                                "url": "https://api-prod.blaaiz.com/api/external/interac-auto-deposit-email?page=1",
+                                                "label": "1",
+                                                "active": true
+                                            },
+                                            {
+                                                "url": null,
+                                                "label": "Next &raquo;",
+                                                "active": false
+                                            }
+                                        ],
+                                        "path": "https://api-prod.blaaiz.com/api/external/interac-auto-deposit-email",
+                                        "per_page": 10,
+                                        "to": 1,
+                                        "total": 1
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid status, search text, or page.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid external API credentials.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Missing OAuth scope or business access is disabled.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "API rate limit exceeded.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "List live registrations owned by your business, including registrations from the dashboard and the API. The API returns 10 records per page, ordered by last update time from newest to oldest. Deleted records are excluded. The response has a data array, links, and pagination metadata in meta. An empty result returns data: [] and meta.total: 0. API services must be enabled.",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by registration status.",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PENDING",
+                                "PROCESSING",
+                                "ACTIVE",
+                                "BLOCKED"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search_term",
+                        "in": "query",
+                        "description": "Filter by email search text.",
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 255
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number. Each page contains at most 10 records.",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

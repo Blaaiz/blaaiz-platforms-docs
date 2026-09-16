@@ -1,0 +1,221 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get an Interac auto-deposit email",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Interac Auto Deposit Email"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use a Bearer token from POST /oauth/token. The token must include the required individual scope.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "interac-auto-deposit-email:read": "Read Interac auto-deposit emails and their registration status."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "AutoDepositEmail": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "email",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Registration ID. Use this ID to read the registration."
+                    },
+                    "email": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "email",
+                        "description": "Interac auto-deposit email."
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "ACTIVE",
+                            "BLOCKED"
+                        ],
+                        "description": "Registration status. New registrations start as PENDING. Blaaiz admins update the status after external setup."
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Creation time in UTC."
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
+                        "description": "Last update time in UTC."
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/api/external/interac-auto-deposit-email/{id}": {
+            "get": {
+                "summary": "Get an Interac auto-deposit email",
+                "operationId": "getInteracAutoDepositEmail",
+                "tags": [
+                    "Interac Auto Deposit Email"
+                ],
+                "security": [
+                    {
+                        "oauth2ClientCredentials": [
+                            "interac-auto-deposit-email:read"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Registration owned by your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/AutoDepositEmail"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "data": {
+                                        "id": "01994c21-a4d0-7000-8000-123456789abc",
+                                        "email": "payments@example.com",
+                                        "status": "PENDING",
+                                        "created_at": "2026-09-16T10:00:00.000000Z",
+                                        "updated_at": "2026-09-16T10:00:00.000000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Registration not found or unavailable to your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid external API credentials.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Missing OAuth scope or business access is disabled.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "API rate limit exceeded.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "request_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Read one live registration owned by your business. Use the ID returned when you created or listed the registration. The response reflects the latest admin status update. An unknown ID, deleted record, or another business's record returns 404. API services must be enabled.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Registration ID. This is not the email address.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

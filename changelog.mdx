@@ -6,6 +6,32 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">16/09/2026</div>
+      <div className="changelog-card">
+        <h3>Interac auto-deposit registration through the API</h3>
+        <p>
+          Submit an email for registration, list your registrations, or read one registration by ID.
+          See <a href="/guides/interac-auto-deposits">Interac Auto Deposits</a> for the complete flow.
+        </p>
+        <ul>
+          <li>
+            The new endpoints use <code>/api/external/interac-auto-deposit-email</code>.
+            Registration needs a CAD wallet and starts with <code>PENDING</code> status.
+          </li>
+          <li>
+            New OAuth scopes: <code>interac-auto-deposit-email:create</code> and{" "}
+            <code>interac-auto-deposit-email:read</code>. Both belong to <code>full-access</code> and{" "}
+            <code>collections</code>. The <code>read-only</code> bundle includes the read scope.
+          </li>
+          <li>
+            The <a href="/guides/webhooks/interac-auto-deposit-email">registration status webhook guide</a>{" "}
+            documents the existing <code>ACTIVE</code> and <code>BLOCKED</code> notifications.
+            These events use synchronous delivery without automatic retries, logs, or replay.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">15/09/2026</div>
       <div className="changelog-card">
         <h3>Clearer cancels and rejection reasons for Merchant KYC</h3>

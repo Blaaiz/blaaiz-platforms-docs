@@ -102,6 +102,7 @@
                 ]
               },
               "guides/webhooks/refund",
+              "guides/webhooks/interac-auto-deposit-email",
               {
                 "group": "Signature verification",
                 "pages": [
@@ -210,6 +211,14 @@
                   "/api-reference/collection/get-crypto-networks-openapi.json GET /api/external/collection/crypto/networks"
                 ]
               }
+            ]
+          },
+          {
+            "group": "Interac Auto Deposit Email",
+            "pages": [
+              "/api-reference/interac-auto-deposit-email/create-openapi.json POST /api/external/interac-auto-deposit-email",
+              "/api-reference/interac-auto-deposit-email/list-openapi.json GET /api/external/interac-auto-deposit-email",
+              "/api-reference/interac-auto-deposit-email/get-openapi.json GET /api/external/interac-auto-deposit-email/{id}"
             ]
           },
           {
