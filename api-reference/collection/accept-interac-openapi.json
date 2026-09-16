@@ -82,10 +82,40 @@
                 "properties": {
                     "message": {
                         "type": "string"
+                    },
+                    "transaction": {
+                        "type": "object",
+                        "description": "Transaction details. The saved Interac reference appears in `external_reference`, including while the transaction is pending.",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "reference": {
+                                "type": "string",
+                                "description": "Blaaiz transaction reference."
+                            },
+                            "external_reference": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "description": "Saved Interac reference. Null when unavailable."
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "status",
+                            "reference",
+                            "external_reference"
+                        ]
                     }
                 },
                 "required": [
-                    "message"
+                    "message",
+                    "transaction"
                 ]
             },
             "Error": {
@@ -171,7 +201,13 @@
                                     "$ref": "#/components/schemas/AcceptInteracResponse"
                                 },
                                 "example": {
-                                    "message": "Interac money request accepted successfully. It will be processed in a few minutes."
+                                    "message": "Interac money request accepted successfully. It will be processed in a few minutes.",
+                                    "transaction": {
+                                        "id": "20580e50-1b32-40a6-aa46-ac8e795b3zas",
+                                        "status": "PENDING",
+                                        "reference": "CA1MR6ahQBCJ",
+                                        "external_reference": "CA1MR6ahQBCJ"
+                                    }
                                 }
                             }
                         }

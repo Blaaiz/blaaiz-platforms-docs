@@ -3,7 +3,7 @@
     "info": {
         "title": "Blaaiz Platform API - List Transactions",
         "version": "1.0.0",
-        "description": "Retrieve a paginated list of completed API transactions for your business. Transaction responses include `swap_details` for swap transactions and `refund_status` for collections."
+        "description": "Retrieve a paginated list of completed API transactions for your business. Transaction responses include `swap_details` for swap transactions and `refund_status` for collections. The `external_reference` field gives the saved collection or payout reference in any currency."
     },
     "tags": [
         {
@@ -251,6 +251,13 @@
                         "type": "string",
                         "description": "Transaction reference."
                     },
+                    "external_reference": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Saved external reference for the collection, or payout reference from the first recipient, in any currency. Null when unavailable or for other transaction types. CAD webhooks use `interac_reference` instead."
+                    },
                     "merchant_reference": {
                         "type": "string",
                         "nullable": true,
@@ -336,6 +343,7 @@
                     "refund_status",
                     "type",
                     "reference",
+                    "external_reference",
                     "currency",
                     "amount",
                     "amount_without_fee",
@@ -531,6 +539,7 @@
                                             "refund_status": null,
                                             "type": "collection",
                                             "reference": "collection_ref_001",
+                                            "external_reference": "NGN-COLLECTION-001",
                                             "currency": "NGN",
                                             "amount": 50000,
                                             "amount_without_fee": 50000,
@@ -554,6 +563,7 @@
                                             "refund_status": null,
                                             "type": "payout",
                                             "reference": "payout_ref_001",
+                                            "external_reference": "NGN-PAYOUT-001",
                                             "currency": "NGN",
                                             "amount": 50000,
                                             "amount_without_fee": 49500,
@@ -588,6 +598,7 @@
                                             "refund_status": null,
                                             "type": "swap",
                                             "reference": "swap_ref_001",
+                                            "external_reference": null,
                                             "currency": "USD",
                                             "amount": 100,
                                             "amount_without_fee": 99,
