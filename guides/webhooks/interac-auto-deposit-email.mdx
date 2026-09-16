@@ -1,0 +1,74 @@
+---
+title: Interac auto-deposit email
+description: Registration status events for Interac auto-deposit emails
+---
+
+Blaaiz sends these events when an admin changes an auto-deposit registration to `ACTIVE` or `BLOCKED`.
+The events apply to registrations from both the dashboard and the API.
+
+## Events and destination
+
+| Wire `type` | `status` | `message` |
+| --- | --- | --- |
+| `auto_deposit_email.active` | `ACTIVE` | `Auto Deposit Email Activated` |
+| `auto_deposit_email.blocked` | `BLOCKED` | `Auto Deposit Email Blocked` |
+
+Your business must have API services enabled, a configured webhook URL, and a webhook `signing_secret`.
+Blaaiz sends the event to `collection_url`. If `collection_url` is null, Blaaiz uses `payout_url`.
+
+A repeated status does not send another event. Changes to `PENDING` or `PROCESSING` do not send these events.
+Removal of an `ACTIVE` registration also sends `auto_deposit_email.blocked`. After removal, the registration no longer appears in the read endpoints.
+
+## Payload
+
+The payload is a flat object. The event name is in `type`; there is no `event` field or `data` wrapper.
+
+```json
+{
+  "message": "Auto Deposit Email Activated",
+  "email": "payments@example.com",
+  "status": "ACTIVE",
+  "event_id": "01994c21-a4d0-7000-8000-abcdef123456",
+  "type": "auto_deposit_email.active"
+}
+```
+
+For a blocked registration:
+
+```json
+{
+  "message": "Auto Deposit Email Blocked",
+  "email": "payments@example.com",
+  "status": "BLOCKED",
+  "event_id": "01994c21-a4d0-7000-8000-abcdef654321",
+  "type": "auto_deposit_email.blocked"
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `message` | Status description. |
+| `email` | The registered email. Use this field to match your registration. |
+| `status` | `ACTIVE` or `BLOCKED`, in uppercase. |
+| `event_id` | Unique identifier for this event. It is not the registration ID. |
+| `type` | `auto_deposit_email.active` or `auto_deposit_email.blocked`. |
+
+These payloads do not include the registration ID, transaction details, or a payment amount.
+A registration status event does not mean that a customer sent funds.
+See [CAD collection webhooks](/guides/webhooks/collection/cad) for payment notifications.
+
+## Signature verification
+
+Verify `x-blaaiz-signature` before you process the payload.
+Blaaiz signs the timestamp from `x-blaaiz-timestamp`, followed by a period and the JSON payload, with HMAC-SHA256.
+Use your webhook `signing_secret`, not the OAuth `client_secret`.
+See [Signature verification](/guides/webhooks/signature-verification/overview) for examples.
+
+## Delivery and status recovery
+
+These registration events use synchronous delivery. They do not use the queued webhook log and replay flow.
+Automatic retries, delivery logs, and replay endpoints are not available for these events.
+Return a `2xx` response when you accept an event. Store the `event_id` to avoid duplicate processing in your system.
+
+If you miss an event, [read the registration](/api-reference/interac-auto-deposit-email/get-an-interac-auto-deposit-email) to check its current status.
+The [list endpoint](/api-reference/interac-auto-deposit-email/list-interac-auto-deposit-emails) also returns the current status.
