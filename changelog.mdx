@@ -8,6 +8,26 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
     <div className="changelog-item">
       <div className="changelog-date">16/09/2026</div>
       <div className="changelog-card">
+        <h3>External transaction references and CAD collection references</h3>
+        <ul>
+          <li>
+            Transaction list and detail responses include <code>external_reference</code> for collections and payouts in all currencies.
+            The field is <code>null</code> when no reference is available or for other transaction types.
+          </li>
+          <li>
+            CAD collection webhooks include <code>interac_reference</code>.
+            See the <a href="/guides/webhooks/collection/cad">CAD collection webhook guide</a> for examples.
+          </li>
+          <li>
+            Completed CAD payout webhooks keep <code>interac_reference</code>.
+            Payout-initiated webhooks do not include either reference field.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
+      <div className="changelog-date">16/09/2026</div>
+      <div className="changelog-card">
         <h3>Interac auto-deposit registration through the API</h3>
         <p>
           Submit an email for registration, list your registrations, or read one registration by ID.

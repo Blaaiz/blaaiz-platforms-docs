@@ -5,6 +5,11 @@ description: Webhook payload for CAD payout transactions
 
 When your CAD payouts are **confirmed** or **initiated**, details about the transaction are sent in a payload that provides essential information for record-keeping and reconciliation.
 
+<Note>
+Transaction list and detail responses use `external_reference` for payouts in all currencies, including CAD and GBP.
+Completed CAD payout webhooks keep `interac_reference`. Payout-initiated webhooks do not include either field.
+</Note>
+
 ## Parameter overview
 
 | Parameter                        | Description                                                   |
