@@ -3,11 +3,11 @@
     "info": {
         "title": "Blaaiz Platform API - Upload Verification Document",
         "version": "1.0.0",
-        "description": "Add one document to a merchant KYC verification session. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+        "description": "Add one document to a Signa verification session. Signa must be enabled for your business. Requires the compliance-kyc:create scope."
     },
     "tags": [
         {
-            "name": "Merchant KYC"
+            "name": "Signa"
         }
     ],
     "servers": [
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                            "compliance-kyc:create": "Create, upload to, and submit Signa verification sessions."
                         }
                     }
                 }
@@ -278,9 +278,9 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/documents": {
             "post": {
                 "summary": "Upload a verification document",
-                "description": "Add one document to a session. Send the bytes one of two ways, never both: file_name names a file you already staged through the upload-url endpoint, and content_base64 carries the bytes inline. Use file_name for every real document, because a request body larger than about 8 KB is rejected at the network edge. An inline document must be 700 KB or smaller after decoding, and a staged file must be 5 MB or smaller. The session must be AWAITING_INPUT, and it must be HEADLESS. A HOSTED session refuses the call with a 422, because the end customer supplies the documents on the verification link. The response is the session, with steps.documents set to SUBMITTED. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Add one document to a session. Send the bytes one of two ways, never both: file_name names a file you already staged through the upload-url endpoint, and content_base64 carries the bytes inline. Use file_name for every real document, because a request body larger than about 8 KB is rejected at the network edge. An inline document must be 700 KB or smaller after decoding, and a staged file must be 5 MB or smaller. The session must be AWAITING_INPUT, and it must be HEADLESS. A HOSTED session refuses the call with a 422, because the end customer supplies the documents on the verification link. The response is the session, with steps.documents set to SUBMITTED. Signa must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
-                    "Merchant KYC"
+                    "Signa"
                 ],
                 "security": [
                     {
@@ -391,14 +391,14 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "description": "Forbidden. The scope is missing, or Signa is not enabled for your business.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "message": "The Signa feature is not enabled for this business.",
                                     "status": 403
                                 }
                             }

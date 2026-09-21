@@ -3,11 +3,11 @@
     "info": {
         "title": "Blaaiz Platform API - List Verification Sessions",
         "version": "1.0.0",
-        "description": "List the merchant KYC verification sessions of your business, newest first. Requires the compliance-kyc:read scope."
+        "description": "List the Signa verification sessions of your business, newest first. Requires the compliance-kyc:read scope."
     },
     "tags": [
         {
-            "name": "Merchant KYC"
+            "name": "Signa"
         }
     ],
     "servers": [
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "compliance-kyc:read": "Read merchant KYC verification sessions."
+                            "compliance-kyc:read": "Read Signa verification sessions."
                         }
                     }
                 }
@@ -234,9 +234,9 @@
         "/api/external/compliance/kyc/sessions": {
             "get": {
                 "summary": "List verification sessions",
-                "description": "List the verification sessions of your business. The listing is always scoped to the business behind your access token. This endpoint stays available even when Merchant KYC is disabled for your business. Required scope: `compliance-kyc:read`.",
+                "description": "List the verification sessions of your business. The listing is always scoped to the business behind your access token. This endpoint stays available even when Signa is disabled for your business. Required scope: `compliance-kyc:read`.",
                 "tags": [
-                    "Merchant KYC"
+                    "Signa"
                 ],
                 "security": [
                     {
@@ -342,7 +342,7 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "description": "Forbidden. The scope is missing, or Signa is not enabled for your business.",
                         "content": {
                             "application/json": {
                                 "schema": {

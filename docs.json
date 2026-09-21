@@ -316,7 +316,7 @@
         "iconType": "duotone",
         "groups": [
           {
-            "group": "Merchant KYC",
+            "group": "Signa",
             "pages": [
               "compliance/overview",
               "compliance/quickstart-hosted",

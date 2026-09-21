@@ -9,13 +9,13 @@ Blaaiz hosts that page, or the Blaaiz verification partner hosts it. Blaaiz make
 
 The page also collects the proof of address when the session asks for it. The page shows one step for each requirement in the set, and nothing more.
 
-Read [Merchant KYC overview](/compliance/overview) first for the session model.
+Read [Signa overview](/compliance/overview) first for the session model.
 
 ## Before you start
 
-- Merchant KYC must be enabled for your business.
+- Signa must be enabled for your business.
 - Your OAuth credentials must carry the `compliance-kyc:create` and `compliance-kyc:read` scopes.
-- Your `kyc_url` webhook must be registered. See [Merchant KYC webhooks](/compliance/webhooks).
+- Your `kyc_url` webhook must be registered. See [Signa webhooks](/compliance/webhooks).
 
 The examples use the production base URL `https://api-prod.blaaiz.com`. For development, use `https://api-dev.blaaiz.com`.
 
@@ -145,7 +145,7 @@ When the review completes, Blaaiz posts `merchant.kyc.session.completed` to your
 }
 ```
 
-Verify the `x-blaaiz-signature` header before you trust the payload. See [Merchant KYC webhooks](/compliance/webhooks).
+Verify the `x-blaaiz-signature` header before you trust the payload. See [Signa webhooks](/compliance/webhooks).
 
 ## Issue a new verification link
 

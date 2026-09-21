@@ -1,5 +1,5 @@
 ---
-title: Merchant KYC webhooks
+title: Signa By Blaaiz webhooks
 description: Register your KYC webhook URL, read the session events, and verify the signature.
 ---
 
@@ -7,7 +7,7 @@ Blaaiz sends the result of every verification session to a webhook URL that you 
 
 ## Register your KYC URL
 
-Merchant KYC events go to a third webhook URL, `kyc_url`. It is separate from `collection_url` and `payout_url`.
+Signa events go to a third webhook URL, `kyc_url`. It is separate from `collection_url` and `payout_url`.
 
 Set `kyc_url` when you register your webhook URLs:
 
@@ -40,7 +40,7 @@ Both calls need the `webhook:write` scope. The URL must be HTTPS and must resolv
 `kyc_url` is optional. If you omit it, Blaaiz records the session result and does not deliver it. Read the result from [GET a session](/api-reference/compliance-kyc/get-session-openapi.json) instead.
 
 <Note>
-  Merchant KYC webhooks are signed with the same `signing_secret` as your
+  Signa webhooks are signed with the same `signing_secret` as your
   collection and payout webhooks. You need no second secret.
 </Note>
 
@@ -247,7 +247,7 @@ Reply with any HTTP 2xx status to confirm the delivery. Blaaiz retries every oth
 After the fifth attempt fails, Blaaiz marks the event as failed and stops. Read the session with [GET a session](/api-reference/compliance-kyc/get-session-openapi.json) to recover the result.
 
 <Note>
-  Merchant KYC webhooks use their own retry schedule. It is shorter than the
+  Signa webhooks use their own retry schedule. It is shorter than the
   schedule for [collection and payout events](/guides/webhooks/events).
 </Note>
 

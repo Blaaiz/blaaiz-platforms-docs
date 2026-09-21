@@ -3,11 +3,11 @@
     "info": {
         "title": "Blaaiz Platform API - Create Document Upload URL",
         "version": "1.0.0",
-        "description": "Get a presigned URL to upload one verification document. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+        "description": "Get a presigned URL to upload one verification document. Signa must be enabled for your business. Requires the compliance-kyc:create scope."
     },
     "tags": [
         {
-            "name": "Merchant KYC"
+            "name": "Signa"
         }
     ],
     "servers": [
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                            "compliance-kyc:create": "Create, upload to, and submit Signa verification sessions."
                         }
                     }
                 }
@@ -131,9 +131,9 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/documents/upload-url": {
             "post": {
                 "summary": "Create a document upload URL",
-                "description": "Get a presigned URL for one document, then send the file to it with an HTTP PUT, then register the file on the documents endpoint. Use this transport for every real document: a request body larger than about 8 KB is rejected at the network edge. The URL is valid for 5 minutes and the staged file must be 5 MB or smaller. The session must be HEADLESS. A HOSTED session refuses the call with a 422, because the end customer supplies the documents on the verification link. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Get a presigned URL for one document, then send the file to it with an HTTP PUT, then register the file on the documents endpoint. Use this transport for every real document: a request body larger than about 8 KB is rejected at the network edge. The URL is valid for 5 minutes and the staged file must be 5 MB or smaller. The session must be HEADLESS. A HOSTED session refuses the call with a 422, because the end customer supplies the documents on the verification link. Signa must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
-                    "Merchant KYC"
+                    "Signa"
                 ],
                 "security": [
                     {
@@ -202,14 +202,14 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "description": "Forbidden. The scope is missing, or Signa is not enabled for your business.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "message": "The Signa feature is not enabled for this business.",
                                     "status": 403
                                 }
                             }
