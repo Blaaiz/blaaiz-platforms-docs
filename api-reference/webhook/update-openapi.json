@@ -51,7 +51,7 @@
                         "type": "string",
                         "format": "uri",
                         "nullable": true,
-                        "description": "Optional. URL to receive Merchant KYC verification session events (merchant.kyc.session.completed and merchant.kyc.session.expired). Omit it if you do not use Merchant KYC. Send null to clear a URL you set before. If you omit the field entirely, the stored kyc_url is left unchanged."
+                        "description": "Optional. URL to receive Signa verification session events (merchant.kyc.session.completed and merchant.kyc.session.expired). Omit it if you do not use Signa. Send null to clear a URL you set before. If you omit the field entirely, the stored kyc_url is left unchanged."
                     }
                 }
             },
@@ -83,7 +83,7 @@
         "/api/external/webhook/{businessWebhook}": {
             "put": {
                 "summary": "Update webhook URL",
-                "description": "Update your registered webhook URLs. Your collection_url receives collection events, virtual account events, and customer KYC events. Your optional kyc_url receives Merchant KYC verification session events; omit the field to leave it unchanged, or send null to clear it. Required scope: `webhook:write`.",
+                "description": "Update your registered webhook URLs. Your collection_url receives collection events, virtual account events, and customer KYC events. Your optional kyc_url receives Signa verification session events; omit the field to leave it unchanged, or send null to clear it. Required scope: `webhook:write`.",
                 "tags": [
                     "Webhook"
                 ],

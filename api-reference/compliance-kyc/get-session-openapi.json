@@ -3,11 +3,11 @@
     "info": {
         "title": "Blaaiz Platform API - Get Verification Session",
         "version": "1.0.0",
-        "description": "Get one merchant KYC verification session by id. Requires the compliance-kyc:read scope."
+        "description": "Get one Signa verification session by id. Requires the compliance-kyc:read scope."
     },
     "tags": [
         {
-            "name": "Merchant KYC"
+            "name": "Signa"
         }
     ],
     "servers": [
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "compliance-kyc:read": "Read merchant KYC verification sessions."
+                            "compliance-kyc:read": "Read Signa verification sessions."
                         }
                     }
                 }
@@ -223,9 +223,9 @@
         "/api/external/compliance/kyc/sessions/{sessionId}": {
             "get": {
                 "summary": "Get a verification session",
-                "description": "Get the current state of one verification session. Use it to poll a session, and to recover a result after a webhook delivery fails. A session that belongs to another business answers exactly like a session that does not exist. This endpoint stays available even when Merchant KYC is disabled for your business. Required scope: `compliance-kyc:read`.",
+                "description": "Get the current state of one verification session. Use it to poll a session, and to recover a result after a webhook delivery fails. A session that belongs to another business answers exactly like a session that does not exist. This endpoint stays available even when Signa is disabled for your business. Required scope: `compliance-kyc:read`.",
                 "tags": [
-                    "Merchant KYC"
+                    "Signa"
                 ],
                 "security": [
                     {
@@ -297,7 +297,7 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "description": "Forbidden. The scope is missing, or Signa is not enabled for your business.",
                         "content": {
                             "application/json": {
                                 "schema": {

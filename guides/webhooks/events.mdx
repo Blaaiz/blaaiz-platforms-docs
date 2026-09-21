@@ -34,15 +34,15 @@ Your business has three webhook URLs: `collection_url`, `payout_url`, and `kyc_u
 | `virtual_account.rejected` | Virtual account verification rejected | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 | `virtual_account.failed` | Virtual account creation failed | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
 | `virtual_account.credited` | Funds received in virtual account | `collection_url` | [Virtual account](/guides/webhooks/virtual-account) |
-| `merchant.kyc.session.completed` | A Merchant KYC verification session finished review. `data.result` is `APPROVED` or `REJECTED` | `kyc_url` | [Merchant KYC](/compliance/webhooks) |
-| `merchant.kyc.session.expired` | A Merchant KYC verification session passed its deadline before it completed | `kyc_url` | [Merchant KYC](/compliance/webhooks) |
+| `merchant.kyc.session.completed` | A Signa verification session finished review. `data.result` is `APPROVED` or `REJECTED` | `kyc_url` | [Signa](/compliance/webhooks) |
+| `merchant.kyc.session.expired` | A Signa verification session passed its deadline before it completed | `kyc_url` | [Signa](/compliance/webhooks) |
 
 <Note>
-Payout and crypto payout events use your `payout_url`. Merchant KYC events use your `kyc_url`. Interac auto-deposit registration events use `collection_url`, or `payout_url` when `collection_url` is null. Crypto deposit events and the other listed events use `collection_url`.
+Payout and crypto payout events use your `payout_url`. Signa events use your `kyc_url`. Interac auto-deposit registration events use `collection_url`, or `payout_url` when `collection_url` is null. Crypto deposit events and the other listed events use `collection_url`.
 </Note>
 
 <Note>
-Merchant KYC events use their own payload shape and their own retry schedule. See [Merchant KYC webhooks](/compliance/webhooks).
+Signa events use their own payload shape and their own retry schedule. See [Signa webhooks](/compliance/webhooks).
 </Note>
 
 Interac auto-deposit registration events use a flat payload with `type`, `email`, `status`, `message`, and `event_id`.

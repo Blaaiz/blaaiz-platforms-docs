@@ -3,11 +3,11 @@
     "info": {
         "title": "Blaaiz Platform API - Create Verification Session",
         "version": "1.0.0",
-        "description": "Create a merchant KYC verification session for one person. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+        "description": "Create a Signa verification session for one person. Signa must be enabled for your business. Requires the compliance-kyc:create scope."
     },
     "tags": [
         {
-            "name": "Merchant KYC"
+            "name": "Signa"
         }
     ],
     "servers": [
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                            "compliance-kyc:create": "Create, upload to, and submit Signa verification sessions."
                         }
                     }
                 }
@@ -304,9 +304,9 @@
         "/api/external/compliance/kyc/sessions": {
             "post": {
                 "summary": "Create a verification session",
-                "description": "Create a verification session for one person. The response normally returns status AWAITING_INPUT. A status of CREATED means the setup did not finish; repeat the call with the same idempotency_key. A repeat with the same idempotency_key returns the stored session. A repeat with the same key but a different customer_reference or a different requirement set returns 422. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Create a verification session for one person. The response normally returns status AWAITING_INPUT. A status of CREATED means the setup did not finish; repeat the call with the same idempotency_key. A repeat with the same idempotency_key returns the stored session. A repeat with the same key but a different customer_reference or a different requirement set returns 422. Signa must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
-                    "Merchant KYC"
+                    "Signa"
                 ],
                 "security": [
                     {
@@ -431,14 +431,14 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "description": "Forbidden. The scope is missing, or Signa is not enabled for your business.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "message": "The Signa feature is not enabled for this business.",
                                     "status": 403
                                 }
                             }

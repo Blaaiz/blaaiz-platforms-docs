@@ -3,11 +3,11 @@
     "info": {
         "title": "Blaaiz Platform API - Submit Verification Session",
         "version": "1.0.0",
-        "description": "Send a merchant KYC verification session for review. Merchant KYC must be enabled for your business. Requires the compliance-kyc:create scope."
+        "description": "Send a Signa verification session for review. Signa must be enabled for your business. Requires the compliance-kyc:create scope."
     },
     "tags": [
         {
-            "name": "Merchant KYC"
+            "name": "Signa"
         }
     ],
     "servers": [
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "compliance-kyc:create": "Create, upload to, and submit merchant KYC verification sessions."
+                            "compliance-kyc:create": "Create, upload to, and submit Signa verification sessions."
                         }
                     }
                 }
@@ -223,9 +223,9 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/submit": {
             "post": {
                 "summary": "Submit a verification session for review",
-                "description": "Send the session for review. The session moves to IN_REVIEW, stops accepting documents, and no longer expires. The request takes no body. Blaaiz refuses the submit when any step of the requirement set is still PENDING, when the session already left AWAITING_INPUT, and when the session is HOSTED. A step that is null never blocks the submit. The person completes a HOSTED session on the verification link. A HOSTED session answers the submit with the message: This session is completed by the end customer on the verification link. Send the customer the verification_link, or call POST /sessions/{id}/verification-link to issue a new one. Merchant KYC must be enabled for your business. Required scope: `compliance-kyc:create`.",
+                "description": "Send the session for review. The session moves to IN_REVIEW, stops accepting documents, and no longer expires. The request takes no body. Blaaiz refuses the submit when any step of the requirement set is still PENDING, when the session already left AWAITING_INPUT, and when the session is HOSTED. A step that is null never blocks the submit. The person completes a HOSTED session on the verification link. A HOSTED session answers the submit with the message: This session is completed by the end customer on the verification link. Send the customer the verification_link, or call POST /sessions/{id}/verification-link to issue a new one. Signa must be enabled for your business. Required scope: `compliance-kyc:create`.",
                 "tags": [
-                    "Merchant KYC"
+                    "Signa"
                 ],
                 "security": [
                     {
@@ -294,14 +294,14 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "description": "Forbidden. The scope is missing, or Signa is not enabled for your business.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Error"
                                 },
                                 "example": {
-                                    "message": "The Merchant KYC feature is not enabled for this business.",
+                                    "message": "The Signa feature is not enabled for this business.",
                                     "status": 403
                                 }
                             }

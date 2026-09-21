@@ -1,21 +1,21 @@
 ---
-title: Merchant KYC overview
+title: Signa By Blaaiz overview
 description: Verify the identity of your own customers with Blaaiz verification sessions.
 ---
 
-Merchant KYC lets you run identity verification on your own customers through the Blaaiz Platform API. You create a **verification session** for one person, collect what the session asks for, and Blaaiz returns the result on a webhook.
+Signa By Blaaiz lets you run identity verification on your own customers through the Blaaiz Platform API. You create a **verification session** for one person, collect what the session asks for, and Blaaiz returns the result on a webhook.
 
 The product is separate from Blaaiz customer KYC. A verification session does not create a Blaaiz customer, a wallet, or a virtual bank account. You link the session to your own records with the `customer_reference` field.
 
 <Note>
-  Merchant KYC must be enabled for your business before you can create a
+  Signa must be enabled for your business before you can create a
   session. Contact your account manager or [support@blaaiz.com](mailto:support@blaaiz.com)
   to request access.
 </Note>
 
 ## Access and scopes
 
-Merchant KYC uses the same OAuth client credentials as the rest of the Platform API. See [Authentication](/guides/authentication) for the token request.
+Signa uses the same OAuth client credentials as the rest of the Platform API. See [Authentication](/guides/authentication) for the token request.
 
 Three scopes control the endpoints:
 
@@ -27,7 +27,7 @@ Three scopes control the endpoints:
 
 The cancel action has its own scope because it is the one destructive action in the product. Request the scopes you need in the `scope` parameter of your token request.
 
-The read and cancel endpoints stay available even when Merchant KYC is disabled for your business. You can always look up and cancel the sessions you already opened.
+The read and cancel endpoints stay available even when Signa is disabled for your business. You can always look up and cancel the sessions you already opened.
 
 ## Fulfilment modes
 

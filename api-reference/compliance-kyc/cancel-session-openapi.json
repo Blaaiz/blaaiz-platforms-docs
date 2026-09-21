@@ -3,11 +3,11 @@
     "info": {
         "title": "Blaaiz Platform API - Cancel Verification Session",
         "version": "1.0.0",
-        "description": "Cancel a merchant KYC verification session. Requires the compliance-kyc:cancel scope."
+        "description": "Cancel a Signa verification session. Requires the compliance-kyc:cancel scope."
     },
     "tags": [
         {
-            "name": "Merchant KYC"
+            "name": "Signa"
         }
     ],
     "servers": [
@@ -27,7 +27,7 @@
                     "clientCredentials": {
                         "tokenUrl": "/oauth/token",
                         "scopes": {
-                            "compliance-kyc:cancel": "Cancel merchant KYC verification sessions."
+                            "compliance-kyc:cancel": "Cancel Signa verification sessions."
                         }
                     }
                 }
@@ -223,9 +223,9 @@
         "/api/external/compliance/kyc/sessions/{sessionId}/cancel": {
             "post": {
                 "summary": "Cancel a verification session",
-                "description": "Cancel a session that you no longer need. CANCELLED is terminal: Blaaiz sends no webhook for the session after a cancel, and the verification link stops working. A cancel frees a slot under your open session cap. A cancel on a session that is already terminal is refused with `422`: `This session has already been cancelled.` for a cancelled session, and `This session has already reached a final state and cannot be cancelled.` for an approved, rejected or expired one. A cancel also closes the person's verification page. The request takes no body. This endpoint stays available even when Merchant KYC is disabled for your business. Required scope: `compliance-kyc:cancel`.",
+                "description": "Cancel a session that you no longer need. CANCELLED is terminal: Blaaiz sends no webhook for the session after a cancel, and the verification link stops working. A cancel frees a slot under your open session cap. A cancel on a session that is already terminal is refused with `422`: `This session has already been cancelled.` for a cancelled session, and `This session has already reached a final state and cannot be cancelled.` for an approved, rejected or expired one. A cancel also closes the person's verification page. The request takes no body. This endpoint stays available even when Signa is disabled for your business. Required scope: `compliance-kyc:cancel`.",
                 "tags": [
-                    "Merchant KYC"
+                    "Signa"
                 ],
                 "security": [
                     {
@@ -296,7 +296,7 @@
                         }
                     },
                     "403": {
-                        "description": "Forbidden. The scope is missing, or Merchant KYC is not enabled for your business.",
+                        "description": "Forbidden. The scope is missing, or Signa is not enabled for your business.",
                         "content": {
                             "application/json": {
                                 "schema": {
