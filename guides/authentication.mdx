@@ -188,6 +188,7 @@ Use this only to maintain an older integration while you complete the move to OA
 ## Important notes
 
 - Every external API request must use a valid Bearer access token.
+- Every external API request must include a valid `User-Agent` header. Requests without this header may be rejected at the API gateway layer, before they reach the application. If your integration shows unexpected failures, confirm that your HTTP client sends a `User-Agent` header.
 - Development and production use different dashboard accounts and different OAuth credentials.
 - Use the same environment for your dashboard, token request, and API base URL.
 - Keep your `client_secret` server-side only.
