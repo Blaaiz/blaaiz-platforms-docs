@@ -1,0 +1,259 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Session Document",
+        "version": "1.0.0",
+        "description": "Get a short-lived download URL for one document captured during a Signa verification session. Requires the MERCHANT_KYC entitlement and the compliance-kyc:pii:read scope."
+    },
+    "tags": [
+        {
+            "name": "Signa"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key",
+                "description": "A legacy API key has no scopes, so only the MERCHANT_KYC entitlement gates this endpoint for key-based requests."
+            },
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:pii:read": "Read the applicant data and captured documents of a completed Signa verification session."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "SessionDocumentUrl": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "A presigned URL. Fetch it with an HTTP GET. Blaaiz never returns the raw file bytes on this endpoint; the URL expires 15 minutes after this response."
+                    },
+                    "content_type": {
+                        "type": "string",
+                        "enum": [
+                            "image/jpeg",
+                            "image/png",
+                            "image/webp",
+                            "application/pdf"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the url stops working. Request a new url after this time."
+                    }
+                },
+                "required": [
+                    "url",
+                    "content_type",
+                    "expires_at"
+                ]
+            },
+            "GetSessionDocumentResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/SessionDocumentUrl"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/documents/{documentId}": {
+            "get": {
+                "summary": "Get a session document",
+                "description": "Get a presigned download URL for one document from the documents list endpoint. The url is valid for 15 minutes; Blaaiz never returns the raw file bytes on this endpoint. Fetch a fresh url instead of retrying an expired one. The session must be APPROVED or REJECTED; call this only after the session reaches one of those statuses.\n\nThis endpoint needs both the MERCHANT_KYC business entitlement and the compliance-kyc:pii:read scope; a legacy API key carries no scopes, so only the entitlement applies to key-based requests. Every response carries `Cache-Control: no-store`, and the response body is excluded from your API request logs.\n\nThis endpoint has its own rate limit, tighter than the standard external API limit: 30 requests per minute and 600 requests per hour, per business. See [Rate and usage limits](/guides/rate-limits).",
+                "tags": [
+                    "Signa"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    },
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:pii:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    },
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The id value from the documents list endpoint.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "sumsub:901"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session document retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetSessionDocumentResponse"
+                                },
+                                "example": {
+                                    "message": "Session document retrieved successfully.",
+                                    "data": {
+                                        "url": "https://blaaiz-compliance-prod-storage.s3.eu-west-1.amazonaws.com/merchant-kyc/9d4c4ec5/9f2c7b41/passport-front.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=900&X-Amz-Signature=EXAMPLE",
+                                        "content_type": "image/jpeg",
+                                        "expires_at": "2026-09-23T10:15:00.000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The compliance-kyc:pii:read scope is missing, or the MERCHANT_KYC entitlement is off for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The MERCHANT_KYC feature is not enabled for this business."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict. The session has not yet reached APPROVED or REJECTED.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "This session has not been approved or rejected yet."
+                                }
+                            }
+                        }
+                    },
+                    "410": {
+                        "description": "Gone. The image is no longer retained under the storage lifecycle policy.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "This document is no longer available; it was removed under the storage lifecycle policy."
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests. You exceeded 30 requests per minute or 600 requests per hour for this endpoint.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Too many requests. Try again later."
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Something went wrong. Quote the request_id in a support ticket."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

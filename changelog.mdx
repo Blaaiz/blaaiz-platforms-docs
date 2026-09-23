@@ -6,6 +6,31 @@ description: Release notes for Blaaiz docs and API. Follow along for new endpoin
 <div className="changelog-page">
   <div className="changelog-list">
     <div className="changelog-item">
+      <div className="changelog-date">23/09/2026</div>
+      <div className="changelog-card">
+        <h3>Read applicant data and documents from a Signa verification session</h3>
+        <p>
+          Three new endpoints let you read what a completed <a href="/compliance/overview">Signa</a> verification session captured.
+          See <a href="/compliance/overview#applicant-data-and-documents">Applicant data and documents</a> for the gates and rate limit.
+        </p>
+        <ul>
+          <li>
+            <a href="/api-reference/compliance-kyc/get-session-applicant-data-openapi.json">Get session applicant data</a> returns the extracted name, date of birth, country, nationality, address, and identity document details.
+          </li>
+          <li>
+            <a href="/api-reference/compliance-kyc/list-session-documents-openapi.json">List session documents</a> returns the images and files captured during the session.
+          </li>
+          <li>
+            <a href="/api-reference/compliance-kyc/get-session-document-openapi.json">Get session document</a> returns a 15-minute presigned download URL for one document.
+          </li>
+          <li>
+            All three need the session status <code>APPROVED</code> or <code>REJECTED</code>.
+            They also need the new <code>compliance-kyc:pii:read</code> OAuth scope, not included in any bundle, and the <code>MERCHANT_KYC</code> business entitlement.
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div className="changelog-item">
       <div className="changelog-date">16/09/2026</div>
       <div className="changelog-card">
         <h3>External transaction references and CAD collection references</h3>

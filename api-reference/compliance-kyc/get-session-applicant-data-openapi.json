@@ -1,0 +1,333 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - Get Session Applicant Data",
+        "version": "1.0.0",
+        "description": "Get the applicant data extracted for one Signa verification session. Requires the MERCHANT_KYC entitlement and the compliance-kyc:pii:read scope."
+    },
+    "tags": [
+        {
+            "name": "Signa"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key",
+                "description": "A legacy API key has no scopes, so only the MERCHANT_KYC entitlement gates this endpoint for key-based requests."
+            },
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:pii:read": "Read the applicant data and captured documents of a completed Signa verification session."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "Address": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                    "line": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "state": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "postal_code": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "ApplicantDocument": {
+                "type": "object",
+                "nullable": true,
+                "description": "null when the session captured no identity document.",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "description": "The document type, for example PASSPORT or ID_CARD."
+                    },
+                    "number": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The document number. Blaaiz does not store this value; it is re-read from the provider on each call. null when that live re-read fails."
+                    },
+                    "issuing_country": {
+                        "type": "string",
+                        "description": "ISO 3166-1 alpha-3 code of the country that issued the document."
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date"
+                    },
+                    "expiry_date": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date"
+                    }
+                },
+                "required": [
+                    "type",
+                    "number",
+                    "issuing_country",
+                    "issue_date",
+                    "expiry_date"
+                ]
+            },
+            "ApplicantData": {
+                "type": "object",
+                "nullable": true,
+                "description": "null when the verification provider holds no applicant record at all for this session.",
+                "properties": {
+                    "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "middle_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "date_of_birth": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date"
+                    },
+                    "country": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "ISO 3166-1 alpha-3 code of the country of residence."
+                    },
+                    "nationality": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "ISO 3166-1 alpha-3 code of the applicant's nationality."
+                    },
+                    "address": {
+                        "$ref": "#/components/schemas/Address"
+                    },
+                    "document": {
+                        "$ref": "#/components/schemas/ApplicantDocument"
+                    },
+                    "extracted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the provider extracted this data."
+                    }
+                },
+                "required": [
+                    "session_id",
+                    "first_name",
+                    "middle_name",
+                    "last_name",
+                    "date_of_birth",
+                    "country",
+                    "nationality",
+                    "address",
+                    "document",
+                    "extracted_at"
+                ]
+            },
+            "GetSessionApplicantDataResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ApplicantData"
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/applicant-data": {
+            "get": {
+                "summary": "Get session applicant data",
+                "description": "Get the applicant data the verification provider extracted for one session: name, date of birth, country, nationality, address, and identity document details. The session must be APPROVED or REJECTED; call this only after the session reaches one of those statuses. `country` and `nationality` are ISO 3166-1 alpha-3 codes. `document` is null when the session captured no identity document, and `document.number` can be null on its own when a live re-read from the provider fails, because Blaaiz does not store the number. `data` itself is null when the provider holds no applicant record at all for the session.\n\nThis endpoint needs both the MERCHANT_KYC business entitlement and the compliance-kyc:pii:read scope; a legacy API key carries no scopes, so only the entitlement applies to key-based requests. compliance-kyc:pii:read is a separate scope from compliance-kyc:read, and no scope bundle grants it — request it explicitly when you create or rotate your OAuth credentials. Every response carries `Cache-Control: no-store`, and the response body is excluded from your API request logs.",
+                "tags": [
+                    "Signa"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    },
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:pii:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session applicant data retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetSessionApplicantDataResponse"
+                                },
+                                "example": {
+                                    "message": "Session applicant data retrieved successfully.",
+                                    "data": {
+                                        "session_id": "3b81f0d5-9c47-42ae-b6e1-7d2a5c9f4801",
+                                        "first_name": "Amara",
+                                        "middle_name": null,
+                                        "last_name": "Okafor",
+                                        "date_of_birth": "1993-04-17",
+                                        "country": "NGA",
+                                        "nationality": "NGA",
+                                        "address": {
+                                            "line": "14 Adeola Odeku Street",
+                                            "city": "Lagos",
+                                            "state": "Lagos",
+                                            "postal_code": "101241"
+                                        },
+                                        "document": {
+                                            "type": "PASSPORT",
+                                            "number": "A01234567",
+                                            "issuing_country": "NGA",
+                                            "issue_date": "2021-03-02",
+                                            "expiry_date": "2031-03-01"
+                                        },
+                                        "extracted_at": "2026-08-29T10:52:03.000Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The compliance-kyc:pii:read scope is missing, or the MERCHANT_KYC entitlement is off for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The MERCHANT_KYC feature is not enabled for this business."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict. The session has not yet reached APPROVED or REJECTED.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "This session has not been approved or rejected yet."
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Something went wrong. Quote the request_id in a support ticket."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

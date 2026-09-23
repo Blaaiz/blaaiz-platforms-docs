@@ -336,6 +336,14 @@
               "/api-reference/compliance-kyc/issue-verification-link-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/verification-link",
               "/api-reference/compliance-kyc/cancel-session-openapi.json POST /api/external/compliance/kyc/sessions/{sessionId}/cancel"
             ]
+          },
+          {
+            "group": "Session data",
+            "pages": [
+              "/api-reference/compliance-kyc/get-session-applicant-data-openapi.json GET /api/external/compliance/kyc/sessions/{sessionId}/applicant-data",
+              "/api-reference/compliance-kyc/list-session-documents-openapi.json GET /api/external/compliance/kyc/sessions/{sessionId}/documents",
+              "/api-reference/compliance-kyc/get-session-document-openapi.json GET /api/external/compliance/kyc/sessions/{sessionId}/documents/{documentId}"
+            ]
           }
         ]
       },

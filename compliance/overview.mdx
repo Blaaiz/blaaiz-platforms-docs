@@ -17,17 +17,54 @@ The product is separate from Blaaiz customer KYC. A verification session does no
 
 Signa uses the same OAuth client credentials as the rest of the Platform API. See [Authentication](/guides/authentication) for the token request.
 
-Three scopes control the endpoints:
+Four scopes control the endpoints:
 
 | Scope | Endpoints |
 | --- | --- |
 | `compliance-kyc:read` | List sessions, get one session |
 | `compliance-kyc:create` | Create a session, upload documents, get an upload URL, issue a verification link, submit a session |
 | `compliance-kyc:cancel` | Cancel a session |
+| `compliance-kyc:pii:read` | Get session applicant data, list session documents, get one session document |
 
 The cancel action has its own scope because it is the one destructive action in the product. Request the scopes you need in the `scope` parameter of your token request.
 
+<Note>
+  `compliance-kyc:pii:read` is not part of any bundle, not even `full-access`.
+  Select it individually when you create or rotate your OAuth credentials,
+  and only when your integration needs applicant data or documents.
+</Note>
+
 The read and cancel endpoints stay available even when Signa is disabled for your business. You can always look up and cancel the sessions you already opened.
+
+## Applicant data and documents
+
+Once a session reaches `APPROVED` or `REJECTED`, you can read the data the verification provider extracted and the documents it captured.
+
+| Endpoint | Purpose |
+| --- | --- |
+| [Get session applicant data](/api-reference/compliance-kyc/get-session-applicant-data-openapi.json) | The applicant's name, date of birth, country, nationality, address, and identity document details. |
+| [List session documents](/api-reference/compliance-kyc/list-session-documents-openapi.json) | The images and files captured during the session, with an id for each. |
+| [Get session document](/api-reference/compliance-kyc/get-session-document-openapi.json) | A short-lived download URL for one document from the list. |
+
+These three endpoints only read data. They never change a session's status.
+
+Two gates apply to all three, on top of the usual authentication:
+
+- **Scope or entitlement.** An OAuth Bearer token needs the `compliance-kyc:pii:read` scope. A legacy `x-blaaiz-api-key` request carries no scopes, so this gate does not apply to a key-based request.
+- **The `MERCHANT_KYC` entitlement.** This is the same entitlement that must be on before you can create a session. It is off by default. When it is off, all three endpoints return `403`. The session status and cancel endpoints stay available either way — this entitlement does not gate them.
+
+Contact your account manager or [support@blaaiz.com](mailto:support@blaaiz.com) to request the `MERCHANT_KYC` entitlement.
+
+These endpoints work only when the session status is `APPROVED` or `REJECTED`. A call against a session in any other status fails with `409`.
+
+<Note>
+  Every response from these three endpoints carries `Cache-Control:
+  no-store`. Blaaiz also excludes the response body from your API request
+  logs. Store and handle this data as carefully as you already store
+  identity documents.
+</Note>
+
+The document download endpoint has its own rate limit, tighter than the standard external API limit: 30 requests per minute and 600 requests per hour, per business. See [Rate and usage limits](/guides/rate-limits).
 
 ## Fulfilment modes
 
@@ -186,6 +223,9 @@ To stay under the cap, cancel the sessions you no longer need. If your volume ne
     Register your `kyc_url` and verify the `x-blaaiz-signature` header.
   </Card>
   <Card title="API reference" icon="code" href="/api-reference/compliance-kyc/create-session-openapi.json">
-    All eight verification session endpoints.
+    All verification session endpoints.
+  </Card>
+  <Card title="Applicant data & documents" icon="id-card" href="/api-reference/compliance-kyc/get-session-applicant-data-openapi.json">
+    Read the extracted applicant data and captured documents of a completed session.
   </Card>
 </CardGroup>
