@@ -164,6 +164,10 @@ Now that the customer is verified (you have received the `customer.verified` web
 - **Endpoint**: `/payout`
 - **Purpose**: Initiate a payout associated with the verified customer.
 
+<Note>
+  The `customer_id` field identifies your own verified customer. You make this payout on behalf of that customer, not to that customer. The recipient's bank or Interac details go in separate fields, such as `account_number`, `iban`, and `interac_first_name`.
+</Note>
+
 Before initiating a payout, ensure the following prerequisites are in place for a smooth experience — requirements vary depending on the destination currency.
 
 <Tabs>
