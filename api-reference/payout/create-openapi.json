@@ -43,7 +43,7 @@
                     },
                     "customer_id": {
                         "type": "string",
-                        "description": "Customer receiving the payout. The customer must belong to your business and have `verification_status=VERIFIED`. Both `type=individual` (verified through the legacy KYC flow) and `type=business` (verified through the KYB flow) are accepted."
+                        "description": "The ID of your own business customer. You make this payout on behalf of that customer, not to that customer. The customer must belong to your business and have `verification_status=VERIFIED`. Both `type=individual` (verified through the legacy KYC flow) and `type=business` (verified through the KYB flow) are accepted. You describe the recipient in separate fields, such as `account_number`, `iban`, `routing_number`, `interac_first_name`, and `interac_last_name`, depending on the payout method and currency."
                     },
                     "method": {
                         "type": "string",
