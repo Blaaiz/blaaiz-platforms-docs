@@ -1,0 +1,292 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Blaaiz Platform API - List Session Documents",
+        "version": "1.0.0",
+        "description": "List the documents captured during one Signa verification session. Requires the MERCHANT_KYC entitlement and the compliance-kyc:pii:read scope."
+    },
+    "tags": [
+        {
+            "name": "Signa"
+        }
+    ],
+    "servers": [
+        {
+            "url": "https://api-prod.blaaiz.com"
+        },
+        {
+            "url": "https://api-dev.blaaiz.com"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-blaaiz-api-key",
+                "description": "A legacy API key has no scopes, so only the MERCHANT_KYC entitlement gates this endpoint for key-based requests."
+            },
+            "oauth2ClientCredentials": {
+                "type": "oauth2",
+                "description": "Use your OAuth client credentials to obtain a short-lived Bearer token from POST /oauth/token.",
+                "flows": {
+                    "clientCredentials": {
+                        "tokenUrl": "/oauth/token",
+                        "scopes": {
+                            "compliance-kyc:pii:read": "Read the applicant data and captured documents of a completed Signa verification session."
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "SessionDocument": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "The document id. Pass this exact value as documentId to the document download endpoint."
+                    },
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "DOCUMENT",
+                            "SELFIE",
+                            "PROOF_OF_ADDRESS",
+                            "LIVENESS_REFERENCE",
+                            "OTHER"
+                        ],
+                        "description": "What the image is."
+                    },
+                    "document_type": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "PASSPORT",
+                            "ID_CARD",
+                            "DRIVERS",
+                            "RESIDENCE_PERMIT",
+                            "UTILITY_BILL",
+                            "BANK_STATEMENT"
+                        ],
+                        "description": "The identity document type. null when kind is not DOCUMENT or PROOF_OF_ADDRESS."
+                    },
+                    "document_side": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Which side of the document this image is, for example FRONT_SIDE. null when the item has no separate front and back, or kind is not DOCUMENT."
+                    },
+                    "content_type": {
+                        "type": "string",
+                        "enum": [
+                            "image/jpeg",
+                            "image/png",
+                            "image/webp",
+                            "application/pdf"
+                        ],
+                        "description": "The media type of the captured image."
+                    },
+                    "available": {
+                        "type": "boolean",
+                        "description": "false when the image can no longer be downloaded."
+                    },
+                    "unavailable_reason": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "NOT_RETAINED",
+                            "RETRIEVAL_FAILED"
+                        ],
+                        "description": "Set only when available is false. NOT_RETAINED means the image was deleted under the storage lifecycle policy; liveness reference images are deleted 30 days after capture. RETRIEVAL_FAILED means Blaaiz could not reach the stored image this time."
+                    }
+                },
+                "required": [
+                    "id",
+                    "kind",
+                    "document_type",
+                    "document_side",
+                    "content_type",
+                    "available",
+                    "unavailable_reason"
+                ]
+            },
+            "ListSessionDocumentsResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SessionDocument"
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "data"
+                ]
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "The reason the request failed."
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "description": "The Blaaiz request id. Quote it in a support ticket."
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/api/external/compliance/kyc/sessions/{sessionId}/documents": {
+            "get": {
+                "summary": "List session documents",
+                "description": "List the documents captured during one session: identity documents, the selfie, the proof of address, and the liveness reference, in whatever order the provider returns them. Use each item's id as the documentId on the document download endpoint. The session must be APPROVED or REJECTED; call this only after the session reaches one of those statuses. `available: false` means the image can no longer be downloaded; `unavailable_reason` explains why, and is `NOT_RETAINED` when the storage lifecycle policy already deleted it (liveness reference images are deleted 30 days after capture).\n\nThis endpoint needs both the MERCHANT_KYC business entitlement and the compliance-kyc:pii:read scope; a legacy API key carries no scopes, so only the entitlement applies to key-based requests. Every response carries `Cache-Control: no-store`, and the response body is excluded from your API request logs.",
+                "tags": [
+                    "Signa"
+                ],
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    },
+                    {
+                        "oauth2ClientCredentials": [
+                            "compliance-kyc:pii:read"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "sessionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The verification session id returned by the create endpoint.",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "example": "9f2c7b41-6d3e-4c8a-9a20-1e6f0b5d7c33"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session documents retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListSessionDocumentsResponse"
+                                },
+                                "example": {
+                                    "message": "Session documents retrieved successfully.",
+                                    "data": [
+                                        {
+                                            "id": "sumsub:901",
+                                            "kind": "DOCUMENT",
+                                            "document_type": "PASSPORT",
+                                            "document_side": "FRONT_SIDE",
+                                            "content_type": "image/jpeg",
+                                            "available": true,
+                                            "unavailable_reason": null
+                                        },
+                                        {
+                                            "id": "sumsub:904",
+                                            "kind": "SELFIE",
+                                            "document_type": null,
+                                            "document_side": null,
+                                            "content_type": "image/jpeg",
+                                            "available": true,
+                                            "unavailable_reason": null
+                                        },
+                                        {
+                                            "id": "sumsub:889",
+                                            "kind": "LIVENESS_REFERENCE",
+                                            "document_type": null,
+                                            "document_side": null,
+                                            "content_type": "image/jpeg",
+                                            "available": false,
+                                            "unavailable_reason": "NOT_RETAINED"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Invalid or missing access token"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden. The compliance-kyc:pii:read scope is missing, or the MERCHANT_KYC entitlement is off for your business.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "The MERCHANT_KYC feature is not enabled for this business."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Verification session not found."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict. The session has not yet reached APPROVED or REJECTED.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "This session has not been approved or rejected yet."
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                },
+                                "example": {
+                                    "message": "Something went wrong. Quote the request_id in a support ticket."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

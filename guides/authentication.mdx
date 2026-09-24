@@ -132,11 +132,18 @@ You can also select scopes individually for fine-grained control:
 | `compliance-kyc:read` | Read [Signa](/compliance/overview) verification sessions |
 | `compliance-kyc:create` | Create, upload to, and submit Signa verification sessions |
 | `compliance-kyc:cancel` | Cancel Signa verification sessions |
+| `compliance-kyc:pii:read` | Read the applicant data and captured documents of a completed Signa verification session. Also needs the `MERCHANT_KYC` business entitlement. |
 
 <Note>
-  The three `compliance-kyc` scopes are not part of any bundle except
-  `full-access`. Select them individually when you create or rotate your
-  credentials.
+  `compliance-kyc:read`, `compliance-kyc:create`, and `compliance-kyc:cancel`
+  are not part of any bundle except `full-access`. Select them individually
+  when you create or rotate your credentials.
+</Note>
+
+<Note>
+  `compliance-kyc:pii:read` is not part of any bundle, not even
+  `full-access`. Select it individually, and only when your integration
+  needs applicant data or documents.
 </Note>
 
 If you do not specify any scopes or bundle when creating credentials, the `full-access` bundle is assigned by default. This means your credentials will have all individual scopes available. You still need to pass those individual scopes in the `scope` parameter when [requesting a token](#getting-an-access-token).
